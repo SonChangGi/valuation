@@ -1,0 +1,5 @@
+[project]
+name = "valuation-pages"
+version = "0.1.0"
+description = "Static stock valuation workspace data generator and validators"
+requires-python = ">=3.10"

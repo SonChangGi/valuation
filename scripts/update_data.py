@@ -1,0 +1,505 @@
+#!/usr/bin/env python3
+"""Generate static valuation JSON for GitHub Pages.
+
+The script intentionally fetches public data at build time instead of relying on
+browser-side third-party API calls.  That keeps the published page same-origin,
+reproducible, and compatible with GitHub Pages.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+try:  # Allow both `python scripts/update_data.py` and package-style test imports.
+    from .valuation_core import (
+        DEFAULT_ASSUMPTIONS,
+        build_sensitivity,
+        calculate_dcf,
+        calculate_relative_valuation,
+        classify_quality,
+        derive_growth_rate,
+        normalize_fcf,
+        summarize_range,
+    )
+except ImportError:  # pragma: no cover - exercised when run as a script
+    from valuation_core import (
+        DEFAULT_ASSUMPTIONS,
+        build_sensitivity,
+        calculate_dcf,
+        calculate_relative_valuation,
+        classify_quality,
+        derive_growth_rate,
+        normalize_fcf,
+        summarize_range,
+    )
+
+SEC_TICKERS_URL = "https://www.sec.gov/files/company_tickers_exchange.json"
+SEC_SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik}.json"
+SEC_COMPANYFACTS_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json"
+YAHOO_CHART_URL = "https://query1.finance.yahoo.com/v8/finance/chart/{ticker}?range=1mo&interval=1d"
+DEFAULT_USER_AGENT = os.environ.get("SEC_USER_AGENT", "")
+TICKER_PATTERN = re.compile(r"^[A-Z0-9][A-Z0-9.-]{0,14}$")
+
+TAG_GROUPS = {
+    "revenue": [
+        "RevenueFromContractWithCustomerExcludingAssessedTax",
+        "Revenues",
+        "SalesRevenueNet",
+    ],
+    "operatingIncome": ["OperatingIncomeLoss"],
+    "netIncome": ["NetIncomeLoss", "ProfitLoss"],
+    "operatingCashFlow": ["NetCashProvidedByUsedInOperatingActivities"],
+    "capitalExpenditures": [
+        "PaymentsToAcquirePropertyPlantAndEquipment",
+        "PaymentsToAcquireProductiveAssets",
+    ],
+    "equity": ["StockholdersEquity", "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest"],
+    "assets": ["Assets"],
+    "liabilities": ["Liabilities"],
+    "cash": [
+        "CashAndCashEquivalentsAtCarryingValue",
+        "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
+    ],
+    "debtCurrent": ["LongTermDebtCurrent", "ShortTermBorrowings", "ShortTermDebtCurrent"],
+    "debtNoncurrent": ["LongTermDebtNoncurrent", "LongTermDebtAndFinanceLeaseObligationsNoncurrent"],
+    "sharesDiluted": ["WeightedAverageNumberOfDilutedSharesOutstanding"],
+    "sharesBasic": ["WeightedAverageNumberOfSharesOutstandingBasic"],
+}
+
+USD_UNIT_PREFERENCE = ("USD", "USD/shares")
+SHARE_UNIT_PREFERENCE = ("shares",)
+
+
+def now_iso() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def request_json(url: str, user_agent: str, timeout: int = 30) -> Any:
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": user_agent,
+            "Accept": "application/json,text/plain,*/*",
+        },
+    )
+    with urllib.request.urlopen(req, timeout=timeout) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
+def load_ticker_map(user_agent: str) -> dict[str, dict[str, Any]]:
+    payload = request_json(SEC_TICKERS_URL, user_agent)
+    fields = payload.get("fields", [])
+    data = payload.get("data", [])
+    result = {}
+    for row in data:
+        item = dict(zip(fields, row))
+        ticker = str(item.get("ticker", "")).upper()
+        if ticker:
+            result[ticker] = {
+                "cik": str(item.get("cik", "")).zfill(10),
+                "name": item.get("name"),
+                "ticker": ticker,
+                "exchange": item.get("exchange"),
+            }
+    return result
+
+
+def unit_values(concept: dict[str, Any], preferred_units: tuple[str, ...]) -> list[dict[str, Any]]:
+    units = concept.get("units", {}) if concept else {}
+    for unit in preferred_units:
+        if unit in units:
+            return list(units[unit])
+    for values in units.values():
+        return list(values)
+    return []
+
+
+def choose_fact_value(facts: dict[str, Any], tags: list[str], preferred_units: tuple[str, ...], *, fy: int | None = None, annual: bool = True) -> tuple[float | None, str | None, dict[str, Any] | None]:
+    candidates = []
+    for tag in tags:
+        for fact in unit_values(facts.get(tag, {}), preferred_units):
+            if fact.get("val") is None:
+                continue
+            if annual:
+                if fact.get("form") not in {"10-K", "10-K/A", "20-F", "40-F", "20-F/A", "40-F/A"}:
+                    continue
+                if fact.get("fp") not in {"FY", None}:
+                    continue
+            if fy is not None and fact.get("fy") != fy:
+                continue
+            filed = fact.get("filed") or fact.get("end") or ""
+            candidates.append((str(filed), tag, fact))
+    if not candidates:
+        return None, None, None
+    candidates.sort(key=lambda item: item[0])
+    _, tag, fact = candidates[-1]
+    try:
+        return float(fact["val"]), tag, fact
+    except (TypeError, ValueError):
+        return None, tag, fact
+
+
+def available_fiscal_years(facts: dict[str, Any]) -> list[int]:
+    years = set()
+    for tag in TAG_GROUPS["revenue"] + TAG_GROUPS["netIncome"] + TAG_GROUPS["operatingCashFlow"]:
+        for fact in unit_values(facts.get(tag, {}), USD_UNIT_PREFERENCE):
+            fy = fact.get("fy")
+            if fact.get("form") in {"10-K", "10-K/A", "20-F", "40-F", "20-F/A", "40-F/A"} and isinstance(fy, int):
+                years.add(fy)
+    return sorted(years)
+
+
+def build_annual_rows(companyfacts: dict[str, Any], max_years: int = 5) -> tuple[list[dict[str, Any]], list[str]]:
+    us_gaap = companyfacts.get("facts", {}).get("us-gaap", {})
+    warnings = []
+    rows = []
+    for fy in available_fiscal_years(us_gaap)[-max_years:]:
+        row: dict[str, Any] = {"fy": fy}
+        row_sources = {}
+        for key, tags in TAG_GROUPS.items():
+            if key in {"sharesOutstanding"}:
+                continue
+            units = SHARE_UNIT_PREFERENCE if key.startswith("shares") else USD_UNIT_PREFERENCE
+            value, tag, fact = choose_fact_value(us_gaap, tags, units, fy=fy, annual=True)
+            if value is not None:
+                row[key] = value
+                row_sources[key] = {"tag": tag, "filed": fact.get("filed"), "form": fact.get("form"), "end": fact.get("end")}
+        if row.get("operatingCashFlow") is not None and row.get("capitalExpenditures") is not None:
+            row["freeCashFlow"] = row["operatingCashFlow"] - abs(row["capitalExpenditures"])
+        elif row.get("operatingCashFlow") is not None:
+            row["freeCashFlow"] = row["operatingCashFlow"]
+            warnings.append(f"{fy}년 CAPEX 태그가 없어 영업현금흐름을 FCF 대용치로 사용했습니다.")
+        row["sourceTags"] = row_sources
+        rows.append(row)
+    if not rows:
+        warnings.append("SEC annual facts에서 사용 가능한 연간 재무제표 행을 찾지 못했습니다.")
+    return rows, warnings
+
+
+def latest_period_value(companyfacts: dict[str, Any], key: str) -> tuple[float | None, str | None]:
+    us_gaap = companyfacts.get("facts", {}).get("us-gaap", {})
+    units = SHARE_UNIT_PREFERENCE if key.startswith("shares") else USD_UNIT_PREFERENCE
+    value, tag, _ = choose_fact_value(us_gaap, TAG_GROUPS[key], units, fy=None, annual=False)
+    return value, tag
+
+
+def fetch_market_snapshot(ticker: str, user_agent: str) -> tuple[dict[str, Any], list[str]]:
+    warnings = []
+    url = YAHOO_CHART_URL.format(ticker=urllib.parse.quote(ticker))
+    try:
+        payload = request_json(url, user_agent, timeout=20)
+        result = (payload.get("chart", {}).get("result") or [None])[0]
+        if not result:
+            raise ValueError("empty Yahoo chart result")
+        meta = result.get("meta", {})
+        timestamp = result.get("timestamp") or []
+        quote = (result.get("indicators", {}).get("quote") or [{}])[0]
+        closes = [value for value in quote.get("close", []) if value is not None]
+        price = meta.get("regularMarketPrice") or (closes[-1] if closes else None)
+        as_of = None
+        if timestamp:
+            as_of = datetime.fromtimestamp(timestamp[-1], tz=timezone.utc).date().isoformat()
+        return {
+            "price": float(price) if price is not None else None,
+            "currency": meta.get("currency") or "USD",
+            "asOf": as_of,
+            "source": "Yahoo chart endpoint (best effort)",
+            "sourceUrl": url,
+            "confidence": "best-effort",
+        }, warnings
+    except Exception as exc:  # noqa: BLE001 - surfaced as data-quality warning
+        warnings.append(f"시장가격 스냅샷 수집 실패: {exc}")
+        return {
+            "price": None,
+            "currency": "USD",
+            "asOf": None,
+            "source": "Unavailable",
+            "sourceUrl": url,
+            "confidence": "missing",
+        }, warnings
+
+
+def build_company_payload(
+    ticker: str,
+    ticker_meta: dict[str, Any],
+    user_agent: str,
+    verbose: bool = False,
+    manual_price: float | None = None,
+) -> dict[str, Any]:
+    cik = ticker_meta["cik"]
+    if verbose:
+        print(f"Fetching {ticker} CIK{cik}")
+    submissions_url = SEC_SUBMISSIONS_URL.format(cik=cik)
+    companyfacts_url = SEC_COMPANYFACTS_URL.format(cik=cik)
+    submissions = request_json(submissions_url, user_agent)
+    companyfacts = request_json(companyfacts_url, user_agent)
+    market, market_warnings = fetch_market_snapshot(ticker, user_agent)
+    if manual_price is not None:
+        market = {
+            **market,
+            "price": float(manual_price),
+            "source": "Manual override",
+            "sourceUrl": None,
+            "confidence": "manual",
+        }
+
+    annual_rows, annual_warnings = build_annual_rows(companyfacts)
+    latest = sorted(annual_rows, key=lambda row: row.get("fy") or 0)[-1] if annual_rows else {}
+
+    warnings = list(annual_warnings) + list(market_warnings)
+    shares = latest.get("sharesDiluted") or latest.get("sharesBasic")
+    if not shares:
+        shares, shares_tag = latest_period_value(companyfacts, "sharesDiluted")
+        if not shares:
+            shares, shares_tag = latest_period_value(companyfacts, "sharesBasic")
+        if shares:
+            warnings.append(f"최근 연간 희석주식수 대신 최신 사용 가능 주식수 태그({shares_tag})를 사용했습니다.")
+    if not shares or shares <= 0:
+        warnings.append("주식수 데이터가 없어 주당 가치평가가 제한됩니다.")
+
+    cash = latest.get("cash") or 0.0
+    debt = (latest.get("debtCurrent") or 0.0) + (latest.get("debtNoncurrent") or 0.0)
+    base_fcf = normalize_fcf(annual_rows)
+    if base_fcf is None:
+        warnings.append("자유현금흐름을 산출할 수 없어 DCF 기준값이 제한됩니다.")
+
+    growth_rate = derive_growth_rate(annual_rows)
+    assumptions = dict(DEFAULT_ASSUMPTIONS)
+    assumptions.update({
+        "growthRate": growth_rate,
+        "baseFreeCashFlow": base_fcf,
+        "cash": cash,
+        "debt": debt,
+        "sharesOutstanding": shares,
+        "note": "기본값은 SEC 과거 재무제표에서 보수적으로 유도했으며 사용자가 직접 수정해야 합니다.",
+    })
+
+    dcf = None
+    sensitivity = []
+    if base_fcf is not None and shares and shares > 0:
+        try:
+            dcf = calculate_dcf(
+                base_fcf=base_fcf,
+                shares_outstanding=shares,
+                cash=cash,
+                debt=debt,
+                growth_rate=assumptions["growthRate"],
+                discount_rate=assumptions["discountRate"],
+                terminal_growth_rate=assumptions["terminalGrowthRate"],
+                projection_years=assumptions["projectionYears"],
+            )
+            sensitivity = build_sensitivity(
+                base_fcf=base_fcf,
+                shares_outstanding=shares,
+                cash=cash,
+                debt=debt,
+                growth_rate=assumptions["growthRate"],
+                projection_years=assumptions["projectionYears"],
+            )
+        except Exception as exc:  # noqa: BLE001
+            warnings.append(f"DCF 산출 실패: {exc}")
+    else:
+        warnings.append("DCF 산출에 필요한 FCF 또는 주식수 데이터가 부족합니다.")
+
+    relative = None
+    if shares and shares > 0:
+        try:
+            relative = calculate_relative_valuation(
+                price=market.get("price"),
+                revenue=latest.get("revenue"),
+                net_income=latest.get("netIncome"),
+                equity=latest.get("equity"),
+                free_cash_flow=latest.get("freeCashFlow"),
+                shares_outstanding=shares,
+                benchmark_pe=assumptions["benchmarkPe"],
+                benchmark_pb=assumptions["benchmarkPb"],
+                benchmark_ps=assumptions["benchmarkPs"],
+                benchmark_pfcf=assumptions["benchmarkPfcf"],
+            )
+        except Exception as exc:  # noqa: BLE001
+            warnings.append(f"상대가치 산출 실패: {exc}")
+    else:
+        warnings.append("상대가치 산출에 필요한 주식수 데이터가 부족합니다.")
+
+    blended = summarize_range(
+        dcf.get("perShareValue") if dcf else None,
+        relative.get("range", {}).get("mid") if relative else None,
+    )
+
+    required_missing = not annual_rows or not shares or base_fcf is None
+    quality_status = classify_quality(warnings, fatal_missing=required_missing)
+    entity_name = companyfacts.get("entityName") or submissions.get("name") or ticker_meta.get("name")
+    generated_at = now_iso()
+
+    return {
+        "schemaVersion": 1,
+        "generatedAt": generated_at,
+        "company": {
+            "ticker": ticker,
+            "cik": cik,
+            "name": entity_name,
+            "exchange": ticker_meta.get("exchange") or submissions.get("exchanges", [None])[0],
+            "sic": submissions.get("sic"),
+            "sicDescription": submissions.get("sicDescription"),
+            "entityType": submissions.get("entityType"),
+            "currency": market.get("currency") or "USD",
+        },
+        "sources": {
+            "sec": {
+                "confidence": "baseline",
+                "submissionsUrl": submissions_url,
+                "companyfactsUrl": companyfacts_url,
+                "note": "SEC EDGAR companyfacts/submissions에서 추출한 공개 재무제표 데이터입니다.",
+            },
+            "market": market,
+        },
+        "market": market,
+        "financials": {
+            "currency": "USD",
+            "annual": annual_rows,
+            "latest": latest,
+        },
+        "assumptions": assumptions,
+        "valuations": {
+            "dcf": dcf,
+            "dcfSensitivity": sensitivity,
+            "relative": relative,
+            "blendedRange": blended,
+        },
+        "quality": {
+            "status": quality_status,
+            "warnings": warnings,
+            "guardrails": [
+                "이 결과는 투자 의견이 아니라 사용자의 판단을 돕는 계산 보조 자료입니다.",
+                "DCF는 성장률·할인율·영구성장률 가정에 매우 민감합니다.",
+                "상대가치는 비교 배수 선택에 따라 크게 달라집니다.",
+                "SEC 재무 데이터와 시장가격 스냅샷의 신뢰도를 분리해서 확인하세요.",
+            ],
+        },
+    }
+
+
+def compact_index_item(payload: dict[str, Any]) -> dict[str, Any]:
+    company = payload["company"]
+    market = payload["market"]
+    valuations = payload["valuations"]
+    return {
+        "ticker": company["ticker"],
+        "name": company.get("name"),
+        "exchange": company.get("exchange"),
+        "currency": company.get("currency"),
+        "price": market.get("price"),
+        "priceAsOf": market.get("asOf"),
+        "qualityStatus": payload.get("quality", {}).get("status"),
+        "companyFile": f"companies/{company['ticker']}.json",
+        "dcfPerShare": (valuations.get("dcf") or {}).get("perShareValue"),
+        "relativeMid": ((valuations.get("relative") or {}).get("range") or {}).get("mid"),
+        "generatedAt": payload.get("generatedAt"),
+    }
+
+
+def write_json(path: Path, payload: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=False) + "\n", encoding="utf-8")
+
+
+def parse_price_overrides(values: list[str]) -> dict[str, float]:
+    overrides = {}
+    for item in values:
+        if "=" not in item:
+            raise SystemExit(f"Invalid --price-override {item!r}; expected TICKER=PRICE")
+        ticker, value = item.split("=", 1)
+        ticker = normalize_ticker(ticker)
+        overrides[ticker] = float(value)
+    return overrides
+
+
+def normalize_ticker(value: str) -> str:
+    ticker = value.strip().upper()
+    if not TICKER_PATTERN.fullmatch(ticker):
+        raise SystemExit(f"Invalid ticker {value!r}; expected 1-15 chars matching {TICKER_PATTERN.pattern}")
+    return ticker
+
+
+def normalize_tickers(values: list[str]) -> list[str]:
+    tickers = []
+    for raw in values:
+        for part in re.split(r"[\s,]+", raw.strip()):
+            if part:
+                tickers.append(normalize_ticker(part))
+    return list(dict.fromkeys(tickers))
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--tickers", nargs="+", default=["AAPL", "MSFT", "NVDA"], help="Tickers to generate")
+    parser.add_argument("--output", default="docs/data", help="Output data directory")
+    parser.add_argument("--user-agent", default=DEFAULT_USER_AGENT, help="SEC-compliant descriptive User-Agent with contact")
+    parser.add_argument("--sleep", type=float, default=0.15, help="Delay between SEC/company requests")
+    parser.add_argument("--price-override", action="append", default=[], help="Manual market price override, e.g. AAPL=190.25")
+    parser.add_argument("--verbose", action="store_true")
+    args = parser.parse_args()
+
+    if not args.user_agent.strip():
+        raise SystemExit("SEC User-Agent is required. Set SEC_USER_AGENT or pass --user-agent with a descriptive contact.")
+
+    tickers = normalize_tickers(args.tickers)
+    if not tickers:
+        raise SystemExit("At least one ticker is required")
+    output = Path(args.output)
+    price_overrides = parse_price_overrides(args.price_override)
+
+    ticker_map = load_ticker_map(args.user_agent)
+    companies = []
+    errors = []
+    for ticker in tickers:
+        meta = ticker_map.get(ticker)
+        if not meta:
+            errors.append({"ticker": ticker, "error": "SEC ticker/CIK mapping not found"})
+            continue
+        try:
+            payload = build_company_payload(
+                ticker,
+                meta,
+                args.user_agent,
+                verbose=args.verbose,
+                manual_price=price_overrides.get(ticker),
+            )
+            write_json(output / "companies" / f"{ticker}.json", payload)
+            companies.append(compact_index_item(payload))
+        except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, ValueError, KeyError) as exc:
+            errors.append({"ticker": ticker, "error": str(exc)})
+        time.sleep(max(0, args.sleep))
+
+    index = {
+        "schemaVersion": 1,
+        "project": "valuation",
+        "title": "Stock Valuation Workspace",
+        "generatedAt": now_iso(),
+        "basePath": "/valuation/",
+        "dataPolicy": "Static JSON generated from public SEC fundamentals and best-effort market price snapshots.",
+        "tickers": companies,
+        "errors": errors,
+    }
+    write_json(output / "index.json", index)
+    if args.verbose:
+        print(f"Wrote {len(companies)} companies to {output}")
+        if errors:
+            print(json.dumps(errors, ensure_ascii=False, indent=2))
+    if not companies:
+        raise SystemExit("No company payloads generated")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

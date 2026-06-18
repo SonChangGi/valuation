@@ -1,0 +1,17 @@
+{
+  "name": "valuation",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Static GitHub Pages stock valuation workspace with DCF and relative valuation models.",
+  "type": "module",
+  "scripts": {
+    "test": "python -m unittest discover -s tests -p '*_test.py' && node --test tests/*.test.mjs",
+    "build": "python scripts/validate_data.py --data-dir docs/data --check-static",
+    "generate-data": "python scripts/update_data.py --tickers AAPL MSFT NVDA --output docs/data --verbose",
+    "serve": "python -m http.server 8000 -d docs"
+  },
+  "engines": {
+    "node": ">=20",
+    "python": ">=3.10"
+  }
+}

@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="티커를 입력해 DCF와 PER/PBR 기반 상대가치평가를 함께 검토하는 정적 가치평가 대시보드" />
+  <title>Stock Valuation Workspace</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <script type="module" src="assets/app.js"></script>
+</head>
+<body>
+  <header class="hero" aria-labelledby="page-title">
+    <nav class="top-nav" aria-label="프로젝트 이동">
+      <a href="https://sonchanggi.github.io/quant-dashboard/">← Quant Dashboard 참고</a>
+      <a href="#valuation-dashboard">가치평가</a>
+      <a href="#methodology">방법론</a>
+      <a href="data/index.json">데이터 JSON</a>
+    </nav>
+    <div class="hero-grid">
+      <div class="hero-main">
+        <p class="eyebrow">Stock Valuation Workspace</p>
+        <h1 id="page-title">티커를 입력하면 가치평가의 근거와 한계를 함께 보여줍니다</h1>
+        <p class="hero-copy">
+          DCF 절대가치와 PER·PBR 상대가치를 한 화면에서 비교하되, 예측 변수는 적게 유지합니다.
+          이 웹페이지는 <strong>https://sonchanggi.github.io/valuation/</strong>에 배포되는 새로운 정적 프로젝트이며,
+          기존 프로젝트 결과물은 참고만 하고 수정하지 않습니다.
+        </p>
+        <form class="ticker-form" id="ticker-form" aria-label="티커 검색">
+          <label for="ticker-input">분석할 티커</label>
+          <div class="ticker-row">
+            <input id="ticker-input" name="ticker" type="search" autocomplete="off" placeholder="예: AAPL" list="ticker-list" />
+            <button type="submit">가치평가 보기</button>
+          </div>
+          <datalist id="ticker-list"></datalist>
+        </form>
+        <div class="sample-tickers" id="sample-tickers" aria-label="샘플 티커"></div>
+      </div>
+      <aside class="hero-note" aria-label="판단 주체 안내">
+        <strong>판단은 사용자에게 있습니다</strong>
+        <p>
+          이 화면은 투자 의견이 아니라, 사용자의 판단을 정리하기 위한 계산 보조 도구입니다.
+          입력값과 데이터 품질에 따라 결과는 크게 달라질 수 있습니다.
+        </p>
+      </aside>
+    </div>
+  </header>
+
+  <noscript>
+    <section class="noscript-warning">
+      이 페이지는 정적 JSON과 브라우저 계산으로 표와 차트를 그리므로 JavaScript가 필요합니다.
+    </section>
+  </noscript>
+
+  <main id="valuation-dashboard">
+    <section class="section notice-section" aria-labelledby="static-contract-title">
+      <div class="notice-card">
+        <div>
+          <p class="eyebrow">Static Data Contract</p>
+          <h2 id="static-contract-title">지원 티커는 생성된 JSON에 들어있는 회사입니다</h2>
+          <p>
+            GitHub Pages는 백엔드나 비밀 토큰 없이 동작합니다. 따라서 브라우저가 SEC나 가격 제공자에 직접 접속하지 않고,
+            <code>scripts/update_data.py</code>와 GitHub Actions가 만든 같은 출처의 <code>docs/data/*.json</code>만 읽습니다.
+            새 티커가 필요하면 데이터 생성 스크립트나 수동 워크플로를 실행하세요.
+          </p>
+        </div>
+        <span class="status-pill" id="data-generated">데이터 상태 확인 중</span>
+      </div>
+    </section>
+
+    <section class="section" aria-live="polite" aria-labelledby="status-title">
+      <div id="lookup-status" class="lookup-status" role="status">
+        <h2 id="status-title">데이터를 불러오는 중...</h2>
+        <p>캐시된 티커 인덱스를 확인하고 있습니다.</p>
+      </div>
+    </section>
+
+    <section class="section company-section hidden" id="company-section" aria-labelledby="company-title">
+      <div class="company-heading">
+        <div>
+          <p class="eyebrow" id="company-eyebrow">Company Snapshot</p>
+          <h2 id="company-title">-</h2>
+          <p id="company-meta" class="muted">-</p>
+        </div>
+        <div class="quality-stack">
+          <span class="status-pill" id="quality-pill">-</span>
+          <span class="status-pill secondary" id="market-confidence">-</span>
+        </div>
+      </div>
+      <div class="metric-row" id="snapshot-metrics"></div>
+      <div class="warning-list" id="quality-warnings"></div>
+    </section>
+
+    <section class="section dashboard-grid hidden" id="dashboard-grid">
+      <article class="panel panel-wide" aria-labelledby="valuation-summary-title">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Valuation Summary</p>
+            <h2 id="valuation-summary-title">가치평가 요약</h2>
+          </div>
+          <p class="panel-note">단일 정답이 아니라 가정별 참고 범위입니다.</p>
+        </div>
+        <div class="valuation-band" id="valuation-band"></div>
+        <div class="metric-row" id="valuation-metrics"></div>
+        <p class="judgment-copy">
+          모델은 숫자를 정리할 뿐입니다. 성장률·할인율·비교 배수의 현실성은 사용자가 직접 판단해야 합니다.
+        </p>
+      </article>
+
+      <aside class="panel assumptions-panel" aria-labelledby="assumptions-title">
+        <div class="panel-header compact">
+          <div>
+            <p class="eyebrow">Editable Assumptions</p>
+            <h2 id="assumptions-title">핵심 가정</h2>
+          </div>
+          <button class="text-button" id="reset-assumptions" type="button">기본값</button>
+        </div>
+        <form id="assumption-form" class="assumption-form">
+          <fieldset>
+            <legend>DCF</legend>
+            <label>명시 성장률 <span id="growth-output">-</span>
+              <input id="growth-rate" type="range" min="-5" max="12" step="0.25" />
+            </label>
+            <label>할인율 <span id="discount-output">-</span>
+              <input id="discount-rate" type="range" min="5" max="16" step="0.25" />
+            </label>
+            <label>영구성장률 <span id="terminal-output">-</span>
+              <input id="terminal-growth-rate" type="range" min="0" max="4" step="0.25" />
+            </label>
+          </fieldset>
+          <fieldset>
+            <legend>상대가치 배수</legend>
+            <label>PER 기준 배수
+              <input id="benchmark-pe" type="number" min="0" step="0.5" />
+            </label>
+            <label>PBR 기준 배수
+              <input id="benchmark-pb" type="number" min="0" step="0.1" />
+            </label>
+            <label>P/S 보조 배수
+              <input id="benchmark-ps" type="number" min="0" step="0.1" />
+            </label>
+            <label>P/FCF 보조 배수
+              <input id="benchmark-pfcf" type="number" min="0" step="0.5" />
+            </label>
+          </fieldset>
+        </form>
+        <p class="assumption-help">
+          할인율은 영구성장률보다 높아야 합니다. 복잡한 모델은 설명력을 높일 수 있지만 오류 가능성도 함께 키웁니다.
+        </p>
+      </aside>
+    </section>
+
+    <section class="section detail-grid hidden" id="detail-grid">
+      <article class="panel" aria-labelledby="dcf-title">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Absolute Valuation</p>
+            <h2 id="dcf-title">DCF 절대가치</h2>
+          </div>
+        </div>
+        <div id="dcf-explanation" class="explain-box"></div>
+        <div class="table-wrap" id="dcf-table-wrap"></div>
+        <div class="sensitivity-wrap" id="sensitivity-wrap"></div>
+      </article>
+
+      <article class="panel" aria-labelledby="relative-title">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Relative Valuation</p>
+            <h2 id="relative-title">PER · PBR 상대가치</h2>
+          </div>
+        </div>
+        <p class="panel-note">
+          상대가치는 비교 기준을 무엇으로 잡는지에 따라 달라집니다. 이 배수는 정답이 아니라 검토 출발점입니다.
+        </p>
+        <div class="table-wrap" id="relative-table-wrap"></div>
+      </article>
+    </section>
+
+    <section class="section hidden" id="judgment-section" aria-labelledby="judgment-title">
+      <div class="section-heading centered">
+        <p class="eyebrow">Judgment Checklist</p>
+        <h2 id="judgment-title">숫자를 본 뒤 사용자가 확인할 질문</h2>
+        <p>가치평가의 주체는 모형이 아니라 사용자입니다. 아래 질문에 답하지 못하면 결과를 보수적으로 해석하세요.</p>
+      </div>
+      <div class="checklist-grid">
+        <label><input type="checkbox" /> 데이터가 최신이고 회계기간이 맞는가?</label>
+        <label><input type="checkbox" /> 일회성 이익·손실 또는 구조 변화가 있는가?</label>
+        <label><input type="checkbox" /> 성장률 가정이 산업·경쟁 상황과 맞는가?</label>
+        <label><input type="checkbox" /> 부채, 현금, 희석 가능성을 봤는가?</label>
+        <label><input type="checkbox" /> PER/PBR 비교 기준이 정말 유사한가?</label>
+        <label><input type="checkbox" /> DCF 결과가 할인율·영구성장률에 얼마나 민감한가?</label>
+      </div>
+      <label class="memo-box">내 판단 메모
+        <textarea id="judgment-memo" rows="5" placeholder="가정, 반론, 추가 확인할 자료를 적어두세요."></textarea>
+      </label>
+    </section>
+
+    <section class="section methodology-section" id="methodology" aria-labelledby="methodology-title">
+      <div class="section-heading">
+        <p class="eyebrow">Methodology & Limits</p>
+        <h2 id="methodology-title">방법론과 데이터 한계</h2>
+      </div>
+      <div class="feature-grid">
+        <article>
+          <h3>DCF 절대가치</h3>
+          <p>최근 자유현금흐름을 기준으로 5년 명시 성장률, 할인율, 영구성장률만 주요 예측 변수로 둡니다.</p>
+        </article>
+        <article>
+          <h3>PER · PBR 상대가치</h3>
+          <p>EPS와 BPS에 사용자가 정한 비교 배수를 적용합니다. P/S와 P/FCF는 보조 지표로만 사용합니다.</p>
+        </article>
+        <article>
+          <h3>데이터 정책</h3>
+          <p>SEC EDGAR 재무 데이터는 baseline, 시장가격은 best-effort입니다. 브라우저는 외부 금융 API를 직접 호출하지 않습니다.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      본 페이지는 개인 리서치와 학습을 위한 정적 가치평가 도구입니다. 투자, 세무, 법률 또는 매매 조언이 아닙니다.
+      결과는 데이터 지연, 회계 태그 차이, 사용자의 가정에 따라 달라질 수 있습니다.
+    </p>
+  </footer>
+</body>
+</html>
