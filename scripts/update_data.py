@@ -607,6 +607,103 @@ def write_json(path: Path, payload: Any) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=False) + "\n", encoding="utf-8")
 
 
+def build_public_summary(index: dict[str, Any], output: Path) -> dict[str, Any]:
+    """Build the compact cross-project summary consumed by quant-dashboard.
+
+    The full valuation workspace intentionally keeps ticker-level company files
+    in ``companies/*.json``.  This contract gives the hub enough context for a
+    fast first paint and ticker/theme dossier without weakening the local
+    "the user owns judgment" model.
+    """
+
+    tickers = index.get("tickers") if isinstance(index.get("tickers"), list) else []
+    generated_at = index.get("generatedAt")
+    sectors = sorted({str(item.get("sectorLabel") or item.get("sector")) for item in tickers if item.get("sectorLabel") or item.get("sector")})
+    theme_counts: dict[str, int] = {}
+    for item in tickers:
+        for theme in item.get("themeTags") or []:
+            theme_counts[str(theme)] = theme_counts.get(str(theme), 0) + 1
+    primary_entities = []
+    for item in tickers:
+        primary_entities.append(
+            {
+                "symbol": item.get("ticker"),
+                "name": item.get("name"),
+                "label": f"{item.get('ticker')} · {item.get('sectorLabel') or item.get('sector') or '분류 N/A'}",
+                "sector": item.get("sector"),
+                "sectorLabel": item.get("sectorLabel"),
+                "themes": item.get("themeTags") or [],
+                "metrics": {
+                    "price": item.get("price"),
+                    "priceAsOf": item.get("priceAsOf"),
+                    "dcfPerShare": item.get("dcfPerShare"),
+                    "qualityStatus": item.get("qualityStatus"),
+                },
+                "signals": [
+                    "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
+                    "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
+                ],
+                "warnings": ["SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."],
+                "detailPath": item.get("companyFile"),
+            }
+        )
+    detail_path = output / "index.json"
+    return {
+        "schemaVersion": 1,
+        "contract": "quant-research-summary",
+        "projectId": "valuation",
+        "projectName": "기업 가치평가 Lab",
+        "generatedAt": generated_at,
+        "dataAsOf": max((str(item.get("priceAsOf")) for item in tickers if item.get("priceAsOf")), default=None),
+        "timezone": "UTC",
+        "detailUrl": "https://sonchanggi.github.io/valuation/",
+        "detailDataUrl": "https://sonchanggi.github.io/valuation/data/index.json",
+        "status": {
+            "state": "ok" if tickers else "degraded",
+            "label": f"{len(tickers)}개 기업 가치평가 캐시",
+            "cadence": "scheduled / manual GitHub Actions refresh",
+            "expectedFreshnessDays": 14,
+        },
+        "coverage": {
+            "entityCount": len(tickers),
+            "sectorCount": len(sectors),
+            "sectors": sectors,
+            "topThemes": [
+                {"theme": theme, "count": count}
+                for theme, count in sorted(theme_counts.items(), key=lambda pair: (-pair[1], pair[0]))[:12]
+            ],
+        },
+        "highlights": [
+            {"label": "지원 티커", "value": len(tickers), "description": "SEC 공시 기반 정적 valuation 캐시"},
+            {"label": "섹터", "value": len(sectors), "description": "섹터/테마 필터 지원"},
+            {
+                "label": "방법론",
+                "value": len(index.get("methodologyReferences") or []),
+                "description": "DCF, 상대가치, 진단 참고문헌",
+            },
+        ],
+        "primaryEntities": primary_entities,
+        "limitations": [
+            "모형은 판단 주체가 아니라 계산 보조 도구입니다.",
+            "DCF는 성장률·할인율·영구성장률에 민감합니다.",
+            "PER/PBR 비교군은 사용자가 산업·성장률·ROE 유사성을 확인해야 합니다.",
+        ],
+        "sources": [
+            {"label": "SEC EDGAR company facts", "url": "https://data.sec.gov/"},
+            {"label": "Yahoo Chart best-effort price snapshot", "url": "https://query1.finance.yahoo.com/"},
+        ],
+        "automation": {
+            "workflowUrl": "https://github.com/SonChangGi/valuation/actions/workflows/data-refresh.yml",
+            "manualUpdateLabel": "GitHub Actions data-refresh 수동 실행",
+            "tokenPolicy": "Static page keeps no secrets; SEC_USER_AGENT is required only in Actions/CLI.",
+        },
+        "payload": {
+            "summaryBytes": None,
+            "detailBytes": detail_path.stat().st_size if detail_path.exists() else None,
+        },
+    }
+
+
 def parse_price_overrides(values: list[str]) -> dict[str, float]:
     overrides = {}
     for item in values:
@@ -688,6 +785,8 @@ def main() -> int:
         "errors": errors,
     }
     write_json(output / "index.json", index)
+    summary = build_public_summary(index, output)
+    write_json(output / "summary.json", summary)
     if args.verbose:
         print(f"Wrote {len(companies)} companies to {output}")
         if errors:

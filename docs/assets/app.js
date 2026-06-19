@@ -227,6 +227,7 @@ async function loadTicker(ticker) {
   state.relativeConfirmed = false;
   elements.tickerInput.value = normalized;
   restoreMemo(normalized);
+  restoreRelativeReview(normalized);
   hydrateAssumptionInputs();
   renderCompany();
   recalculateAndRender();
@@ -644,6 +645,48 @@ function restoreMemo(ticker) {
   elements.memo.value = localStorage.getItem(key) || '';
 }
 
+function relativeReviewKey(ticker) {
+  return `valuation:relative-review:${ticker}`;
+}
+
+function relativeAssumptionSnapshot() {
+  return {
+    benchmarkPe: state.assumptions.benchmarkPe,
+    benchmarkPb: state.assumptions.benchmarkPb,
+    benchmarkPs: state.assumptions.benchmarkPs,
+    benchmarkPfcf: state.assumptions.benchmarkPfcf,
+  };
+}
+
+function restoreRelativeReview(ticker) {
+  try {
+    const raw = localStorage.getItem(relativeReviewKey(ticker));
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    if (!saved || saved.ticker !== ticker || !saved.assumptions) return;
+    state.assumptions = { ...state.assumptions, ...saved.assumptions };
+    state.relativeConfirmed = true;
+  } catch {
+    state.relativeConfirmed = false;
+  }
+}
+
+function persistRelativeReview() {
+  if (!state.currentTicker) return;
+  const payload = {
+    ticker: state.currentTicker,
+    confirmedAt: new Date().toISOString(),
+    assumptions: relativeAssumptionSnapshot(),
+    interpretation: '사용자가 비교 배수의 산업·성장률·ROE 현실성을 검토했다고 표시한 브라우저 로컬 기록입니다.',
+  };
+  localStorage.setItem(relativeReviewKey(state.currentTicker), JSON.stringify(payload));
+}
+
+function clearRelativeReview() {
+  if (!state.currentTicker) return;
+  localStorage.removeItem(relativeReviewKey(state.currentTicker));
+}
+
 function buildReportSummary() {
   readAssumptionsFromInputs();
   const { dcf, dcfError, relative, relativeError } = calculateCurrentValuations();
@@ -661,6 +704,7 @@ function buildReportSummary() {
     `PER/PBR 상대가치: ${relativeValue ? formatMoney(relativeValue, currency, { compact: false }) : `검토 전${relativeError ? ` - ${relativeError}` : ''}`}`,
     `상대가치 상태: ${state.relativeConfirmed ? '사용자 검토 완료' : '기본 배수 예시값 - 검토 필요'}`,
     `가정: 성장률 ${formatPercent(state.assumptions.growthRate, 2)}, 할인율 ${formatPercent(state.assumptions.discountRate, 2)}, 영구성장률 ${formatPercent(state.assumptions.terminalGrowthRate, 2)}, PER ${formatMultiple(state.assumptions.benchmarkPe)}, PBR ${formatMultiple(state.assumptions.benchmarkPb)}`,
+    `비교 배수 기록: ${state.relativeConfirmed ? '브라우저 로컬에 사용자 확인 배수 저장됨' : '저장된 사용자 확인 배수 없음'}`,
     `데이터 품질: ${quality.status || 'N/A'} / ${warnings}`,
     `사용자 메모: ${elements.memo?.value?.trim() || '없음'}`,
     '주의: 이 요약은 투자, 세무, 법률 또는 매매 조언이 아니라 사용자의 판단을 돕는 계산 기록입니다.',
@@ -681,6 +725,7 @@ function bindEvents() {
   elements.assumptionForm.addEventListener('input', (event) => {
     if (event.target?.id?.startsWith('benchmark-')) {
       state.relativeConfirmed = false;
+      clearRelativeReview();
     }
     try {
       recalculateAndRender();
@@ -691,11 +736,13 @@ function bindEvents() {
   elements.resetAssumptions.addEventListener('click', () => {
     state.assumptions = normalizeAssumptions(state.company.assumptions || {});
     state.relativeConfirmed = false;
+    clearRelativeReview();
     hydrateAssumptionInputs();
     recalculateAndRender();
   });
   elements.confirmRelative.addEventListener('click', () => {
     state.relativeConfirmed = true;
+    persistRelativeReview();
     recalculateAndRender();
   });
   elements.copyReport.addEventListener('click', () => {

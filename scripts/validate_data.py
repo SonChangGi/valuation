@@ -176,6 +176,24 @@ def validate_index(data_dir: Path) -> list[Path]:
     return company_paths
 
 
+def validate_public_summary(data_dir: Path) -> None:
+    summary_path = data_dir / "summary.json"
+    require(summary_path.exists(), f"{summary_path}: missing")
+    summary = read_json(summary_path)
+    require(summary.get("schemaVersion") == 1, f"{summary_path}: schemaVersion must be 1")
+    require(summary.get("contract") == "quant-research-summary", f"{summary_path}: contract mismatch")
+    require(summary.get("projectId") == "valuation", f"{summary_path}: projectId mismatch")
+    require(summary.get("generatedAt"), f"{summary_path}: generatedAt required")
+    require(summary.get("status", {}).get("state") in {"ok", "degraded", "stale"}, f"{summary_path}: invalid status.state")
+    entities = summary.get("primaryEntities")
+    require(isinstance(entities, list) and entities, f"{summary_path}: primaryEntities required")
+    for entity in entities:
+        require(entity.get("symbol"), f"{summary_path}: entity symbol required")
+        require(isinstance(entity.get("themes"), list), f"{summary_path}: entity themes must be a list")
+    limitations = summary.get("limitations") or []
+    require(any("판단" in str(item) for item in limitations), f"{summary_path}: user-judgment limitation required")
+
+
 def validate_static_files(root: Path) -> None:
     html = root / "docs" / "index.html"
     css = root / "docs" / "assets" / "styles.css"
@@ -204,6 +222,7 @@ def main() -> int:
 
     data_dir = Path(args.data_dir)
     company_paths = validate_index(data_dir)
+    validate_public_summary(data_dir)
     warnings = []
     for path in company_paths:
         warnings.extend(validate_company(path))

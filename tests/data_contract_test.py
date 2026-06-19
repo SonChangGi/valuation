@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from scripts.validate_data import validate_company, validate_index, validate_static_files
+from scripts.validate_data import validate_company, validate_index, validate_public_summary, validate_static_files
 
 
 class DataContractTest(unittest.TestCase):
@@ -10,6 +10,7 @@ class DataContractTest(unittest.TestCase):
         self.assertGreaterEqual(len(company_paths), 12)
         for path in company_paths:
             validate_company(path)
+        validate_public_summary(Path("docs/data"))
 
     def test_static_assets_contract(self):
         validate_static_files(Path.cwd())
