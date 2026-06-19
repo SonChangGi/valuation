@@ -27,6 +27,9 @@ class ValuationCoreTest(unittest.TestCase):
         self.assertGreater(result["enterpriseValue"], 0)
         self.assertAlmostEqual(result["perShareValue"], result["equityValue"] / 10)
         self.assertEqual(len(result["projectedFreeCashFlows"]), 3)
+        self.assertIn("diagnostics", result)
+        self.assertGreater(result["diagnostics"]["terminalValueWeight"], 0.5)
+        self.assertAlmostEqual(result["diagnostics"]["terminalSpread"], 0.08)
 
     def test_dcf_rejects_discount_rate_below_terminal_growth(self):
         with self.assertRaises(ValuationError):
@@ -56,6 +59,8 @@ class ValuationCoreTest(unittest.TestCase):
         self.assertEqual(result["range"]["high"], 200)
         self.assertFalse(result["range"]["confirmed"])
         self.assertEqual(result["benchmarkSource"], "illustrative-default")
+        self.assertAlmostEqual(result["qualitySignals"]["roe"], 0.4)
+        self.assertIn("diagnostics", result)
 
     def test_relative_headline_range_excludes_auxiliary_multiples(self):
         result = calculate_relative_valuation(
@@ -140,6 +145,8 @@ class ValuationCoreTest(unittest.TestCase):
         self.assertAlmostEqual(relative["range"]["mid"], fixtures["relative"]["expected"]["range"]["mid"])
         self.assertAlmostEqual(relative["range"]["high"], fixtures["relative"]["expected"]["range"]["high"])
         self.assertAlmostEqual(relative["auxiliaryRange"]["mid"], fixtures["relative"]["expected"]["auxiliaryRange"]["mid"])
+        self.assertAlmostEqual(dcf["diagnostics"]["terminalValueWeight"], fixtures["dcf"]["expected"]["terminalValueWeight"])
+        self.assertAlmostEqual(relative["qualitySignals"]["roe"], fixtures["relative"]["expected"]["qualitySignals"]["roe"])
 
 
 if __name__ == "__main__":

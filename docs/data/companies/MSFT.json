@@ -1,11 +1,19 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-19T13:16:09Z",
+  "generatedAt": "2026-06-19T14:43:00Z",
   "company": {
     "ticker": "MSFT",
     "cik": "0000789019",
     "name": "MICROSOFT CORPORATION",
     "exchange": "Nasdaq",
+    "sector": "Technology",
+    "sectorLabel": "기술",
+    "themeTags": [
+      "Cloud",
+      "AI",
+      "Software"
+    ],
+    "classificationSource": "ticker-override",
     "sic": "7372",
     "sicDescription": "Services-Prepackaged Software",
     "entityType": "operating",
@@ -25,7 +33,39 @@
       "source": "Yahoo chart endpoint (best effort)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/MSFT?range=1mo&interval=1d",
       "confidence": "best-effort"
-    }
+    },
+    "methodology": [
+      {
+        "key": "cfa-free-cash-flow",
+        "title": "CFA Institute Free Cash Flow Valuation",
+        "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/free-cash-flow-valuation",
+        "use": "FCFF/FCFE 현금흐름 기반 절대가치와 민감도 해석 기준"
+      },
+      {
+        "key": "cfa-market-multiples",
+        "title": "CFA Institute Market-Based Valuation: Price and Enterprise Value Multiples",
+        "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/market-based-valuation-price-enterprise-value-multiples",
+        "use": "PER/PBR/P/S/P/FCF 배수 비교의 조건과 한계"
+      },
+      {
+        "key": "damodaran-terminal-value",
+        "title": "Aswath Damodaran, Terminal Value Approaches",
+        "url": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/valquestions/termvalapproaches.htm",
+        "use": "안정성장 터미널 가치와 영구성장률 점검"
+      },
+      {
+        "key": "fama-french-1992",
+        "title": "Fama and French (1992), The Cross-Section of Expected Stock Returns",
+        "url": "https://doi.org/10.1111/j.1540-6261.1992.tb04398.x",
+        "use": "규모와 book-to-market 등 상대가치 신호가 위험/수익률 해석과 연결될 수 있음을 환기"
+      },
+      {
+        "key": "investor-edgar",
+        "title": "Investor.gov Using EDGAR to Research Investments",
+        "url": "https://www.investor.gov/introduction-investing/getting-started/researching-investments/using-edgar-research-investments",
+        "use": "공시 원문 확인과 데이터 품질 검증"
+      }
+    ]
   },
   "market": {
     "price": 379.4,
@@ -719,7 +759,13 @@
     "cash": 30242000000.0,
     "debt": 43151000000.0,
     "sharesOutstanding": 7465000000.0,
-    "note": "기본값은 SEC 과거 재무제표에서 보수적으로 유도했으며 사용자가 직접 수정해야 합니다."
+    "note": "기본값은 SEC 과거 재무제표에서 보수적으로 유도했으며 사용자가 직접 수정해야 합니다.",
+    "modelPolicy": {
+      "forecastVariablePolicy": "Keep explicit forecast variables sparse: normalized FCF, growth, discount rate, terminal growth, cash/debt, shares, and comparison multiples.",
+      "dcfMethod": "FCFF-style DCF with Gordon stable-growth terminal value and terminal-value diagnostics.",
+      "relativeMethod": "PER/PBR headline range with P/S and P/FCF as auxiliary cross-checks only.",
+      "decisionOwner": "The user, not the model, owns final valuation judgment and must verify assumptions and comparable multiples."
+    }
   },
   "valuations": {
     "dcf": {
@@ -756,7 +802,21 @@
       "presentValueOfTerminal": 1293444715480.6382,
       "enterpriseValue": 1682171456520.9778,
       "equityValue": 1669262456520.9778,
-      "perShareValue": 223.61184950046587
+      "perShareValue": 223.61184950046587,
+      "diagnostics": {
+        "terminalValueWeight": 0.768913721884038,
+        "forecastValueWeight": 0.231086278115962,
+        "terminalSpread": 0.065,
+        "netDebt": 12909000000.0,
+        "flags": [
+          {
+            "level": "warning",
+            "title": "터미널 가치 집중",
+            "detail": "기업가치의 75% 이상이 명시 예측 이후에서 나옵니다. 영구성장률과 할인율 근거를 보수적으로 재점검하세요."
+          }
+        ],
+        "interpretation": "DCF는 FCFF의 현재가치와 안정성장 터미널 가치를 분리해서 읽어야 하며, 터미널 비중이 높을수록 가정 검증이 더 중요합니다."
+      }
     },
     "dcfSensitivity": [
       {
@@ -818,6 +878,12 @@
         "salesPerShare": 37.73931681178835,
         "freeCashFlowPerShare": 9.59290020093771
       },
+      "qualitySignals": {
+        "roe": 0.2964722734140952,
+        "netMargin": 0.3614601524896707,
+        "fcfMargin": 0.2541884965427156,
+        "earningsYield": 0.03595482132220614
+      },
       "rows": [
         {
           "key": "pe",
@@ -870,7 +936,12 @@
         "basis": "P/S and P/FCF auxiliary cross-check only"
       },
       "benchmarkSource": "illustrative-default",
-      "benchmarkNote": "기본 배수는 예시값이며 사용자가 산업/비교기업 기준으로 확인해야 합니다."
+      "benchmarkNote": "기본 배수는 예시값이며 사용자가 산업/비교기업 기준으로 확인해야 합니다.",
+      "diagnostics": {
+        "usableHeadlineMultiples": 2,
+        "flags": [],
+        "interpretation": "시장 배수는 성장률·수익성·위험·회계 품질이 비슷한 비교군을 전제로 할 때만 의미가 커집니다."
+      }
     },
     "methodComparison": {
       "dcfPerShare": 223.61184950046587,
@@ -885,7 +956,9 @@
     "guardrails": [
       "이 결과는 투자 의견이 아니라 사용자의 판단을 돕는 계산 보조 자료입니다.",
       "DCF는 성장률·할인율·영구성장률 가정에 매우 민감합니다.",
+      "터미널 가치 비중이 높을수록 안정성장 가정을 더 보수적으로 검토하세요.",
       "상대가치는 비교 배수 선택에 따라 크게 달라집니다.",
+      "PER/PBR은 수익성, 성장률, 위험, 회계 품질이 유사한 비교군에서만 해석력이 커집니다.",
       "SEC 재무 데이터와 시장가격 스냅샷의 신뢰도를 분리해서 확인하세요."
     ]
   }

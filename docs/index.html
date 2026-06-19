@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="티커를 입력해 DCF와 PER/PBR 기반 상대가치평가를 함께 검토하는 정적 가치평가 대시보드" />
+  <meta name="description" content="티커별 DCF와 PER/PBR 상대가치를 근거, 진단, 한계와 함께 검토하는 정적 가치평가 대시보드" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'" />
   <title>Stock Valuation Workspace</title>
   <link rel="stylesheet" href="assets/styles.css" />
@@ -20,9 +20,10 @@
     <div class="hero-grid">
       <div class="hero-main">
         <p class="eyebrow">Stock Valuation Workspace</p>
-        <h1 id="page-title">티커를 입력하면 가치평가의 근거와 한계를 함께 보여줍니다</h1>
+        <h1 id="page-title">가치평가를 근거 있게</h1>
         <p class="hero-copy">
-          DCF 절대가치와 PER·PBR 상대가치를 한 화면에서 비교하되, 예측 변수는 적게 유지합니다.
+          티커를 입력하면 DCF 절대가치와 PER·PBR 상대가치를 근거·진단·한계와 함께 보여줍니다.
+          예측 변수는 적게 유지하고, 터미널 가치 의존도·ROE·마진 같은 해석 신호를 함께 표시합니다.
           이 웹페이지는 <strong>https://sonchanggi.github.io/valuation/</strong>에 배포되는 새로운 정적 프로젝트이며,
           기존 프로젝트 결과물은 참고만 하고 수정하지 않습니다.
         </p>
@@ -34,6 +35,7 @@
           </div>
           <datalist id="ticker-list"></datalist>
         </form>
+        <div class="ticker-filters" id="ticker-filters" aria-label="섹터와 테마 필터"></div>
         <div class="sample-tickers" id="sample-tickers" aria-label="샘플 티커"></div>
       </div>
       <aside class="hero-note" aria-label="판단 주체 안내">
@@ -57,10 +59,11 @@
       <div class="notice-card">
         <div>
           <p class="eyebrow">Static Data Contract</p>
-          <h2 id="static-contract-title">지원 티커는 생성된 JSON에 들어있는 회사입니다</h2>
+          <h2 id="static-contract-title">지원 종목은 섹터·테마별 JSON으로 확장됩니다</h2>
           <p>
             GitHub Pages는 백엔드나 비밀 토큰 없이 동작합니다. 따라서 브라우저가 SEC나 가격 제공자에 직접 접속하지 않고,
             <code>scripts/update_data.py</code>와 GitHub Actions가 만든 같은 출처의 <code>docs/data/*.json</code>만 읽습니다.
+            기본 생성 목록은 기술, 커뮤니케이션, 소비재, 금융, 헬스케어, 에너지, 산업재, 유틸리티, 부동산, 소재를 포함하며
             새 티커가 필요하면 데이터 생성 스크립트나 수동 워크플로를 실행하세요.
           </p>
         </div>
@@ -208,6 +211,8 @@
         <h2 id="methodology-title">방법론 사용법과 해석 가이드</h2>
         <p>
           이 프로젝트는 숫자를 더 많이 넣기보다, 적은 변수로 기업가치의 핵심 논점을 분해하도록 설계했습니다.
+          CFA Institute의 현금흐름·시장배수 가치평가, Damodaran의 터미널 가치와 상대가치 논의,
+          Fama-French의 book-to-market 연구를 “예측 변수 추가”가 아니라 진단과 해석 기준으로 사용합니다.
           아래 순서대로 사용하면 DCF와 상대가치가 각각 어떤 질문에 답하는지, 결과가 충돌할 때 무엇을 확인해야 하는지 명확해집니다.
         </p>
       </div>
@@ -376,10 +381,13 @@
           </div>
           <p>모델 결과를 결론으로 쓰기 전에 공시와 방법론 원천을 함께 확인하세요.</p>
           <ul>
+            <li><a href="https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/equity-valuation-concepts-basic-tools" target="_blank" rel="noopener noreferrer">CFA Institute Equity Valuation: Concepts and Basic Tools</a></li>
             <li><a href="https://www.investor.gov/introduction-investing/getting-started/researching-investments/using-edgar-research-investments" target="_blank" rel="noopener noreferrer">Investor.gov EDGAR 투자 리서치 안내</a></li>
             <li><a href="https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/free-cash-flow-valuation" target="_blank" rel="noopener noreferrer">CFA Institute 자유현금흐름 가치평가 개요</a></li>
             <li><a href="https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/market-based-valuation-price-enterprise-value-multiples" target="_blank" rel="noopener noreferrer">CFA Institute 시장 배수 가치평가 개요</a></li>
             <li><a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/valquestions/termvalapproaches.htm" target="_blank" rel="noopener noreferrer">Damodaran terminal value 접근법</a></li>
+            <li><a href="https://pages.stern.nyu.edu/~adamodar/pdfiles/valn2ed/ch17.pdf" target="_blank" rel="noopener noreferrer">Damodaran relative valuation chapter</a></li>
+            <li><a href="https://doi.org/10.1111/j.1540-6261.1992.tb04398.x" target="_blank" rel="noopener noreferrer">Fama &amp; French (1992) book-to-market 연구</a></li>
           </ul>
         </article>
       </div>

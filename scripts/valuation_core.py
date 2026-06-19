@@ -86,6 +86,83 @@ def normalize_fcf(annual_rows: list[dict[str, Any]], lookback: int = 3) -> float
     return float(values[0]) if values else None
 
 
+def _diagnostic_flag(level: str, title: str, detail: str) -> dict[str, str]:
+    return {"level": level, "title": title, "detail": detail}
+
+
+def build_dcf_diagnostics(
+    *,
+    present_value_of_forecast: float,
+    present_value_of_terminal: float,
+    enterprise_value: float,
+    equity_value: float,
+    cash: float,
+    debt: float,
+    discount_rate: float,
+    terminal_growth_rate: float,
+) -> dict[str, Any]:
+    """Return literature-aligned DCF guardrails without adding forecast variables."""
+
+    terminal_value_weight = safe_div(present_value_of_terminal, enterprise_value)
+    forecast_value_weight = safe_div(present_value_of_forecast, enterprise_value)
+    terminal_spread = discount_rate - terminal_growth_rate
+    net_debt = float(debt or 0) - float(cash or 0)
+    flags: list[dict[str, str]] = []
+
+    if terminal_value_weight is not None and terminal_value_weight >= 0.75:
+        flags.append(
+            _diagnostic_flag(
+                "warning",
+                "터미널 가치 집중",
+                "기업가치의 75% 이상이 명시 예측 이후에서 나옵니다. 영구성장률과 할인율 근거를 보수적으로 재점검하세요.",
+            )
+        )
+    elif terminal_value_weight is not None and terminal_value_weight >= 0.6:
+        flags.append(
+            _diagnostic_flag(
+                "watch",
+                "터미널 가치 영향 큼",
+                "기업가치의 상당 부분이 터미널 가치입니다. 단일 주당가치보다 민감도 범위를 함께 읽으세요.",
+            )
+        )
+
+    if terminal_spread < 0.025:
+        flags.append(
+            _diagnostic_flag(
+                "warning",
+                "할인율-영구성장률 간격 좁음",
+                "작은 가정 변화가 터미널 가치를 크게 바꿀 수 있습니다. 장기 성장률이 지속 가능한지 확인하세요.",
+            )
+        )
+
+    if terminal_growth_rate > 0.035:
+        flags.append(
+            _diagnostic_flag(
+                "watch",
+                "영구성장률 상단 근접",
+                "영구성장률은 장기 경제 성장과 재투자 여력을 넘기 어렵다는 전제를 명시하세요.",
+            )
+        )
+
+    if equity_value <= 0:
+        flags.append(
+            _diagnostic_flag(
+                "warning",
+                "자기자본가치 비양수",
+                "순부채 조정 이후 자기자본가치가 0 이하입니다. 부채·현금·주식수 데이터를 원문에서 확인하세요.",
+            )
+        )
+
+    return {
+        "terminalValueWeight": terminal_value_weight,
+        "forecastValueWeight": forecast_value_weight,
+        "terminalSpread": terminal_spread,
+        "netDebt": net_debt,
+        "flags": flags,
+        "interpretation": "DCF는 FCFF의 현재가치와 안정성장 터미널 가치를 분리해서 읽어야 하며, 터미널 비중이 높을수록 가정 검증이 더 중요합니다.",
+    }
+
+
 def calculate_dcf(
     base_fcf: float,
     shares_outstanding: float,
@@ -118,6 +195,16 @@ def calculate_dcf(
     enterprise_value = pv_sum + terminal_present_value
     equity_value = enterprise_value + float(cash or 0) - float(debt or 0)
     per_share = equity_value / shares_outstanding
+    diagnostics = build_dcf_diagnostics(
+        present_value_of_forecast=pv_sum,
+        present_value_of_terminal=terminal_present_value,
+        enterprise_value=enterprise_value,
+        equity_value=equity_value,
+        cash=float(cash or 0),
+        debt=float(debt or 0),
+        discount_rate=discount_rate,
+        terminal_growth_rate=terminal_growth_rate,
+    )
 
     return {
         "baseFreeCashFlow": base_fcf,
@@ -128,6 +215,7 @@ def calculate_dcf(
         "enterpriseValue": enterprise_value,
         "equityValue": equity_value,
         "perShareValue": per_share,
+        "diagnostics": diagnostics,
     }
 
 
@@ -181,6 +269,10 @@ def calculate_relative_valuation(
     book_value_per_share = safe_div(equity, shares_outstanding)
     sales_per_share = safe_div(revenue, shares_outstanding)
     fcf_per_share = safe_div(free_cash_flow, shares_outstanding)
+    roe = safe_div(net_income, equity)
+    net_margin = safe_div(net_income, revenue)
+    fcf_margin = safe_div(free_cash_flow, revenue)
+    earnings_yield = safe_div(eps, price)
 
     rows = [
         {
@@ -230,12 +322,28 @@ def calculate_relative_valuation(
         for row in rows
         if row["key"] not in {"pe", "pb"} and row.get("impliedValue") is not None
     ]
+    flags: list[dict[str, str]] = []
+    if eps is None or eps <= 0:
+        flags.append(_diagnostic_flag("warning", "PER 사용 제한", "EPS가 양수가 아니면 PER 기반 암시 주가를 핵심 결론으로 쓰지 마세요."))
+    if book_value_per_share is None or book_value_per_share <= 0:
+        flags.append(_diagnostic_flag("warning", "PBR 사용 제한", "BPS가 양수가 아니면 PBR 비교가 경제적으로 취약합니다."))
+    if roe is not None and roe < 0.08 and book_value_per_share and book_value_per_share > 0:
+        flags.append(_diagnostic_flag("watch", "ROE 확인 필요", "PBR은 장부가치만이 아니라 지속 가능한 ROE와 함께 해석해야 합니다."))
+    if fcf_margin is not None and fcf_margin < 0:
+        flags.append(_diagnostic_flag("watch", "현금흐름 괴리", "순이익과 달리 FCF가 약하면 운전자본·CAPEX·일회성 요인을 확인하세요."))
+
     return {
         "perShareMetrics": {
             "eps": eps,
             "bookValuePerShare": book_value_per_share,
             "salesPerShare": sales_per_share,
             "freeCashFlowPerShare": fcf_per_share,
+        },
+        "qualitySignals": {
+            "roe": roe,
+            "netMargin": net_margin,
+            "fcfMargin": fcf_margin,
+            "earningsYield": earnings_yield,
         },
         "rows": rows,
         "range": {
@@ -253,6 +361,11 @@ def calculate_relative_valuation(
         },
         "benchmarkSource": benchmark_source,
         "benchmarkNote": "기본 배수는 예시값이며 사용자가 산업/비교기업 기준으로 확인해야 합니다.",
+        "diagnostics": {
+            "usableHeadlineMultiples": len(headline_values),
+            "flags": flags,
+            "interpretation": "시장 배수는 성장률·수익성·위험·회계 품질이 비슷한 비교군을 전제로 할 때만 의미가 커집니다.",
+        },
     }
 
 

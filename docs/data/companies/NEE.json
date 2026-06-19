@@ -1,0 +1,771 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-19T14:43:28Z",
+  "company": {
+    "ticker": "NEE",
+    "cik": "0000753308",
+    "name": "NEXTERA ENERGY, INC.",
+    "exchange": "NYSE",
+    "sector": "Utilities",
+    "sectorLabel": "유틸리티",
+    "themeTags": [
+      "Utility",
+      "Renewables",
+      "Dividend"
+    ],
+    "classificationSource": "ticker-override",
+    "sic": "4911",
+    "sicDescription": "Electric Services",
+    "entityType": "operating",
+    "currency": "USD"
+  },
+  "sources": {
+    "sec": {
+      "confidence": "baseline",
+      "submissionsUrl": "https://data.sec.gov/submissions/CIK0000753308.json",
+      "companyfactsUrl": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000753308.json",
+      "note": "SEC EDGAR companyfacts/submissions에서 추출한 공개 재무제표 데이터입니다."
+    },
+    "market": {
+      "price": 86.75,
+      "currency": "USD",
+      "asOf": "2026-06-18",
+      "source": "Yahoo chart endpoint (best effort)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/NEE?range=1mo&interval=1d",
+      "confidence": "best-effort"
+    },
+    "methodology": [
+      {
+        "key": "cfa-free-cash-flow",
+        "title": "CFA Institute Free Cash Flow Valuation",
+        "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/free-cash-flow-valuation",
+        "use": "FCFF/FCFE 현금흐름 기반 절대가치와 민감도 해석 기준"
+      },
+      {
+        "key": "cfa-market-multiples",
+        "title": "CFA Institute Market-Based Valuation: Price and Enterprise Value Multiples",
+        "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/market-based-valuation-price-enterprise-value-multiples",
+        "use": "PER/PBR/P/S/P/FCF 배수 비교의 조건과 한계"
+      },
+      {
+        "key": "damodaran-terminal-value",
+        "title": "Aswath Damodaran, Terminal Value Approaches",
+        "url": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/valquestions/termvalapproaches.htm",
+        "use": "안정성장 터미널 가치와 영구성장률 점검"
+      },
+      {
+        "key": "fama-french-1992",
+        "title": "Fama and French (1992), The Cross-Section of Expected Stock Returns",
+        "url": "https://doi.org/10.1111/j.1540-6261.1992.tb04398.x",
+        "use": "규모와 book-to-market 등 상대가치 신호가 위험/수익률 해석과 연결될 수 있음을 환기"
+      },
+      {
+        "key": "investor-edgar",
+        "title": "Investor.gov Using EDGAR to Research Investments",
+        "url": "https://www.investor.gov/introduction-investing/getting-started/researching-investments/using-edgar-research-investments",
+        "use": "공시 원문 확인과 데이터 품질 검증"
+      }
+    ]
+  },
+  "market": {
+    "price": 86.75,
+    "currency": "USD",
+    "asOf": "2026-06-18",
+    "source": "Yahoo chart endpoint (best effort)",
+    "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/NEE?range=1mo&interval=1d",
+    "confidence": "best-effort"
+  },
+  "financials": {
+    "currency": "USD",
+    "annual": [
+      {
+        "fy": 2021,
+        "operatingIncome": 2913000000.0,
+        "netIncome": 2827000000.0,
+        "operatingCashFlow": 7553000000.0,
+        "equity": 45424000000.0,
+        "assets": 140912000000.0,
+        "liabilities": 95243000000.0,
+        "cash": 1316000000.0,
+        "debtCurrent": 1785000000.0,
+        "debtNoncurrent": 50960000000.0,
+        "sharesDiluted": 1972200000.0,
+        "sharesBasic": 1962500000.0,
+        "freeCashFlowStatus": "missing_capex_excluded",
+        "sourceTags": {
+          "operatingIncome": {
+            "tag": "OperatingIncomeLoss",
+            "unit": "USD",
+            "filed": "2022-02-18",
+            "form": "10-K",
+            "end": "2021-12-31"
+          },
+          "netIncome": {
+            "tag": "ProfitLoss",
+            "unit": "USD",
+            "filed": "2022-02-18",
+            "form": "10-K",
+            "end": "2021-12-31"
+          },
+          "operatingCashFlow": {
+            "tag": "NetCashProvidedByUsedInOperatingActivities",
+            "unit": "USD",
+            "filed": "2022-02-18",
+            "form": "10-K",
+            "end": "2021-12-31"
+          },
+          "equity": {
+            "tag": "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+            "unit": "USD",
+            "filed": "2022-02-18",
+            "form": "10-K",
+            "end": "2021-12-31"
+          },
+          "assets": {
+            "tag": "Assets",
+            "unit": "USD",
+            "filed": "2022-02-18",
+            "form": "10-K",
+            "end": "2021-12-31"
+          },
+          "liabilities": {
+            "tag": "Liabilities",
+            "unit": "USD",
+            "filed": "2022-02-18",
+            "form": "10-K",
+            "end": "2021-12-31"
+          },
+          "cash": {
+            "tag": "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
+            "unit": "USD",
+            "filed": "2022-02-18",
+            "form": "10-K",
+            "end": "2021-12-31"
+          },
+          "debtCurrent": {
+            "tag": "LongTermDebtCurrent",
+            "unit": "USD",
+            "filed": "2022-02-18",
+            "form": "10-K",
+            "end": "2021-12-31"
+          },
+          "debtNoncurrent": {
+            "tag": "LongTermDebtNoncurrent",
+            "unit": "USD",
+            "filed": "2022-02-18",
+            "form": "10-K",
+            "end": "2021-12-31"
+          },
+          "sharesDiluted": {
+            "tag": "WeightedAverageNumberOfDilutedSharesOutstanding",
+            "unit": "shares",
+            "filed": "2022-02-18",
+            "form": "10-K",
+            "end": "2021-12-31"
+          },
+          "sharesBasic": {
+            "tag": "WeightedAverageNumberOfSharesOutstandingBasic",
+            "unit": "shares",
+            "filed": "2022-02-18",
+            "form": "10-K",
+            "end": "2021-12-31"
+          }
+        }
+      },
+      {
+        "fy": 2022,
+        "operatingIncome": 4081000000.0,
+        "netIncome": 3246000000.0,
+        "operatingCashFlow": 8262000000.0,
+        "equity": 48326000000.0,
+        "assets": 158935000000.0,
+        "liabilities": 109499000000.0,
+        "cash": 3441000000.0,
+        "debtCurrent": 6633000000.0,
+        "debtNoncurrent": 55256000000.0,
+        "sharesDiluted": 1978600000.0,
+        "sharesBasic": 1972600000.0,
+        "freeCashFlowStatus": "missing_capex_excluded",
+        "sourceTags": {
+          "operatingIncome": {
+            "tag": "OperatingIncomeLoss",
+            "unit": "USD",
+            "filed": "2023-02-17",
+            "form": "10-K",
+            "end": "2022-12-31"
+          },
+          "netIncome": {
+            "tag": "ProfitLoss",
+            "unit": "USD",
+            "filed": "2023-02-17",
+            "form": "10-K",
+            "end": "2022-12-31"
+          },
+          "operatingCashFlow": {
+            "tag": "NetCashProvidedByUsedInOperatingActivities",
+            "unit": "USD",
+            "filed": "2023-02-17",
+            "form": "10-K",
+            "end": "2022-12-31"
+          },
+          "equity": {
+            "tag": "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+            "unit": "USD",
+            "filed": "2023-02-17",
+            "form": "10-K",
+            "end": "2022-12-31"
+          },
+          "assets": {
+            "tag": "Assets",
+            "unit": "USD",
+            "filed": "2023-02-17",
+            "form": "10-K",
+            "end": "2022-12-31"
+          },
+          "liabilities": {
+            "tag": "Liabilities",
+            "unit": "USD",
+            "filed": "2023-02-17",
+            "form": "10-K",
+            "end": "2022-12-31"
+          },
+          "cash": {
+            "tag": "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
+            "unit": "USD",
+            "filed": "2023-02-17",
+            "form": "10-K",
+            "end": "2022-12-31"
+          },
+          "debtCurrent": {
+            "tag": "LongTermDebtCurrent",
+            "unit": "USD",
+            "filed": "2023-02-17",
+            "form": "10-K",
+            "end": "2022-12-31"
+          },
+          "debtNoncurrent": {
+            "tag": "LongTermDebtNoncurrent",
+            "unit": "USD",
+            "filed": "2023-02-17",
+            "form": "10-K",
+            "end": "2022-12-31"
+          },
+          "sharesDiluted": {
+            "tag": "WeightedAverageNumberOfDilutedSharesOutstanding",
+            "unit": "shares",
+            "filed": "2023-02-17",
+            "form": "10-K",
+            "end": "2022-12-31"
+          },
+          "sharesBasic": {
+            "tag": "WeightedAverageNumberOfSharesOutstandingBasic",
+            "unit": "shares",
+            "filed": "2023-02-17",
+            "form": "10-K",
+            "end": "2022-12-31"
+          }
+        }
+      },
+      {
+        "fy": 2023,
+        "operatingIncome": 10237000000.0,
+        "netIncome": 6282000000.0,
+        "operatingCashFlow": 11301000000.0,
+        "equity": 57768000000.0,
+        "assets": 177489000000.0,
+        "liabilities": 118465000000.0,
+        "cash": 3420000000.0,
+        "debtCurrent": 6901000000.0,
+        "debtNoncurrent": 61405000000.0,
+        "sharesDiluted": 2030800000.0,
+        "sharesBasic": 2026100000.0,
+        "freeCashFlowStatus": "missing_capex_excluded",
+        "sourceTags": {
+          "operatingIncome": {
+            "tag": "OperatingIncomeLoss",
+            "unit": "USD",
+            "filed": "2024-02-16",
+            "form": "10-K",
+            "end": "2023-12-31"
+          },
+          "netIncome": {
+            "tag": "ProfitLoss",
+            "unit": "USD",
+            "filed": "2024-02-16",
+            "form": "10-K",
+            "end": "2023-12-31"
+          },
+          "operatingCashFlow": {
+            "tag": "NetCashProvidedByUsedInOperatingActivities",
+            "unit": "USD",
+            "filed": "2024-02-16",
+            "form": "10-K",
+            "end": "2023-12-31"
+          },
+          "equity": {
+            "tag": "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+            "unit": "USD",
+            "filed": "2024-02-16",
+            "form": "10-K",
+            "end": "2023-12-31"
+          },
+          "assets": {
+            "tag": "Assets",
+            "unit": "USD",
+            "filed": "2024-02-16",
+            "form": "10-K",
+            "end": "2023-12-31"
+          },
+          "liabilities": {
+            "tag": "Liabilities",
+            "unit": "USD",
+            "filed": "2024-02-16",
+            "form": "10-K",
+            "end": "2023-12-31"
+          },
+          "cash": {
+            "tag": "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
+            "unit": "USD",
+            "filed": "2024-02-16",
+            "form": "10-K",
+            "end": "2023-12-31"
+          },
+          "debtCurrent": {
+            "tag": "LongTermDebtCurrent",
+            "unit": "USD",
+            "filed": "2024-02-16",
+            "form": "10-K",
+            "end": "2023-12-31"
+          },
+          "debtNoncurrent": {
+            "tag": "LongTermDebtNoncurrent",
+            "unit": "USD",
+            "filed": "2024-02-16",
+            "form": "10-K",
+            "end": "2023-12-31"
+          },
+          "sharesDiluted": {
+            "tag": "WeightedAverageNumberOfDilutedSharesOutstanding",
+            "unit": "shares",
+            "filed": "2024-02-16",
+            "form": "10-K",
+            "end": "2023-12-31"
+          },
+          "sharesBasic": {
+            "tag": "WeightedAverageNumberOfSharesOutstandingBasic",
+            "unit": "shares",
+            "filed": "2024-02-16",
+            "form": "10-K",
+            "end": "2023-12-31"
+          }
+        }
+      },
+      {
+        "fy": 2024,
+        "operatingIncome": 7479000000.0,
+        "netIncome": 5698000000.0,
+        "operatingCashFlow": 13260000000.0,
+        "equity": 60460000000.0,
+        "assets": 190144000000.0,
+        "liabilities": 129283000000.0,
+        "cash": 1402000000.0,
+        "debtCurrent": 8061000000.0,
+        "debtNoncurrent": 72385000000.0,
+        "sharesDiluted": 2059200000.0,
+        "sharesBasic": 2052900000.0,
+        "freeCashFlowStatus": "missing_capex_excluded",
+        "sourceTags": {
+          "operatingIncome": {
+            "tag": "OperatingIncomeLoss",
+            "unit": "USD",
+            "filed": "2025-02-14",
+            "form": "10-K",
+            "end": "2024-12-31"
+          },
+          "netIncome": {
+            "tag": "ProfitLoss",
+            "unit": "USD",
+            "filed": "2025-02-14",
+            "form": "10-K",
+            "end": "2024-12-31"
+          },
+          "operatingCashFlow": {
+            "tag": "NetCashProvidedByUsedInOperatingActivities",
+            "unit": "USD",
+            "filed": "2025-02-14",
+            "form": "10-K",
+            "end": "2024-12-31"
+          },
+          "equity": {
+            "tag": "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+            "unit": "USD",
+            "filed": "2025-02-14",
+            "form": "10-K",
+            "end": "2024-12-31"
+          },
+          "assets": {
+            "tag": "Assets",
+            "unit": "USD",
+            "filed": "2025-02-14",
+            "form": "10-K",
+            "end": "2024-12-31"
+          },
+          "liabilities": {
+            "tag": "Liabilities",
+            "unit": "USD",
+            "filed": "2025-02-14",
+            "form": "10-K",
+            "end": "2024-12-31"
+          },
+          "cash": {
+            "tag": "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
+            "unit": "USD",
+            "filed": "2025-02-14",
+            "form": "10-K",
+            "end": "2024-12-31"
+          },
+          "debtCurrent": {
+            "tag": "LongTermDebtCurrent",
+            "unit": "USD",
+            "filed": "2025-02-14",
+            "form": "10-K",
+            "end": "2024-12-31"
+          },
+          "debtNoncurrent": {
+            "tag": "LongTermDebtNoncurrent",
+            "unit": "USD",
+            "filed": "2025-02-14",
+            "form": "10-K",
+            "end": "2024-12-31"
+          },
+          "sharesDiluted": {
+            "tag": "WeightedAverageNumberOfDilutedSharesOutstanding",
+            "unit": "shares",
+            "filed": "2025-02-14",
+            "form": "10-K",
+            "end": "2024-12-31"
+          },
+          "sharesBasic": {
+            "tag": "WeightedAverageNumberOfSharesOutstandingBasic",
+            "unit": "shares",
+            "filed": "2025-02-14",
+            "form": "10-K",
+            "end": "2024-12-31"
+          }
+        }
+      },
+      {
+        "fy": 2025,
+        "operatingIncome": 8280000000.0,
+        "netIncome": 5332000000.0,
+        "operatingCashFlow": 12485000000.0,
+        "equity": 66479000000.0,
+        "assets": 212721000000.0,
+        "liabilities": 146242000000.0,
+        "cash": 3006000000.0,
+        "debtCurrent": 3500000000.0,
+        "debtNoncurrent": 89556000000.0,
+        "sharesDiluted": 2070600000.0,
+        "sharesBasic": 2064500000.0,
+        "freeCashFlowStatus": "missing_capex_excluded",
+        "sourceTags": {
+          "operatingIncome": {
+            "tag": "OperatingIncomeLoss",
+            "unit": "USD",
+            "filed": "2026-02-13",
+            "form": "10-K",
+            "end": "2025-12-31"
+          },
+          "netIncome": {
+            "tag": "ProfitLoss",
+            "unit": "USD",
+            "filed": "2026-02-13",
+            "form": "10-K",
+            "end": "2025-12-31"
+          },
+          "operatingCashFlow": {
+            "tag": "NetCashProvidedByUsedInOperatingActivities",
+            "unit": "USD",
+            "filed": "2026-02-13",
+            "form": "10-K",
+            "end": "2025-12-31"
+          },
+          "equity": {
+            "tag": "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+            "unit": "USD",
+            "filed": "2026-02-13",
+            "form": "10-K",
+            "end": "2025-12-31"
+          },
+          "assets": {
+            "tag": "Assets",
+            "unit": "USD",
+            "filed": "2026-02-13",
+            "form": "10-K",
+            "end": "2025-12-31"
+          },
+          "liabilities": {
+            "tag": "Liabilities",
+            "unit": "USD",
+            "filed": "2026-02-13",
+            "form": "10-K",
+            "end": "2025-12-31"
+          },
+          "cash": {
+            "tag": "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
+            "unit": "USD",
+            "filed": "2026-02-13",
+            "form": "10-K",
+            "end": "2025-12-31"
+          },
+          "debtCurrent": {
+            "tag": "LongTermDebtCurrent",
+            "unit": "USD",
+            "filed": "2026-02-13",
+            "form": "10-K",
+            "end": "2025-12-31"
+          },
+          "debtNoncurrent": {
+            "tag": "LongTermDebtNoncurrent",
+            "unit": "USD",
+            "filed": "2026-02-13",
+            "form": "10-K",
+            "end": "2025-12-31"
+          },
+          "sharesDiluted": {
+            "tag": "WeightedAverageNumberOfDilutedSharesOutstanding",
+            "unit": "shares",
+            "filed": "2026-02-13",
+            "form": "10-K",
+            "end": "2025-12-31"
+          },
+          "sharesBasic": {
+            "tag": "WeightedAverageNumberOfSharesOutstandingBasic",
+            "unit": "shares",
+            "filed": "2026-02-13",
+            "form": "10-K",
+            "end": "2025-12-31"
+          }
+        }
+      }
+    ],
+    "latest": {
+      "fy": 2025,
+      "operatingIncome": 8280000000.0,
+      "netIncome": 5332000000.0,
+      "operatingCashFlow": 12485000000.0,
+      "equity": 66479000000.0,
+      "assets": 212721000000.0,
+      "liabilities": 146242000000.0,
+      "cash": 3006000000.0,
+      "debtCurrent": 3500000000.0,
+      "debtNoncurrent": 89556000000.0,
+      "sharesDiluted": 2070600000.0,
+      "sharesBasic": 2064500000.0,
+      "freeCashFlowStatus": "missing_capex_excluded",
+      "sourceTags": {
+        "operatingIncome": {
+          "tag": "OperatingIncomeLoss",
+          "unit": "USD",
+          "filed": "2026-02-13",
+          "form": "10-K",
+          "end": "2025-12-31"
+        },
+        "netIncome": {
+          "tag": "ProfitLoss",
+          "unit": "USD",
+          "filed": "2026-02-13",
+          "form": "10-K",
+          "end": "2025-12-31"
+        },
+        "operatingCashFlow": {
+          "tag": "NetCashProvidedByUsedInOperatingActivities",
+          "unit": "USD",
+          "filed": "2026-02-13",
+          "form": "10-K",
+          "end": "2025-12-31"
+        },
+        "equity": {
+          "tag": "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+          "unit": "USD",
+          "filed": "2026-02-13",
+          "form": "10-K",
+          "end": "2025-12-31"
+        },
+        "assets": {
+          "tag": "Assets",
+          "unit": "USD",
+          "filed": "2026-02-13",
+          "form": "10-K",
+          "end": "2025-12-31"
+        },
+        "liabilities": {
+          "tag": "Liabilities",
+          "unit": "USD",
+          "filed": "2026-02-13",
+          "form": "10-K",
+          "end": "2025-12-31"
+        },
+        "cash": {
+          "tag": "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
+          "unit": "USD",
+          "filed": "2026-02-13",
+          "form": "10-K",
+          "end": "2025-12-31"
+        },
+        "debtCurrent": {
+          "tag": "LongTermDebtCurrent",
+          "unit": "USD",
+          "filed": "2026-02-13",
+          "form": "10-K",
+          "end": "2025-12-31"
+        },
+        "debtNoncurrent": {
+          "tag": "LongTermDebtNoncurrent",
+          "unit": "USD",
+          "filed": "2026-02-13",
+          "form": "10-K",
+          "end": "2025-12-31"
+        },
+        "sharesDiluted": {
+          "tag": "WeightedAverageNumberOfDilutedSharesOutstanding",
+          "unit": "shares",
+          "filed": "2026-02-13",
+          "form": "10-K",
+          "end": "2025-12-31"
+        },
+        "sharesBasic": {
+          "tag": "WeightedAverageNumberOfSharesOutstandingBasic",
+          "unit": "shares",
+          "filed": "2026-02-13",
+          "form": "10-K",
+          "end": "2025-12-31"
+        }
+      }
+    }
+  },
+  "assumptions": {
+    "projectionYears": 5,
+    "growthRate": 0.04,
+    "discountRate": 0.09,
+    "terminalGrowthRate": 0.025,
+    "benchmarkPe": 22.0,
+    "benchmarkPb": 4.0,
+    "benchmarkPs": 5.0,
+    "benchmarkPfcf": 20.0,
+    "baseFreeCashFlow": null,
+    "cash": 3006000000.0,
+    "debt": 93056000000.0,
+    "sharesOutstanding": 2070600000.0,
+    "note": "기본값은 SEC 과거 재무제표에서 보수적으로 유도했으며 사용자가 직접 수정해야 합니다.",
+    "modelPolicy": {
+      "forecastVariablePolicy": "Keep explicit forecast variables sparse: normalized FCF, growth, discount rate, terminal growth, cash/debt, shares, and comparison multiples.",
+      "dcfMethod": "FCFF-style DCF with Gordon stable-growth terminal value and terminal-value diagnostics.",
+      "relativeMethod": "PER/PBR headline range with P/S and P/FCF as auxiliary cross-checks only.",
+      "decisionOwner": "The user, not the model, owns final valuation judgment and must verify assumptions and comparable multiples."
+    }
+  },
+  "valuations": {
+    "dcf": null,
+    "dcfSensitivity": [],
+    "relative": {
+      "perShareMetrics": {
+        "eps": 2.5750990051192892,
+        "bookValuePerShare": 32.10615280594997,
+        "salesPerShare": null,
+        "freeCashFlowPerShare": null
+      },
+      "qualitySignals": {
+        "roe": 0.08020577926864123,
+        "netMargin": null,
+        "fcfMargin": null,
+        "earningsYield": 0.02968413838754224
+      },
+      "rows": [
+        {
+          "key": "pe",
+          "label": "PER",
+          "baseMetric": 2.5750990051192892,
+          "currentMultiple": 33.68802513128282,
+          "benchmarkMultiple": 22.0,
+          "impliedValue": 56.65217811262436,
+          "description": "순이익 1주당 이익(EPS)에 비교 PER을 곱한 값"
+        },
+        {
+          "key": "pb",
+          "label": "PBR",
+          "baseMetric": 32.10615280594997,
+          "currentMultiple": 2.701974307676108,
+          "benchmarkMultiple": 4.0,
+          "impliedValue": 128.42461122379987,
+          "description": "1주당 순자산(BPS)에 비교 PBR을 곱한 값"
+        },
+        {
+          "key": "ps",
+          "label": "P/S",
+          "baseMetric": null,
+          "currentMultiple": null,
+          "benchmarkMultiple": 5.0,
+          "impliedValue": null,
+          "description": "1주당 매출에 비교 P/S를 곱한 보조 값"
+        },
+        {
+          "key": "pfcf",
+          "label": "P/FCF",
+          "baseMetric": null,
+          "currentMultiple": null,
+          "benchmarkMultiple": 20.0,
+          "impliedValue": null,
+          "description": "1주당 자유현금흐름에 비교 P/FCF를 곱한 보조 값"
+        }
+      ],
+      "range": {
+        "low": 56.65217811262436,
+        "mid": 92.53839466821212,
+        "high": 128.42461122379987,
+        "basis": "PER/PBR headline only",
+        "confirmed": false
+      },
+      "auxiliaryRange": {
+        "low": null,
+        "mid": null,
+        "high": null,
+        "basis": "P/S and P/FCF auxiliary cross-check only"
+      },
+      "benchmarkSource": "illustrative-default",
+      "benchmarkNote": "기본 배수는 예시값이며 사용자가 산업/비교기업 기준으로 확인해야 합니다.",
+      "diagnostics": {
+        "usableHeadlineMultiples": 2,
+        "flags": [],
+        "interpretation": "시장 배수는 성장률·수익성·위험·회계 품질이 비슷한 비교군을 전제로 할 때만 의미가 커집니다."
+      }
+    },
+    "methodComparison": {
+      "dcfPerShare": null,
+      "relativePerShare": 92.53839466821212,
+      "relativeConfirmed": false,
+      "note": "DCF와 PER/PBR 상대가치는 평균내지 않습니다. 상대가치는 사용자 배수 확인 전 예시값입니다."
+    }
+  },
+  "quality": {
+    "status": "수동 확인 필요",
+    "warnings": [
+      "2021년 CAPEX 태그가 없어 해당 연도는 FCF 정규화에서 제외했습니다.",
+      "2022년 CAPEX 태그가 없어 해당 연도는 FCF 정규화에서 제외했습니다.",
+      "2023년 CAPEX 태그가 없어 해당 연도는 FCF 정규화에서 제외했습니다.",
+      "2024년 CAPEX 태그가 없어 해당 연도는 FCF 정규화에서 제외했습니다.",
+      "2025년 CAPEX 태그가 없어 해당 연도는 FCF 정규화에서 제외했습니다.",
+      "최근 3년 중 CAPEX가 확인된 FCF가 2개 미만이어서 DCF를 수동 확인 대상으로 격하했습니다.",
+      "자유현금흐름을 산출할 수 없어 DCF 기준값이 제한됩니다.",
+      "DCF 산출에 필요한 FCF 또는 주식수 데이터가 부족합니다."
+    ],
+    "guardrails": [
+      "이 결과는 투자 의견이 아니라 사용자의 판단을 돕는 계산 보조 자료입니다.",
+      "DCF는 성장률·할인율·영구성장률 가정에 매우 민감합니다.",
+      "터미널 가치 비중이 높을수록 안정성장 가정을 더 보수적으로 검토하세요.",
+      "상대가치는 비교 배수 선택에 따라 크게 달라집니다.",
+      "PER/PBR은 수익성, 성장률, 위험, 회계 품질이 유사한 비교군에서만 해석력이 커집니다.",
+      "SEC 재무 데이터와 시장가격 스냅샷의 신뢰도를 분리해서 확인하세요."
+    ]
+  }
+}

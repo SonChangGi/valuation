@@ -15,7 +15,7 @@ except ImportError:  # pragma: no cover - exercised when run as a script
     from valuation_core import calculate_dcf, calculate_relative_valuation
 
 REQUIRED_COMPANY_TOP_KEYS = {"schemaVersion", "generatedAt", "company", "sources", "market", "financials", "assumptions", "valuations", "quality"}
-REQUIRED_COMPANY_FIELDS = {"ticker", "cik", "name", "currency"}
+REQUIRED_COMPANY_FIELDS = {"ticker", "cik", "name", "currency", "sector", "sectorLabel", "themeTags"}
 REQUIRED_VALUATION_KEYS = {"dcf", "dcfSensitivity", "relative", "methodComparison"}
 MONETARY_FIELDS = {"revenue", "operatingIncome", "netIncome", "operatingCashFlow", "capitalExpenditures", "equity", "assets", "liabilities", "cash", "debtCurrent", "debtNoncurrent"}
 SHARE_FIELDS = {"sharesDiluted", "sharesBasic"}
@@ -70,6 +70,8 @@ def validate_company(path: Path) -> list[str]:
     require(not missing_company, f"{path}: missing company fields {sorted(missing_company)}")
     require(company["ticker"].isupper(), f"{path}: ticker should be uppercase")
     require(str(company["cik"]).isdigit() and len(str(company["cik"])) == 10, f"{path}: CIK must be zero-padded 10 digits")
+    require(isinstance(company.get("themeTags"), list) and company["themeTags"], f"{path}: themeTags must be a non-empty list")
+    require(payload.get("sources", {}).get("methodology"), f"{path}: methodology references are required")
 
     financials = payload["financials"]
     require(isinstance(financials.get("annual"), list), f"{path}: financials.annual must be a list")
@@ -110,6 +112,8 @@ def validate_company(path: Path) -> list[str]:
             projection_years=assumptions["projectionYears"],
         )
         require("perShareValue" in valuations["dcf"], f"{path}: DCF perShareValue required when DCF exists")
+        require("diagnostics" in valuations["dcf"], f"{path}: DCF diagnostics required")
+        require("terminalValueWeight" in valuations["dcf"]["diagnostics"], f"{path}: DCF terminal value weight required")
         require_close(valuations["dcf"]["perShareValue"], expected_dcf["perShareValue"], f"{path}: DCF perShareValue mismatch")
         require(len(valuations.get("dcfSensitivity") or []) >= 1, f"{path}: DCF sensitivity matrix required")
     else:
@@ -122,6 +126,7 @@ def validate_company(path: Path) -> list[str]:
         require((relative.get("range") or {}).get("basis") == "PER/PBR headline only", f"{path}: headline relative range must be PER/PBR only")
         require((relative.get("range") or {}).get("confirmed") is False, f"{path}: generated relative defaults must be unconfirmed")
         require("auxiliaryRange" in relative, f"{path}: auxiliary relative range required for P/S and P/FCF")
+        require("qualitySignals" in relative and "diagnostics" in relative, f"{path}: relative quality signals and diagnostics required")
         expected_relative = calculate_relative_valuation(
             price=payload["market"].get("price"),
             revenue=financials["latest"].get("revenue"),
@@ -155,12 +160,15 @@ def validate_index(data_dir: Path) -> list[Path]:
     index = read_json(index_path)
     require(index.get("schemaVersion") == 1, f"{index_path}: schemaVersion must be 1")
     require(index.get("basePath") == "/valuation/", f"{index_path}: basePath should be /valuation/")
+    require(index.get("methodologyReferences"), f"{index_path}: methodologyReferences required")
+    require(index.get("modelPolicy"), f"{index_path}: modelPolicy required")
     tickers = index.get("tickers")
     require(isinstance(tickers, list) and tickers, f"{index_path}: tickers must be a non-empty list")
     company_paths = []
     for item in tickers:
-        for key in ["ticker", "name", "companyFile", "qualityStatus"]:
+        for key in ["ticker", "name", "companyFile", "qualityStatus", "sector", "sectorLabel", "themeTags"]:
             require(key in item, f"{index_path}: ticker item missing {key}")
+        require(isinstance(item.get("themeTags"), list) and item["themeTags"], f"{index_path}: ticker item themeTags required")
         require("relativeMid" not in item, f"{index_path}: unconfirmed relative midpoint must not be published in index")
         company_path = data_dir / item["companyFile"]
         require(company_path.exists(), f"{index_path}: referenced company file missing: {company_path}")
@@ -177,7 +185,7 @@ def validate_static_files(root: Path) -> None:
     for path in [html, css, app, assumptions, model]:
         require(path.exists(), f"{path}: missing static asset")
     html_text = html.read_text(encoding="utf-8")
-    for needle in ["Stock Valuation Workspace", "티커", "가치평가", "사용자의 판단", "data/index.json", "Content-Security-Policy", "DCF와 상대가치는 평균내지 않습니다"]:
+    for needle in ["Stock Valuation Workspace", "가치평가를 근거 있게", "티커", "가치평가", "사용자의 판단", "data/index.json", "Content-Security-Policy", "DCF와 상대가치는 평균내지 않습니다"]:
         require(needle in html_text, f"{html}: missing expected copy/reference {needle!r}")
     require("sonchanggi.github.io/quant-dashboard" in html_text, f"{html}: should reference dashboard only as navigation/reference")
     app_text = app.read_text(encoding="utf-8")

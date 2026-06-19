@@ -9,6 +9,7 @@ reproducible, and compatible with GitHub Pages.
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
 import os
 import re
@@ -47,6 +48,125 @@ SEC_COMPANYFACTS_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json
 YAHOO_CHART_URL = "https://query1.finance.yahoo.com/v8/finance/chart/{ticker}?range=1mo&interval=1d"
 DEFAULT_USER_AGENT = os.environ.get("SEC_USER_AGENT", "")
 TICKER_PATTERN = re.compile(r"^[A-Z0-9][A-Z0-9.-]{0,14}$")
+DEFAULT_TICKERS = [
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "GOOGL",
+    "AMZN",
+    "META",
+    "TSLA",
+    "JPM",
+    "MA",
+    "JNJ",
+    "LLY",
+    "UNH",
+    "XOM",
+    "WMT",
+    "COST",
+    "PG",
+    "KO",
+    "CAT",
+    "NEE",
+    "PLD",
+    "LIN",
+]
+
+METHODOLOGY_REFERENCES = [
+    {
+        "key": "cfa-free-cash-flow",
+        "title": "CFA Institute Free Cash Flow Valuation",
+        "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/free-cash-flow-valuation",
+        "use": "FCFF/FCFE 현금흐름 기반 절대가치와 민감도 해석 기준",
+    },
+    {
+        "key": "cfa-market-multiples",
+        "title": "CFA Institute Market-Based Valuation: Price and Enterprise Value Multiples",
+        "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/market-based-valuation-price-enterprise-value-multiples",
+        "use": "PER/PBR/P/S/P/FCF 배수 비교의 조건과 한계",
+    },
+    {
+        "key": "damodaran-terminal-value",
+        "title": "Aswath Damodaran, Terminal Value Approaches",
+        "url": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/valquestions/termvalapproaches.htm",
+        "use": "안정성장 터미널 가치와 영구성장률 점검",
+    },
+    {
+        "key": "fama-french-1992",
+        "title": "Fama and French (1992), The Cross-Section of Expected Stock Returns",
+        "url": "https://doi.org/10.1111/j.1540-6261.1992.tb04398.x",
+        "use": "규모와 book-to-market 등 상대가치 신호가 위험/수익률 해석과 연결될 수 있음을 환기",
+    },
+    {
+        "key": "investor-edgar",
+        "title": "Investor.gov Using EDGAR to Research Investments",
+        "url": "https://www.investor.gov/introduction-investing/getting-started/researching-investments/using-edgar-research-investments",
+        "use": "공시 원문 확인과 데이터 품질 검증",
+    },
+]
+
+MODEL_POLICY = {
+    "forecastVariablePolicy": "Keep explicit forecast variables sparse: normalized FCF, growth, discount rate, terminal growth, cash/debt, shares, and comparison multiples.",
+    "dcfMethod": "FCFF-style DCF with Gordon stable-growth terminal value and terminal-value diagnostics.",
+    "relativeMethod": "PER/PBR headline range with P/S and P/FCF as auxiliary cross-checks only.",
+    "decisionOwner": "The user, not the model, owns final valuation judgment and must verify assumptions and comparable multiples.",
+}
+
+SECTOR_LABELS = {
+    "Technology": "기술",
+    "Communication Services": "커뮤니케이션",
+    "Consumer Discretionary": "임의소비재",
+    "Consumer Staples": "필수소비재",
+    "Financials": "금융",
+    "Healthcare": "헬스케어",
+    "Energy": "에너지",
+    "Industrials": "산업재",
+    "Utilities": "유틸리티",
+    "Real Estate": "부동산",
+    "Materials": "소재",
+    "Other": "기타",
+}
+
+TICKER_CLASSIFICATION_OVERRIDES = {
+    "AAPL": ("Technology", ["Consumer Tech", "Devices", "Services"]),
+    "MSFT": ("Technology", ["Cloud", "AI", "Software"]),
+    "NVDA": ("Technology", ["AI", "Semiconductors", "Accelerated Computing"]),
+    "GOOGL": ("Communication Services", ["Search", "Advertising", "AI"]),
+    "META": ("Communication Services", ["Social", "Advertising", "AI"]),
+    "AMZN": ("Consumer Discretionary", ["E-commerce", "Cloud", "Logistics"]),
+    "TSLA": ("Consumer Discretionary", ["EV", "Autonomy", "Manufacturing"]),
+    "JPM": ("Financials", ["Banking", "Credit", "Capital Markets"]),
+    "V": ("Financials", ["Payments", "Network", "Consumer Spending"]),
+    "MA": ("Financials", ["Payments", "Network", "Consumer Spending"]),
+    "JNJ": ("Healthcare", ["Pharma", "MedTech", "Defensive"]),
+    "LLY": ("Healthcare", ["Pharma", "GLP-1", "Innovation"]),
+    "UNH": ("Healthcare", ["Managed Care", "Insurance", "Healthcare Services"]),
+    "XOM": ("Energy", ["Oil & Gas", "Commodity", "Cash Flow"]),
+    "WMT": ("Consumer Staples", ["Retail", "Scale", "Defensive"]),
+    "COST": ("Consumer Staples", ["Retail", "Membership", "Scale"]),
+    "PG": ("Consumer Staples", ["Brands", "Household", "Defensive"]),
+    "KO": ("Consumer Staples", ["Beverages", "Brands", "Defensive"]),
+    "CAT": ("Industrials", ["Machinery", "Infrastructure", "Cycle"]),
+    "NEE": ("Utilities", ["Utility", "Renewables", "Dividend"]),
+    "PLD": ("Real Estate", ["REIT", "Logistics", "Real Assets"]),
+    "LIN": ("Materials", ["Industrial Gas", "Materials", "Pricing Power"]),
+}
+
+SIC_SECTOR_RULES = [
+    ((1000, 1499), "Energy"),
+    ((2000, 2099), "Consumer Staples"),
+    ((2800, 2899), "Healthcare"),
+    ((3500, 3699), "Technology"),
+    ((3700, 3799), "Industrials"),
+    ((4800, 4899), "Communication Services"),
+    ((4900, 4999), "Utilities"),
+    ((5300, 5399), "Consumer Discretionary"),
+    ((5400, 5499), "Consumer Staples"),
+    ((5800, 5899), "Consumer Discretionary"),
+    ((6000, 6499), "Financials"),
+    ((6500, 6799), "Real Estate"),
+    ((7000, 7399), "Technology"),
+]
 
 TAG_GROUPS = {
     "revenue": [
@@ -82,16 +202,73 @@ def now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
+def infer_sector_from_sic(sic: str | int | None) -> str:
+    try:
+        sic_number = int(str(sic))
+    except (TypeError, ValueError):
+        return "Other"
+    for (lower, upper), sector in SIC_SECTOR_RULES:
+        if lower <= sic_number <= upper:
+            return sector
+    return "Other"
+
+
+def classify_company(ticker: str, submissions: dict[str, Any], ticker_meta: dict[str, Any]) -> dict[str, Any]:
+    """Attach broad sector/theme metadata for navigation, not for model fitting."""
+
+    override = TICKER_CLASSIFICATION_OVERRIDES.get(ticker)
+    source = "ticker-override"
+    if override:
+        sector, themes = override
+    else:
+        sector = infer_sector_from_sic(submissions.get("sic"))
+        source = "sic-range" if sector != "Other" else "unclassified"
+        themes = []
+
+    if not themes:
+        description = " ".join(
+            str(value or "")
+            for value in [ticker_meta.get("name"), submissions.get("sicDescription"), submissions.get("entityType")]
+        ).lower()
+        theme_rules = [
+            ("bank", "Banking"),
+            ("insurance", "Insurance"),
+            ("semiconductor", "Semiconductors"),
+            ("software", "Software"),
+            ("pharmaceutical", "Pharma"),
+            ("retail", "Retail"),
+            ("real estate", "Real Assets"),
+            ("utility", "Utility"),
+            ("oil", "Oil & Gas"),
+            ("gas", "Oil & Gas"),
+        ]
+        themes = [label for needle, label in theme_rules if needle in description]
+    if not themes:
+        themes = [sector]
+
+    deduped_themes = list(dict.fromkeys(themes[:4]))
+    return {
+        "sector": sector,
+        "sectorLabel": SECTOR_LABELS.get(sector, sector),
+        "themeTags": deduped_themes,
+        "classificationSource": source,
+    }
+
+
 def request_json(url: str, user_agent: str, timeout: int = 30) -> Any:
     req = urllib.request.Request(
         url,
         headers={
             "User-Agent": user_agent,
             "Accept": "application/json,text/plain,*/*",
+            "Accept-Encoding": "gzip",
         },
     )
     with urllib.request.urlopen(req, timeout=timeout) as response:
-        return json.loads(response.read().decode("utf-8"))
+        body = response.read()
+        if response.headers.get("Content-Encoding") == "gzip":
+            body = gzip.decompress(body)
+        return json.loads(body.decode("utf-8"))
 
 
 def load_ticker_map(user_agent: str) -> dict[str, dict[str, Any]]:
@@ -241,6 +418,7 @@ def build_company_payload(
     companyfacts_url = SEC_COMPANYFACTS_URL.format(cik=cik)
     submissions = request_json(submissions_url, user_agent)
     companyfacts = request_json(companyfacts_url, user_agent)
+    classification = classify_company(ticker, submissions, ticker_meta)
     market, market_warnings = fetch_market_snapshot(ticker, user_agent)
     if manual_price is not None:
         market = {
@@ -285,6 +463,7 @@ def build_company_payload(
         "debt": debt,
         "sharesOutstanding": shares,
         "note": "기본값은 SEC 과거 재무제표에서 보수적으로 유도했으며 사용자가 직접 수정해야 합니다.",
+        "modelPolicy": MODEL_POLICY,
     })
 
     dcf = None
@@ -355,6 +534,10 @@ def build_company_payload(
             "cik": cik,
             "name": entity_name,
             "exchange": ticker_meta.get("exchange") or submissions.get("exchanges", [None])[0],
+            "sector": classification["sector"],
+            "sectorLabel": classification["sectorLabel"],
+            "themeTags": classification["themeTags"],
+            "classificationSource": classification["classificationSource"],
             "sic": submissions.get("sic"),
             "sicDescription": submissions.get("sicDescription"),
             "entityType": submissions.get("entityType"),
@@ -368,6 +551,7 @@ def build_company_payload(
                 "note": "SEC EDGAR companyfacts/submissions에서 추출한 공개 재무제표 데이터입니다.",
             },
             "market": market,
+            "methodology": METHODOLOGY_REFERENCES,
         },
         "market": market,
         "financials": {
@@ -388,7 +572,9 @@ def build_company_payload(
             "guardrails": [
                 "이 결과는 투자 의견이 아니라 사용자의 판단을 돕는 계산 보조 자료입니다.",
                 "DCF는 성장률·할인율·영구성장률 가정에 매우 민감합니다.",
+                "터미널 가치 비중이 높을수록 안정성장 가정을 더 보수적으로 검토하세요.",
                 "상대가치는 비교 배수 선택에 따라 크게 달라집니다.",
+                "PER/PBR은 수익성, 성장률, 위험, 회계 품질이 유사한 비교군에서만 해석력이 커집니다.",
                 "SEC 재무 데이터와 시장가격 스냅샷의 신뢰도를 분리해서 확인하세요.",
             ],
         },
@@ -403,6 +589,9 @@ def compact_index_item(payload: dict[str, Any]) -> dict[str, Any]:
         "ticker": company["ticker"],
         "name": company.get("name"),
         "exchange": company.get("exchange"),
+        "sector": company.get("sector"),
+        "sectorLabel": company.get("sectorLabel"),
+        "themeTags": company.get("themeTags") or [],
         "currency": company.get("currency"),
         "price": market.get("price"),
         "priceAsOf": market.get("asOf"),
@@ -447,7 +636,7 @@ def normalize_tickers(values: list[str]) -> list[str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--tickers", nargs="+", default=["AAPL", "MSFT", "NVDA"], help="Tickers to generate")
+    parser.add_argument("--tickers", nargs="+", default=DEFAULT_TICKERS, help="Tickers to generate")
     parser.add_argument("--output", default="docs/data", help="Output data directory")
     parser.add_argument("--user-agent", default=DEFAULT_USER_AGENT, help="SEC-compliant descriptive User-Agent with contact")
     parser.add_argument("--sleep", type=float, default=0.15, help="Delay between SEC/company requests")
@@ -493,6 +682,8 @@ def main() -> int:
         "generatedAt": now_iso(),
         "basePath": "/valuation/",
         "dataPolicy": "Static JSON generated from public SEC fundamentals and best-effort market price snapshots.",
+        "methodologyReferences": METHODOLOGY_REFERENCES,
+        "modelPolicy": MODEL_POLICY,
         "tickers": companies,
         "errors": errors,
     }

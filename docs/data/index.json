@@ -2,45 +2,446 @@
   "schemaVersion": 1,
   "project": "valuation",
   "title": "Stock Valuation Workspace",
-  "generatedAt": "2026-06-19T13:16:11Z",
+  "generatedAt": "2026-06-19T14:43:32Z",
   "basePath": "/valuation/",
   "dataPolicy": "Static JSON generated from public SEC fundamentals and best-effort market price snapshots.",
+  "methodologyReferences": [
+    {
+      "key": "cfa-free-cash-flow",
+      "title": "CFA Institute Free Cash Flow Valuation",
+      "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/free-cash-flow-valuation",
+      "use": "FCFF/FCFE 현금흐름 기반 절대가치와 민감도 해석 기준"
+    },
+    {
+      "key": "cfa-market-multiples",
+      "title": "CFA Institute Market-Based Valuation: Price and Enterprise Value Multiples",
+      "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/market-based-valuation-price-enterprise-value-multiples",
+      "use": "PER/PBR/P/S/P/FCF 배수 비교의 조건과 한계"
+    },
+    {
+      "key": "damodaran-terminal-value",
+      "title": "Aswath Damodaran, Terminal Value Approaches",
+      "url": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/valquestions/termvalapproaches.htm",
+      "use": "안정성장 터미널 가치와 영구성장률 점검"
+    },
+    {
+      "key": "fama-french-1992",
+      "title": "Fama and French (1992), The Cross-Section of Expected Stock Returns",
+      "url": "https://doi.org/10.1111/j.1540-6261.1992.tb04398.x",
+      "use": "규모와 book-to-market 등 상대가치 신호가 위험/수익률 해석과 연결될 수 있음을 환기"
+    },
+    {
+      "key": "investor-edgar",
+      "title": "Investor.gov Using EDGAR to Research Investments",
+      "url": "https://www.investor.gov/introduction-investing/getting-started/researching-investments/using-edgar-research-investments",
+      "use": "공시 원문 확인과 데이터 품질 검증"
+    }
+  ],
+  "modelPolicy": {
+    "forecastVariablePolicy": "Keep explicit forecast variables sparse: normalized FCF, growth, discount rate, terminal growth, cash/debt, shares, and comparison multiples.",
+    "dcfMethod": "FCFF-style DCF with Gordon stable-growth terminal value and terminal-value diagnostics.",
+    "relativeMethod": "PER/PBR headline range with P/S and P/FCF as auxiliary cross-checks only.",
+    "decisionOwner": "The user, not the model, owns final valuation judgment and must verify assumptions and comparable multiples."
+  },
   "tickers": [
     {
       "ticker": "AAPL",
       "name": "Apple Inc.",
       "exchange": "Nasdaq",
+      "sector": "Technology",
+      "sectorLabel": "기술",
+      "themeTags": [
+        "Consumer Tech",
+        "Devices",
+        "Services"
+      ],
       "currency": "USD",
       "price": 298.01,
       "priceAsOf": "2026-06-18",
       "qualityStatus": "충분",
       "companyFile": "companies/AAPL.json",
       "dcfPerShare": 104.59517896320538,
-      "generatedAt": "2026-06-19T13:16:08Z"
+      "generatedAt": "2026-06-19T14:42:59Z"
     },
     {
       "ticker": "MSFT",
       "name": "MICROSOFT CORPORATION",
       "exchange": "Nasdaq",
+      "sector": "Technology",
+      "sectorLabel": "기술",
+      "themeTags": [
+        "Cloud",
+        "AI",
+        "Software"
+      ],
       "currency": "USD",
       "price": 379.4,
       "priceAsOf": "2026-06-18",
       "qualityStatus": "충분",
       "companyFile": "companies/MSFT.json",
       "dcfPerShare": 223.61184950046587,
-      "generatedAt": "2026-06-19T13:16:09Z"
+      "generatedAt": "2026-06-19T14:43:00Z"
     },
     {
       "ticker": "NVDA",
       "name": "NVIDIA CORP",
       "exchange": "Nasdaq",
+      "sector": "Technology",
+      "sectorLabel": "기술",
+      "themeTags": [
+        "AI",
+        "Semiconductors",
+        "Accelerated Computing"
+      ],
       "currency": "USD",
       "price": 210.69,
       "priceAsOf": "2026-06-18",
       "qualityStatus": "일부 누락",
       "companyFile": "companies/NVDA.json",
       "dcfPerShare": 58.39922778438662,
-      "generatedAt": "2026-06-19T13:16:11Z"
+      "generatedAt": "2026-06-19T14:43:02Z"
+    },
+    {
+      "ticker": "GOOGL",
+      "name": "Alphabet Inc.",
+      "exchange": "Nasdaq",
+      "sector": "Communication Services",
+      "sectorLabel": "커뮤니케이션",
+      "themeTags": [
+        "Search",
+        "Advertising",
+        "AI"
+      ],
+      "currency": "USD",
+      "price": 368.03,
+      "priceAsOf": "2026-06-18",
+      "qualityStatus": "충분",
+      "companyFile": "companies/GOOGL.json",
+      "dcfPerShare": 137.2820151928357,
+      "generatedAt": "2026-06-19T14:43:03Z"
+    },
+    {
+      "ticker": "AMZN",
+      "name": "AMAZON COM INC",
+      "exchange": "Nasdaq",
+      "sector": "Consumer Discretionary",
+      "sectorLabel": "임의소비재",
+      "themeTags": [
+        "E-commerce",
+        "Cloud",
+        "Logistics"
+      ],
+      "currency": "USD",
+      "price": 244.39,
+      "priceAsOf": "2026-06-18",
+      "qualityStatus": "충분",
+      "companyFile": "companies/AMZN.json",
+      "dcfPerShare": 69.70848376188634,
+      "generatedAt": "2026-06-19T14:43:05Z"
+    },
+    {
+      "ticker": "META",
+      "name": "Meta Platforms, Inc.",
+      "exchange": "Nasdaq",
+      "sector": "Communication Services",
+      "sectorLabel": "커뮤니케이션",
+      "themeTags": [
+        "Social",
+        "Advertising",
+        "AI"
+      ],
+      "currency": "USD",
+      "price": 577.22,
+      "priceAsOf": "2026-06-18",
+      "qualityStatus": "충분",
+      "companyFile": "companies/META.json",
+      "dcfPerShare": 413.1604993768063,
+      "generatedAt": "2026-06-19T14:43:06Z"
+    },
+    {
+      "ticker": "TSLA",
+      "name": "Tesla, Inc.",
+      "exchange": "Nasdaq",
+      "sector": "Consumer Discretionary",
+      "sectorLabel": "임의소비재",
+      "themeTags": [
+        "EV",
+        "Autonomy",
+        "Manufacturing"
+      ],
+      "currency": "USD",
+      "price": 400.49,
+      "priceAsOf": "2026-06-18",
+      "qualityStatus": "충분",
+      "companyFile": "companies/TSLA.json",
+      "dcfPerShare": 33.697332451484066,
+      "generatedAt": "2026-06-19T14:43:07Z"
+    },
+    {
+      "ticker": "JPM",
+      "name": "JPMORGAN CHASE & CO",
+      "exchange": "NYSE",
+      "sector": "Financials",
+      "sectorLabel": "금융",
+      "themeTags": [
+        "Banking",
+        "Credit",
+        "Capital Markets"
+      ],
+      "currency": "USD",
+      "price": 325.22,
+      "priceAsOf": "2026-06-18",
+      "qualityStatus": "수동 확인 필요",
+      "companyFile": "companies/JPM.json",
+      "dcfPerShare": null,
+      "generatedAt": "2026-06-19T14:43:09Z"
+    },
+    {
+      "ticker": "MA",
+      "name": "Mastercard Inc",
+      "exchange": "NYSE",
+      "sector": "Financials",
+      "sectorLabel": "금융",
+      "themeTags": [
+        "Payments",
+        "Network",
+        "Consumer Spending"
+      ],
+      "currency": "USD",
+      "price": 489.79,
+      "priceAsOf": "2026-06-18",
+      "qualityStatus": "충분",
+      "companyFile": "companies/MA.json",
+      "dcfPerShare": 364.57146438046624,
+      "generatedAt": "2026-06-19T14:43:11Z"
+    },
+    {
+      "ticker": "JNJ",
+      "name": "Johnson & Johnson",
+      "exchange": "NYSE",
+      "sector": "Healthcare",
+      "sectorLabel": "헬스케어",
+      "themeTags": [
+        "Pharma",
+        "MedTech",
+        "Defensive"
+      ],
+      "currency": "USD",
+      "price": 228.39,
+      "priceAsOf": "2026-06-18",
+      "qualityStatus": "충분",
+      "companyFile": "companies/JNJ.json",
+      "dcfPerShare": 103.57661700670104,
+      "generatedAt": "2026-06-19T14:43:13Z"
+    },
+    {
+      "ticker": "LLY",
+      "name": "ELI LILLY & Co",
+      "exchange": "NYSE",
+      "sector": "Healthcare",
+      "sectorLabel": "헬스케어",
+      "themeTags": [
+        "Pharma",
+        "GLP-1",
+        "Innovation"
+      ],
+      "currency": "USD",
+      "price": 1098.57,
+      "priceAsOf": "2026-06-18",
+      "qualityStatus": "수동 확인 필요",
+      "companyFile": "companies/LLY.json",
+      "dcfPerShare": null,
+      "generatedAt": "2026-06-19T14:43:14Z"
+    },
+    {
+      "ticker": "UNH",
+      "name": "UnitedHealth Group Incorporated",
+      "exchange": "NYSE",
+      "sector": "Healthcare",
+      "sectorLabel": "헬스케어",
+      "themeTags": [
+        "Managed Care",
+        "Insurance",
+        "Healthcare Services"
+      ],
+      "currency": "USD",
+      "price": 400.96,
+      "priceAsOf": "2026-06-18",
+      "qualityStatus": "충분",
+      "companyFile": "companies/UNH.json",
+      "dcfPerShare": 474.5557309717281,
+      "generatedAt": "2026-06-19T14:43:16Z"
+    },
+    {
+      "ticker": "XOM",
+      "name": "Exxon Mobil Corporation",
+      "exchange": "NYSE",
+      "sector": "Energy",
+      "sectorLabel": "에너지",
+      "themeTags": [
+        "Oil & Gas",
+        "Commodity",
+        "Cash Flow"
+      ],
+      "currency": "USD",
+      "price": 137.81,
+      "priceAsOf": "2026-06-18",
+      "qualityStatus": "충분",
+      "companyFile": "companies/XOM.json",
+      "dcfPerShare": 120.29523806026549,
+      "generatedAt": "2026-06-19T14:43:18Z"
+    },
+    {
+      "ticker": "WMT",
+      "name": "WALMART INC.",
+      "exchange": "Nasdaq",
+      "sector": "Consumer Staples",
+      "sectorLabel": "필수소비재",
+      "themeTags": [
+        "Retail",
+        "Scale",
+        "Defensive"
+      ],
+      "currency": "USD",
+      "price": 117.18,
+      "priceAsOf": "2026-06-18",
+      "qualityStatus": "충분",
+      "companyFile": "companies/WMT.json",
+      "dcfPerShare": 29.818141575373023,
+      "generatedAt": "2026-06-19T14:43:19Z"
+    },
+    {
+      "ticker": "COST",
+      "name": "COSTCO WHOLESALE CORP /NEW",
+      "exchange": "Nasdaq",
+      "sector": "Consumer Staples",
+      "sectorLabel": "필수소비재",
+      "themeTags": [
+        "Retail",
+        "Membership",
+        "Scale"
+      ],
+      "currency": "USD",
+      "price": 951.45,
+      "priceAsOf": "2026-06-18",
+      "qualityStatus": "충분",
+      "companyFile": "companies/COST.json",
+      "dcfPerShare": 332.0755917833559,
+      "generatedAt": "2026-06-19T14:43:21Z"
+    },
+    {
+      "ticker": "PG",
+      "name": "PROCTER & GAMBLE CO",
+      "exchange": "NYSE",
+      "sector": "Consumer Staples",
+      "sectorLabel": "필수소비재",
+      "themeTags": [
+        "Brands",
+        "Household",
+        "Defensive"
+      ],
+      "currency": "USD",
+      "price": 150.38,
+      "priceAsOf": "2026-06-18",
+      "qualityStatus": "충분",
+      "companyFile": "companies/PG.json",
+      "dcfPerShare": 82.06296376841449,
+      "generatedAt": "2026-06-19T14:43:23Z"
+    },
+    {
+      "ticker": "KO",
+      "name": "COCA COLA CO",
+      "exchange": "NYSE",
+      "sector": "Consumer Staples",
+      "sectorLabel": "필수소비재",
+      "themeTags": [
+        "Beverages",
+        "Brands",
+        "Defensive"
+      ],
+      "currency": "USD",
+      "price": 79.39,
+      "priceAsOf": "2026-06-18",
+      "qualityStatus": "충분",
+      "companyFile": "companies/KO.json",
+      "dcfPerShare": 24.60150721976946,
+      "generatedAt": "2026-06-19T14:43:24Z"
+    },
+    {
+      "ticker": "CAT",
+      "name": "CATERPILLAR INC",
+      "exchange": "NYSE",
+      "sector": "Industrials",
+      "sectorLabel": "산업재",
+      "themeTags": [
+        "Machinery",
+        "Infrastructure",
+        "Cycle"
+      ],
+      "currency": "USD",
+      "price": 985.82,
+      "priceAsOf": "2026-06-18",
+      "qualityStatus": "충분",
+      "companyFile": "companies/CAT.json",
+      "dcfPerShare": 356.2319798902439,
+      "generatedAt": "2026-06-19T14:43:26Z"
+    },
+    {
+      "ticker": "NEE",
+      "name": "NEXTERA ENERGY, INC.",
+      "exchange": "NYSE",
+      "sector": "Utilities",
+      "sectorLabel": "유틸리티",
+      "themeTags": [
+        "Utility",
+        "Renewables",
+        "Dividend"
+      ],
+      "currency": "USD",
+      "price": 86.75,
+      "priceAsOf": "2026-06-18",
+      "qualityStatus": "수동 확인 필요",
+      "companyFile": "companies/NEE.json",
+      "dcfPerShare": null,
+      "generatedAt": "2026-06-19T14:43:28Z"
+    },
+    {
+      "ticker": "PLD",
+      "name": "Prologis, Inc.",
+      "exchange": "NYSE",
+      "sector": "Real Estate",
+      "sectorLabel": "부동산",
+      "themeTags": [
+        "REIT",
+        "Logistics",
+        "Real Assets"
+      ],
+      "currency": "USD",
+      "price": 140.54,
+      "priceAsOf": "2026-06-18",
+      "qualityStatus": "수동 확인 필요",
+      "companyFile": "companies/PLD.json",
+      "dcfPerShare": null,
+      "generatedAt": "2026-06-19T14:43:30Z"
+    },
+    {
+      "ticker": "LIN",
+      "name": "LINDE PLC",
+      "exchange": "Nasdaq",
+      "sector": "Materials",
+      "sectorLabel": "소재",
+      "themeTags": [
+        "Industrial Gas",
+        "Materials",
+        "Pricing Power"
+      ],
+      "currency": "USD",
+      "price": 512.15,
+      "priceAsOf": "2026-06-18",
+      "qualityStatus": "충분",
+      "companyFile": "companies/LIN.json",
+      "dcfPerShare": 127.30464190560113,
+      "generatedAt": "2026-06-19T14:43:31Z"
     }
   ],
   "errors": []

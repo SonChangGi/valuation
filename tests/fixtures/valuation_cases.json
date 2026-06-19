@@ -13,7 +13,8 @@
     "expected": {
       "enterpriseValue": 1382.4638429752065,
       "equityValue": 1397.4638429752065,
-      "perShareValue": 139.74638429752065
+      "perShareValue": 139.74638429752065,
+      "terminalValueWeight": 0.8021327436784479
     }
   },
   "relative": {
@@ -39,6 +40,9 @@
         "low": 120,
         "mid": 160,
         "high": 200
+      },
+      "qualitySignals": {
+        "roe": 0.4
       }
     }
   }

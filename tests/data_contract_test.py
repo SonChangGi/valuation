@@ -7,7 +7,7 @@ from scripts.validate_data import validate_company, validate_index, validate_sta
 class DataContractTest(unittest.TestCase):
     def test_generated_data_contract(self):
         company_paths = validate_index(Path("docs/data"))
-        self.assertGreaterEqual(len(company_paths), 3)
+        self.assertGreaterEqual(len(company_paths), 12)
         for path in company_paths:
             validate_company(path)
 

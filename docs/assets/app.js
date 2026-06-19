@@ -14,6 +14,7 @@ const state = {
   assumptions: null,
   currentTicker: null,
   relativeConfirmed: false,
+  activeFilter: 'all',
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -24,6 +25,7 @@ function bindElements() {
     tickerForm: $('#ticker-form'),
     tickerInput: $('#ticker-input'),
     tickerList: $('#ticker-list'),
+    tickerFilters: $('#ticker-filters'),
     sampleTickers: $('#sample-tickers'),
     dataGenerated: $('#data-generated'),
     lookupStatus: $('#lookup-status'),
@@ -137,10 +139,61 @@ function renderIndexControls() {
     option.label = item.name || item.ticker;
     return option;
   }));
-  elements.sampleTickers.replaceChildren(...tickers.slice(0, 8).map((item) => {
+  renderFilterControls(tickers);
+  renderTickerButtons();
+}
+
+function tickerMatchesFilter(item, filter = state.activeFilter) {
+  if (filter === 'all') return true;
+  const [type, value] = filter.split(':');
+  if (type === 'sector') return item.sector === value;
+  if (type === 'theme') return (item.themeTags || []).includes(value);
+  return true;
+}
+
+function renderFilterControls(tickers) {
+  const sectorCounts = new Map();
+  const themeCounts = new Map();
+  tickers.forEach((item) => {
+    if (item.sector) {
+      const label = item.sectorLabel || item.sector;
+      const current = sectorCounts.get(item.sector) || { label, count: 0 };
+      current.count += 1;
+      sectorCounts.set(item.sector, current);
+    }
+    (item.themeTags || []).forEach((theme) => {
+      themeCounts.set(theme, (themeCounts.get(theme) || 0) + 1);
+    });
+  });
+  const sectorFilters = [...sectorCounts.entries()]
+    .sort((a, b) => b[1].count - a[1].count || a[1].label.localeCompare(b[1].label))
+    .slice(0, 8)
+    .map(([sector, meta]) => ({ key: `sector:${sector}`, label: `${meta.label} ${meta.count}` }));
+  const themeFilters = [...themeCounts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 8)
+    .map(([theme, count]) => ({ key: `theme:${theme}`, label: `#${theme} ${count}` }));
+  const filters = [{ key: 'all', label: `전체 ${tickers.length}` }, ...sectorFilters, ...themeFilters];
+  elements.tickerFilters.replaceChildren(...filters.map((filter) => {
     const button = document.createElement('button');
     button.type = 'button';
-    button.textContent = item.ticker;
+    button.className = filter.key === state.activeFilter ? 'active' : '';
+    button.textContent = filter.label;
+    button.addEventListener('click', () => {
+      state.activeFilter = filter.key;
+      renderIndexControls();
+    });
+    return button;
+  }));
+}
+
+function renderTickerButtons() {
+  const tickers = (state.index?.tickers || []).filter((item) => tickerMatchesFilter(item));
+  elements.sampleTickers.replaceChildren(...tickers.slice(0, 12).map((item) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = `${item.ticker}${item.sectorLabel ? ` · ${item.sectorLabel}` : ''}`;
+    button.title = `${item.name || item.ticker}${item.themeTags?.length ? ` / ${item.themeTags.join(', ')}` : ''}`;
     button.addEventListener('click', () => loadTicker(item.ticker));
     return button;
   }));
@@ -230,13 +283,20 @@ function renderCompany() {
   const latest = financials.latest || {};
   elements.companyEyebrow.textContent = `${company.ticker} · ${company.exchange || 'Exchange N/A'}`;
   elements.companyTitle.textContent = company.name || company.ticker;
-  elements.companyMeta.textContent = [company.sicDescription, company.entityType, `CIK ${company.cik}`].filter(Boolean).join(' · ');
+  elements.companyMeta.textContent = [
+    company.sectorLabel,
+    ...(company.themeTags || []).slice(0, 3).map((theme) => `#${theme}`),
+    company.sicDescription,
+    company.entityType,
+    `CIK ${company.cik}`,
+  ].filter(Boolean).join(' · ');
   elements.qualityPill.textContent = `재무 데이터: ${quality.status}`;
   elements.qualityPill.className = `status-pill ${classForQuality(quality.status)}`;
   elements.marketConfidence.textContent = `가격: ${market.confidence || 'unknown'}`;
   elements.marketConfidence.className = `status-pill ${market.confidence === 'missing' ? 'warning' : 'secondary'}`;
   elements.snapshotMetrics.innerHTML = [
     metricCard('현재가', formatMoney(market.price, company.currency, { compact: false }), market.asOf ? `가격 기준일 ${market.asOf}` : '가격 기준일 N/A'),
+    metricCard('분류/테마', company.sectorLabel || 'N/A', (company.themeTags || []).join(' · ') || '분류 메타데이터 없음'),
     metricCard('최근 매출', formatMoney(latest.revenue, financials.currency), `FY ${latest.fy || 'N/A'}`),
     metricCard('최근 순이익', formatMoney(latest.netIncome, financials.currency), 'SEC annual fact'),
     metricCard('정규화 FCF', formatMoney(state.assumptions.baseFreeCashFlow, financials.currency), '최근 3년 양수 FCF 중앙값'),
@@ -299,7 +359,7 @@ function renderValuationSummary(dcf, relative, dcfError) {
   const currency = state.company.company.currency || 'USD';
   const price = state.company.market.price;
   elements.valuationBand.innerHTML = renderMethodComparison(dcf, relative, price, currency);
-  elements.decisionCockpit.innerHTML = renderDecisionCockpit(dcf, dcfError, price, currency);
+  elements.decisionCockpit.innerHTML = renderDecisionCockpit(dcf, relative, dcfError, price, currency);
   const dcfUpside = price && dcf?.perShareValue ? (dcf.perShareValue / price) - 1 : null;
   const relativeUpside = price && state.relativeConfirmed && relative?.range?.mid ? (relative.range.mid / price) - 1 : null;
   elements.valuationMetrics.innerHTML = [
@@ -344,7 +404,12 @@ function renderValuationScale(label, value, price, currency, note = '') {
     </div>`;
 }
 
-function renderDecisionCockpit(dcf, dcfError, price, currency) {
+function renderFlagList(flags = [], emptyCopy = '진단 플래그 없음') {
+  if (!flags.length) return `<p class="diagnostic-empty">${escapeHtml(emptyCopy)}</p>`;
+  return `<ul>${flags.map((flag) => `<li class="${escapeHtml(flag.level || 'watch')}"><strong>${escapeHtml(flag.title)}</strong><span>${escapeHtml(flag.detail)}</span></li>`).join('')}</ul>`;
+}
+
+function renderDecisionCockpit(dcf, relative, dcfError, price, currency) {
   const quality = state.company.quality || {};
   const warnings = quality.warnings || [];
   const dcfUpside = calculateUpside(dcf?.perShareValue, price);
@@ -387,6 +452,26 @@ function renderDecisionCockpit(dcf, dcfError, price, currency) {
         <strong>${escapeHtml(nextAction.title)}</strong>
         <small>${escapeHtml(nextAction.detail)}</small>
       </article>
+    </div>
+    <div class="diagnostic-grid compact" aria-label="모델 진단">
+      <article class="diagnostic-card">
+        <span>DCF 터미널 가치 의존도</span>
+        <strong>${dcf?.diagnostics?.terminalValueWeight === null || dcf?.diagnostics?.terminalValueWeight === undefined ? 'N/A' : escapeHtml(formatPercent(dcf.diagnostics.terminalValueWeight, 1))}</strong>
+        <small>명시 예측 이후 가치 비중입니다. 높을수록 영구성장률 검증이 중요합니다.</small>
+      </article>
+      <article class="diagnostic-card">
+        <span>할인율-영구성장률</span>
+        <strong>${dcf?.diagnostics?.terminalSpread === null || dcf?.diagnostics?.terminalSpread === undefined ? 'N/A' : escapeHtml(formatPercent(dcf.diagnostics.terminalSpread, 2))}</strong>
+        <small>스프레드가 좁으면 DCF가 작은 가정 변화에 민감해집니다.</small>
+      </article>
+      <article class="diagnostic-card">
+        <span>상대가치 수익성 렌즈</span>
+        <strong>${relative?.qualitySignals?.roe === null || relative?.qualitySignals?.roe === undefined ? 'N/A' : escapeHtml(formatPercent(relative.qualitySignals.roe, 1))}</strong>
+        <small>PBR은 장부가치보다 ROE 지속성과 함께 해석합니다.</small>
+      </article>
+    </div>
+    <div class="diagnostic-flags">
+      ${renderFlagList([...(dcf?.diagnostics?.flags || []), ...(relative?.diagnostics?.flags || [])], '현재 가정에서는 핵심 모델 진단 경고가 없습니다. 그래도 원문 공시와 비교군은 확인하세요.')}
     </div>
     <div class="radar-grid">
       ${renderValuationScale('DCF 기준 가치', dcf?.perShareValue, price, currency, '현금흐름 가정 기반')}
@@ -473,6 +558,12 @@ function renderDcf(dcf, error) {
         </div>`).join('')}
       <div class="chart-legend"><span class="fcf-dot">예상 FCF</span><span class="pv-dot">현재가치</span></div>
     </div>
+    <div class="diagnostic-grid" aria-label="DCF 진단">
+      <article class="diagnostic-card"><span>터미널 가치 비중</span><strong>${formatPercent(dcf.diagnostics?.terminalValueWeight, 1)}</strong><small>명시 예측 이후 가치 비중</small></article>
+      <article class="diagnostic-card"><span>예측기간 가치 비중</span><strong>${formatPercent(dcf.diagnostics?.forecastValueWeight, 1)}</strong><small>5년 FCF 현재가치 비중</small></article>
+      <article class="diagnostic-card"><span>순부채</span><strong>${formatMoney(dcf.diagnostics?.netDebt, currency)}</strong><small>부채 - 현금</small></article>
+    </div>
+    <div class="diagnostic-flags">${renderFlagList(dcf.diagnostics?.flags || [], 'DCF 진단 플래그 없음. 민감도 표와 공시 원문은 계속 확인하세요.')}</div>
     <table>
       <caption>DCF 자유현금흐름 예측</caption>
       <thead><tr><th>연도</th><th>예상 FCF</th><th>현재가치</th></tr></thead>
@@ -523,6 +614,12 @@ function renderRelative(relative, error) {
         <li><strong>보조 배수:</strong> P/S와 P/FCF가 PER/PBR과 반대로 움직이면 매출 마진, 운전자본, CAPEX, 일회성 이익의 괴리를 분석하세요.</li>
       </ul>
     </div>
+    <div class="diagnostic-grid" aria-label="상대가치 품질 신호">
+      <article class="diagnostic-card"><span>ROE</span><strong>${formatPercent(relative.qualitySignals?.roe, 1)}</strong><small>PBR 정당화의 핵심 품질 신호</small></article>
+      <article class="diagnostic-card"><span>순이익률</span><strong>${formatPercent(relative.qualitySignals?.netMargin, 1)}</strong><small>PER 비교군의 수익성 유사성 점검</small></article>
+      <article class="diagnostic-card"><span>FCF 마진</span><strong>${formatPercent(relative.qualitySignals?.fcfMargin, 1)}</strong><small>P/FCF 보조 확인의 현금 전환 품질</small></article>
+    </div>
+    <div class="diagnostic-flags">${renderFlagList(relative.diagnostics?.flags || [], '상대가치 진단 플래그 없음. 비교기업·산업·성장률은 사용자가 확인해야 합니다.')}</div>
     <div class="relative-visual-grid" aria-label="상대가치 시각화">
       ${coreRows.map((row) => renderValuationScale(`${row.label} 암시 주가`, row.impliedValue, price, currency, row.description)).join('')}
     </div>
@@ -560,6 +657,7 @@ function buildReportSummary() {
     `현재가: ${formatMoney(market.price, currency, { compact: false })} (${market.asOf || '가격일 N/A'})`,
     `DCF 주당가치: ${dcf ? formatMoney(dcf.perShareValue, currency, { compact: false }) : `N/A - ${dcfError}`}`,
     `DCF 현재가 대비: ${dcf ? comparisonLabel(dcf.perShareValue, market.price) : '비교 불가'}`,
+    `DCF 터미널 가치 비중: ${dcf?.diagnostics?.terminalValueWeight === null || dcf?.diagnostics?.terminalValueWeight === undefined ? 'N/A' : formatPercent(dcf.diagnostics.terminalValueWeight, 1)}`,
     `PER/PBR 상대가치: ${relativeValue ? formatMoney(relativeValue, currency, { compact: false }) : `검토 전${relativeError ? ` - ${relativeError}` : ''}`}`,
     `상대가치 상태: ${state.relativeConfirmed ? '사용자 검토 완료' : '기본 배수 예시값 - 검토 필요'}`,
     `가정: 성장률 ${formatPercent(state.assumptions.growthRate, 2)}, 할인율 ${formatPercent(state.assumptions.discountRate, 2)}, 영구성장률 ${formatPercent(state.assumptions.terminalGrowthRate, 2)}, PER ${formatMultiple(state.assumptions.benchmarkPe)}, PBR ${formatMultiple(state.assumptions.benchmarkPb)}`,

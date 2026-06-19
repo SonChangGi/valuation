@@ -6,10 +6,15 @@ class StaticCopyTest(unittest.TestCase):
     def test_user_judgment_and_new_page_copy_present(self):
         html = Path("docs/index.html").read_text(encoding="utf-8")
         self.assertIn("https://sonchanggi.github.io/valuation/", html)
+        self.assertIn("가치평가를 근거 있게", html)
+        self.assertIn('id="ticker-filters"', html)
+        self.assertIn("섹터·테마별 JSON", html)
         self.assertIn("기존 프로젝트 결과물은 참고만 하고 수정하지 않습니다", html)
         self.assertIn("판단은 사용자에게 있습니다", html)
         self.assertIn("투자, 세무, 법률 또는 매매 조언이 아닙니다", html)
         self.assertIn("DCF와 상대가치는 평균내지 않습니다", html)
+        self.assertIn("Fama-French", html)
+        self.assertIn("터미널 가치 의존도", Path("docs/assets/app.js").read_text(encoding="utf-8"))
         self.assertIn("방법론 사용법과 해석 가이드", html)
         self.assertIn("민감도 표에서 주당가치가 크게 흔들리면", html)
         self.assertIn("PER 해석", Path("docs/assets/app.js").read_text(encoding="utf-8"))
@@ -30,6 +35,7 @@ class StaticCopyTest(unittest.TestCase):
             "cfainstitute.org/insights/professional-learning/refresher-readings/2026/free-cash-flow-valuation",
             "cfainstitute.org/insights/professional-learning/refresher-readings/2026/market-based-valuation-price-enterprise-value-multiples",
             "pages.stern.nyu.edu/~adamodar/New_Home_Page/valquestions/termvalapproaches.htm",
+            "doi.org/10.1111/j.1540-6261.1992.tb04398.x",
         ]:
             self.assertIn(source, html)
         self.assertGreaterEqual(html.count('target="_blank" rel="noopener noreferrer"'), 5)
@@ -42,6 +48,8 @@ class StaticCopyTest(unittest.TestCase):
         self.assertNotIn("query1.finance.yahoo", app)
         self.assertNotIn("summarizeRange", app)
         self.assertIn("relativeConfirmed", app)
+        self.assertIn("tickerMatchesFilter", app)
+        self.assertIn("diagnostics", app)
         self.assertIn("user-confirmed", app)
         self.assertIn("Decision Cockpit", app)
         self.assertIn("DCF 현금흐름 시각화", app)

@@ -6,7 +6,7 @@ on:
       tickers:
         description: 'Space-separated ticker list to regenerate'
         required: false
-        default: 'AAPL MSFT NVDA'
+        default: 'AAPL MSFT NVDA GOOGL AMZN META TSLA JPM MA JNJ LLY UNH XOM WMT COST PG KO CAT NEE PLD LIN'
   schedule:
     - cron: '30 11 * * 1-5'
 
@@ -28,7 +28,7 @@ jobs:
           node-version: '22'
       - name: Generate static valuation data
         env:
-          TICKERS: ${{ github.event.inputs.tickers || 'AAPL MSFT NVDA' }}
+          TICKERS: ${{ github.event.inputs.tickers || 'AAPL MSFT NVDA GOOGL AMZN META TSLA JPM MA JNJ LLY UNH XOM WMT COST PG KO CAT NEE PLD LIN' }}
           SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
         run: |
           if [ -z "${SEC_USER_AGENT:-}" ]; then

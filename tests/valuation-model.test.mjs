@@ -24,6 +24,8 @@ test('calculateDcf returns a per-share equity value and projection rows', () => 
   assert.equal(result.projectedFreeCashFlows.length, 3);
   assert.equal(result.perShareValue, result.equityValue / 10);
   assert.ok(result.perShareValue > 0);
+  assert.ok(result.diagnostics.terminalValueWeight > 0.5);
+  assert.equal(Math.round(result.diagnostics.terminalSpread * 100), 8);
 });
 
 test('calculateDcf rejects terminal growth above discount rate', () => {
@@ -58,6 +60,8 @@ test('calculateRelativeValuation exposes PER and PBR rows', () => {
   assert.equal(result.range.basis, 'PER/PBR headline only');
   assert.equal(result.range.confirmed, false);
   assert.equal(result.benchmarkSource, 'illustrative-default');
+  assert.equal(result.qualitySignals.roe, 0.4);
+  assert.equal(result.diagnostics.usableHeadlineMultiples, 2);
 });
 
 test('calculateRelativeValuation excludes auxiliary multiples from headline range', () => {
@@ -99,6 +103,7 @@ test('browser valuation formulas match shared fixture', () => {
   assertClose(dcf.perShareValue, fixtures.dcf.expected.perShareValue);
   assertClose(dcf.enterpriseValue, fixtures.dcf.expected.enterpriseValue);
   assertClose(dcf.equityValue, fixtures.dcf.expected.equityValue);
+  assertClose(dcf.diagnostics.terminalValueWeight, fixtures.dcf.expected.terminalValueWeight);
 
   const relative = calculateRelativeValuation(fixtures.relative.inputs);
   assertClose(relative.range.low, fixtures.relative.expected.range.low);
@@ -106,4 +111,5 @@ test('browser valuation formulas match shared fixture', () => {
   assertClose(relative.range.high, fixtures.relative.expected.range.high);
   assertClose(relative.auxiliaryRange.mid, fixtures.relative.expected.auxiliaryRange.mid);
   assert.equal(relative.range.confirmed, false);
+  assertClose(relative.qualitySignals.roe, fixtures.relative.expected.qualitySignals.roe);
 });

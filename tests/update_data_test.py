@@ -48,6 +48,9 @@ class UpdateDataTest(unittest.TestCase):
 
         self.assertEqual(payload["market"]["price"], 50)
         self.assertEqual(payload["market"]["confidence"], "manual")
+        self.assertEqual(payload["company"]["sector"], "Other")
+        self.assertTrue(payload["company"]["themeTags"])
+        self.assertIn("methodology", payload["sources"])
         pe_row = next(row for row in payload["valuations"]["relative"]["rows"] if row["key"] == "pe")
         self.assertEqual(pe_row["currentMultiple"], 5)
         self.assertFalse(payload["valuations"]["relative"]["range"]["confirmed"])
