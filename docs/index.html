@@ -201,20 +201,182 @@
     <section class="section methodology-section" id="methodology" aria-labelledby="methodology-title">
       <div class="section-heading">
         <p class="eyebrow">Methodology & Limits</p>
-        <h2 id="methodology-title">방법론과 데이터 한계</h2>
+        <h2 id="methodology-title">방법론 사용법과 해석 가이드</h2>
+        <p>
+          이 프로젝트는 숫자를 더 많이 넣기보다, 적은 변수로 기업가치의 핵심 논점을 분해하도록 설계했습니다.
+          아래 순서대로 사용하면 DCF와 상대가치가 각각 어떤 질문에 답하는지, 결과가 충돌할 때 무엇을 확인해야 하는지 명확해집니다.
+        </p>
       </div>
-      <div class="feature-grid">
-        <article>
-          <h3>DCF 절대가치</h3>
-          <p>최근 자유현금흐름을 기준으로 5년 명시 성장률, 할인율, 영구성장률만 주요 예측 변수로 둡니다.</p>
+
+      <div class="workflow-guide" aria-label="가치평가 사용 순서">
+        <article class="workflow-step">
+          <span>1</span>
+          <h3>데이터 품질부터 확인</h3>
+          <p>재무 데이터 상태, 가격 기준일, 누락 경고를 먼저 봅니다. 회계 태그가 부족하거나 가격 신뢰도가 낮으면 모델 결과보다 원문 공시 확인을 우선합니다.</p>
         </article>
-        <article>
-          <h3>PER · PBR 상대가치</h3>
-          <p>EPS와 BPS에 사용자가 확인한 비교 배수를 적용합니다. 기본 배수는 예시값이며, P/S와 P/FCF는 보조 지표로만 사용합니다.</p>
+        <article class="workflow-step">
+          <span>2</span>
+          <h3>DCF 가정을 현실화</h3>
+          <p>기준 FCF, 성장률, 할인율, 영구성장률을 조정합니다. 성장률을 올렸다면 왜 지속 가능한지, 할인율을 낮췄다면 위험이 정말 낮은지 근거가 필요합니다.</p>
         </article>
-        <article>
-          <h3>데이터 정책</h3>
-          <p>SEC EDGAR 재무 데이터는 baseline, 시장가격은 best-effort입니다. 브라우저는 외부 금융 API를 직접 호출하지 않습니다.</p>
+        <article class="workflow-step">
+          <span>3</span>
+          <h3>민감도를 읽기</h3>
+          <p>민감도 표에서 주당가치가 크게 흔들리면 DCF는 정밀한 목표가가 아니라 가정의 취약성을 보여주는 경고판으로 해석합니다.</p>
+        </article>
+        <article class="workflow-step">
+          <span>4</span>
+          <h3>비교 배수를 검토</h3>
+          <p>PER/PBR 기본값은 예시입니다. 산업, 성장률, 수익성, 자본구조가 비슷한 기업군과 비교한 뒤에만 “PER/PBR 배수 검토 완료”를 누릅니다.</p>
+        </article>
+        <article class="workflow-step">
+          <span>5</span>
+          <h3>불일치를 분석</h3>
+          <p>DCF와 상대가치가 다르면 평균내지 말고 원인을 찾습니다. 시장이 단기 이익을 높게 보는지, DCF 가정이 과도한지, 회계상 순자산이 의미 있는지 분리해서 판단합니다.</p>
+        </article>
+        <article class="workflow-step">
+          <span>6</span>
+          <h3>내 판단을 기록</h3>
+          <p>최종 결론은 모델이 아니라 사용자의 투자 가설입니다. 반론, 추가 확인 자료, 안전마진 요구 수준을 메모에 남겨 다음 검토 때 같은 실수를 줄입니다.</p>
+        </article>
+      </div>
+
+      <div class="methodology-grid">
+        <article class="methodology-card highlight">
+          <div class="methodology-card-header">
+            <p class="eyebrow">Absolute Valuation</p>
+            <h3>DCF 절대가치</h3>
+          </div>
+          <p>
+            DCF는 “이 회사가 앞으로 벌어들일 현금을 오늘 가치로 바꾸면 얼마인가?”라는 질문에 답합니다.
+            이 페이지는 최근 정규화 자유현금흐름을 출발점으로 삼고, 명시 성장률·할인율·영구성장률만 사용자가 조정하게 해 과잉 정밀도를 피합니다.
+          </p>
+          <div class="methodology-split">
+            <div>
+              <h4>언제 유용한가</h4>
+              <ul>
+                <li>FCF가 양수이고 반복 가능한 사업 구조일 때</li>
+                <li>성장률과 자본 지출을 보수적으로 설명할 수 있을 때</li>
+                <li>현재 시장가격과 내 장기 현금흐름 가설을 비교하고 싶을 때</li>
+              </ul>
+            </div>
+            <div>
+              <h4>읽는 법</h4>
+              <ul>
+                <li>주당가치는 매수/매도 신호가 아니라 가정의 결과입니다.</li>
+                <li>현재가보다 높아도 성장·마진·할인율 근거가 약하면 안전마진이 부족합니다.</li>
+                <li>가치 대부분이 터미널 가치에서 나오면 영구성장률을 더 보수적으로 점검합니다.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="methodology-warning">
+            핵심 점검: 할인율은 영구성장률보다 높아야 하며, 영구성장률은 장기 경제 성장률과 기업의 재투자 여력을 넘지 않도록 보수적으로 둡니다.
+          </p>
+        </article>
+
+        <article class="methodology-card">
+          <div class="methodology-card-header">
+            <p class="eyebrow">Sensitivity</p>
+            <h3>DCF 민감도 분석</h3>
+          </div>
+          <p>
+            민감도 표는 “내 결론이 특정 가정 하나에 얼마나 의존하는가?”를 확인하는 장치입니다.
+            중앙값 하나보다 주변 칸의 분포를 봐야 합니다.
+          </p>
+          <ul>
+            <li>할인율 1%p 변화에 가치가 크게 변하면 위험 프리미엄 판단이 핵심입니다.</li>
+            <li>영구성장률 변화에 과도하게 민감하면 장기 성장 가정이 결론을 지배하고 있습니다.</li>
+            <li>낙관·기준·비관 가정에서 모두 현재가보다 충분히 낮거나 높은지 확인해야 안전마진 논의가 가능합니다.</li>
+          </ul>
+        </article>
+
+        <article class="methodology-card">
+          <div class="methodology-card-header">
+            <p class="eyebrow">Relative Valuation</p>
+            <h3>PER 상대가치</h3>
+          </div>
+          <p>
+            PER은 “순이익 1달러를 시장이 몇 배로 평가하는가?”를 보는 지표입니다. 이익이 안정적이고 회계상 일회성 요인이 작을수록 해석력이 커집니다.
+          </p>
+          <ul>
+            <li>비교 PER은 같은 산업만으로 충분하지 않고 성장률, 마진, 부채, 회계 품질이 함께 비슷해야 합니다.</li>
+            <li>낮은 PER은 저평가일 수도 있지만 이익 감소, 낮은 ROE, 구조적 위험의 반영일 수도 있습니다.</li>
+            <li>적자 또는 일회성 이익이 큰 회사에서는 PER을 핵심 결론으로 쓰지 않고 보조 정보로 낮춥니다.</li>
+          </ul>
+        </article>
+
+        <article class="methodology-card">
+          <div class="methodology-card-header">
+            <p class="eyebrow">Relative Valuation</p>
+            <h3>PBR 상대가치</h3>
+          </div>
+          <p>
+            PBR은 “장부상 순자산 1달러를 시장이 몇 배로 평가하는가?”를 봅니다. 자본이 수익 창출의 핵심인 금융·자본집약 업종에서 특히 의미가 있습니다.
+          </p>
+          <ul>
+            <li>PBR은 ROE와 함께 읽어야 합니다. 높은 ROE가 지속 가능하면 높은 PBR도 설명될 수 있습니다.</li>
+            <li>무형자산, 자사주, 대규모 상각, 회계 기준 차이가 큰 기업은 장부가치의 경제적 의미가 약해질 수 있습니다.</li>
+            <li>낮은 PBR은 청산가치 기회가 아니라 자산 수익성이 낮다는 신호일 수 있습니다.</li>
+          </ul>
+        </article>
+
+        <article class="methodology-card">
+          <div class="methodology-card-header">
+            <p class="eyebrow">Auxiliary Multiples</p>
+            <h3>P/S · P/FCF 보조 확인</h3>
+          </div>
+          <p>
+            P/S와 P/FCF는 PER/PBR을 대체하지 않고 “다른 회계 관점에서 같은 결론이 나오는가?”를 확인하는 보조 지표입니다.
+          </p>
+          <ul>
+            <li>P/S는 이익이 낮거나 변동성이 클 때 매출 기반으로 비교하지만, 장기 마진이 낮으면 높은 P/S를 정당화하기 어렵습니다.</li>
+            <li>P/FCF는 현금 창출력을 보지만 운전자본, 경기순환, 일시적 CAPEX 축소에 왜곡될 수 있습니다.</li>
+            <li>보조 배수가 핵심 PER/PBR과 반대 방향이면 회계 이익과 현금흐름 사이의 괴리를 분석해야 합니다.</li>
+          </ul>
+        </article>
+
+        <article class="methodology-card">
+          <div class="methodology-card-header">
+            <p class="eyebrow">Synthesis</p>
+            <h3>결과를 종합하는 법</h3>
+          </div>
+          <p>
+            절대가치와 상대가치는 서로 다른 질문에 답하므로 평균내지 않습니다. 좋은 분석은 숫자를 하나로 합치는 것이 아니라 차이의 원인을 설명하는 것입니다.
+          </p>
+          <ul>
+            <li>DCF가 높고 PER/PBR이 낮으면 시장이 단기 위험을 과도하게 반영하는지, 내 장기 가정이 낙관적인지 확인합니다.</li>
+            <li>DCF가 낮고 상대가치가 높으면 시장이 성장 옵션이나 브랜드·네트워크 효과를 가격에 반영하는지 검토합니다.</li>
+            <li>두 방법이 모두 비슷한 방향을 가리켜도 데이터 품질, 비교기업 적합성, 안전마진을 별도로 확인합니다.</li>
+          </ul>
+        </article>
+
+        <article class="methodology-card">
+          <div class="methodology-card-header">
+            <p class="eyebrow">Data Discipline</p>
+            <h3>데이터 정책과 한계</h3>
+          </div>
+          <p>
+            SEC EDGAR 재무 데이터는 baseline, 시장가격은 best-effort입니다. 브라우저는 외부 금융 API를 직접 호출하지 않고, 생성된 같은 출처 JSON만 읽습니다.
+          </p>
+          <ul>
+            <li>공시 원문, 제출일, 회계기간, 일회성 요인은 반드시 별도로 확인합니다.</li>
+            <li>비미국·비SEC 기업, 태그가 다른 기업, 재무제표 구조가 특수한 기업은 모델 제한이 커질 수 있습니다.</li>
+            <li>모형이 복잡해질수록 설명력도 늘 수 있지만, 입력 오류와 과최적화 위험도 함께 커집니다.</li>
+          </ul>
+        </article>
+
+        <article class="methodology-card references-card">
+          <div class="methodology-card-header">
+            <p class="eyebrow">Reference Lens</p>
+            <h3>더 확인할 자료</h3>
+          </div>
+          <p>모델 결과를 결론으로 쓰기 전에 공시와 방법론 원천을 함께 확인하세요.</p>
+          <ul>
+            <li><a href="https://www.investor.gov/introduction-investing/getting-started/researching-investments/using-edgar-research-investments">Investor.gov EDGAR 투자 리서치 안내</a></li>
+            <li><a href="https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/free-cash-flow-valuation">CFA Institute 자유현금흐름 가치평가 개요</a></li>
+            <li><a href="https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/market-based-valuation-price-enterprise-value-multiples">CFA Institute 시장 배수 가치평가 개요</a></li>
+            <li><a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/valquestions/termvalapproaches.htm">Damodaran terminal value 접근법</a></li>
+          </ul>
         </article>
       </div>
     </section>

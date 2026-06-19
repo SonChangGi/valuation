@@ -293,8 +293,13 @@ function renderMethodComparison(dcf, relative, price, currency) {
 function renderDcf(dcf, error) {
   const currency = state.company.company.currency || 'USD';
   elements.dcfExplanation.innerHTML = error
-    ? `<strong>DCF 계산 제한:</strong> ${escapeHtml(error)}`
-    : `최근 정규화 FCF ${escapeHtml(formatMoney(state.assumptions.baseFreeCashFlow, currency))}에 성장률 ${escapeHtml(formatPercent(state.assumptions.growthRate, 2))}, 할인율 ${escapeHtml(formatPercent(state.assumptions.discountRate, 2))}, 영구성장률 ${escapeHtml(formatPercent(state.assumptions.terminalGrowthRate, 2))}을 적용했습니다. 입력값이 조금만 바뀌어도 결과가 크게 달라질 수 있습니다.`;
+    ? `<strong>DCF 계산 제한:</strong> ${escapeHtml(error)} <br />FCF·주식수·할인율 조건이 충족되지 않으면 절대가치는 계산하지 않고 원문 공시 확인 대상으로 남깁니다.`
+    : `<strong>사용법:</strong> 최근 정규화 FCF ${escapeHtml(formatMoney(state.assumptions.baseFreeCashFlow, currency))}를 출발점으로 성장률 ${escapeHtml(formatPercent(state.assumptions.growthRate, 2))}, 할인율 ${escapeHtml(formatPercent(state.assumptions.discountRate, 2))}, 영구성장률 ${escapeHtml(formatPercent(state.assumptions.terminalGrowthRate, 2))}을 적용했습니다.
+      <ul>
+        <li><strong>분석:</strong> 성장률은 매출 성장·마진·재투자 여력으로 설명하고, 할인율은 사업 위험과 금리 환경을 반영하는지 점검하세요.</li>
+        <li><strong>해석:</strong> 주당가치는 목표가가 아니라 “내 현금흐름 가정이 맞다면”의 결과입니다. 현재가와 차이가 클수록 가정 근거와 안전마진을 더 엄격하게 봅니다.</li>
+        <li><strong>주의:</strong> 민감도 표에서 주변 칸이 크게 흔들리면 결론은 숫자 하나가 아니라 가능한 가치 범위와 취약한 가정입니다.</li>
+      </ul>`;
   if (!dcf) {
     elements.dcfTableWrap.innerHTML = '';
     elements.sensitivityWrap.innerHTML = '';
@@ -340,6 +345,11 @@ function renderRelative(relative, error) {
       ${state.relativeConfirmed
         ? 'PER/PBR 배수가 사용자 확인 상태입니다. 그래도 비교기업·산업·ROE 차이는 직접 검토해야 합니다.'
         : '아래 PER/PBR 값은 기본 예시 배수로 계산한 출발점입니다. 사용자 확인 전에는 요약 가치로 취급하지 않습니다.'}
+      <ul>
+        <li><strong>PER 해석:</strong> 이익의 질과 성장 지속성이 비슷한 기업끼리 비교할 때 의미가 커집니다. 낮은 PER은 저평가뿐 아니라 이익 감소 위험일 수 있습니다.</li>
+        <li><strong>PBR 해석:</strong> 장부가치가 경제적 자산가치를 잘 반영하고 ROE가 지속 가능한지 함께 봐야 합니다. 낮은 PBR은 낮은 자본수익률 신호일 수 있습니다.</li>
+        <li><strong>보조 배수:</strong> P/S와 P/FCF가 PER/PBR과 반대로 움직이면 매출 마진, 운전자본, CAPEX, 일회성 이익의 괴리를 분석하세요.</li>
+      </ul>
     </div>
     <table>
       <caption>PER/PBR 핵심 상대가치 산출표</caption>

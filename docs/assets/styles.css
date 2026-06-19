@@ -228,6 +228,8 @@ h3 { font-size: clamp(1.15rem, 2vw, 1.65rem); }
 }
 
 .explain-box { margin-bottom: 16px; padding: 16px; border-radius: var(--radius-md); background: #f8fbff; border: 1px solid var(--line); color: var(--muted); line-height: 1.7; }
+.explain-box ul { margin: 10px 0 0; padding-left: 1.15rem; }
+.explain-box li + li { margin-top: 6px; }
 .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius-md); }
 table { width: 100%; border-collapse: collapse; min-width: 620px; }
 caption { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
@@ -242,12 +244,11 @@ tr:last-child td { border-bottom: 0; }
 .auxiliary-relative p { margin: 0 0 12px; color: var(--muted); line-height: 1.65; }
 
 .section-heading { margin-bottom: 22px; }
+.section-heading > p:not(.eyebrow) { max-width: 920px; color: var(--muted); line-height: 1.75; }
 .centered { text-align: center; }
 .centered p { margin-inline: auto; max-width: 780px; }
-.checklist-grid,
-.feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.checklist-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .checklist-grid label,
-.feature-grid article,
 .memo-box {
   display: block;
   padding: 20px;
@@ -258,9 +259,59 @@ tr:last-child td { border-bottom: 0; }
   line-height: 1.65;
 }
 .checklist-grid input { margin-right: 8px; accent-color: var(--primary); }
+.workflow-guide { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 24px; }
+.workflow-step {
+  position: relative;
+  min-height: 100%;
+  padding: 20px;
+  border: 1px solid rgba(36, 87, 214, 0.16);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(239,246,255,0.84));
+  box-shadow: 0 14px 44px rgba(28, 44, 84, 0.08);
+}
+.workflow-step span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin-bottom: 12px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 950;
+}
+.workflow-step h3 { font-size: 1.08rem; letter-spacing: -0.02em; }
+.workflow-step p { margin: 10px 0 0; color: var(--muted); line-height: 1.68; }
+.methodology-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.methodology-card {
+  padding: clamp(20px, 2.6vw, 28px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: rgba(255,255,255,0.9);
+  box-shadow: var(--shadow);
+}
+.methodology-card.highlight { grid-column: 1 / -1; background: linear-gradient(135deg, #ffffff 0%, #eef4ff 100%); }
+.methodology-card-header { margin-bottom: 12px; }
+.methodology-card p,
+.methodology-card li { color: var(--muted); line-height: 1.72; }
+.methodology-card > p { margin: 0 0 14px; }
+.methodology-card ul { margin: 12px 0 0; padding-left: 1.2rem; }
+.methodology-card li + li { margin-top: 7px; }
+.methodology-split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.methodology-split h4 { margin: 6px 0 0; color: var(--ink); font-size: 1rem; }
+.methodology-warning {
+  margin-top: 18px !important;
+  padding: 14px 16px;
+  border: 1px solid #bfdbfe;
+  border-radius: var(--radius-md);
+  background: #eff6ff;
+  color: var(--primary-dark) !important;
+  font-weight: 850;
+}
+.references-card a { color: var(--primary-dark); font-weight: 900; text-decoration-thickness: 0.12em; text-underline-offset: 0.18em; }
 .memo-box { margin-top: 18px; font-weight: 900; }
 .memo-box textarea { display: block; width: 100%; margin-top: 10px; resize: vertical; border: 1px solid var(--line); border-radius: var(--radius-md); padding: 14px; font: inherit; line-height: 1.6; }
-.feature-grid p { color: var(--muted); line-height: 1.68; }
 
 .site-footer { width: min(1220px, calc(100% - 40px)); margin: 20px auto 40px; color: var(--muted); line-height: 1.75; text-align: center; }
 .noscript-warning { width: min(1220px, calc(100% - 40px)); margin: 0 auto 24px; padding: 16px; border-radius: var(--radius-md); background: #fef3f2; color: var(--danger); }
@@ -271,7 +322,10 @@ tr:last-child td { border-bottom: 0; }
   .detail-grid,
   .notice-card,
   .checklist-grid,
-  .feature-grid { grid-template-columns: 1fr; }
+  .workflow-guide,
+  .methodology-grid,
+  .methodology-split { grid-template-columns: 1fr; }
+  .methodology-card.highlight { grid-column: auto; }
   .top-nav { justify-content: flex-start; }
   .assumptions-panel { position: static; }
   .company-heading, .panel-header { flex-direction: column; }
