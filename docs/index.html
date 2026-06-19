@@ -12,7 +12,7 @@
 <body>
   <header class="hero" aria-labelledby="page-title">
     <nav class="top-nav" aria-label="프로젝트 이동">
-      <a href="https://sonchanggi.github.io/quant-dashboard/">← Quant Dashboard 참고</a>
+      <a href="https://sonchanggi.github.io/quant-dashboard/" target="_blank" rel="noopener noreferrer">← Quant Dashboard 참고</a>
       <a href="#valuation-dashboard">가치평가</a>
       <a href="#methodology">방법론</a>
       <a href="data/index.json">데이터 JSON</a>
@@ -98,9 +98,13 @@
             <p class="eyebrow">Valuation Summary</p>
             <h2 id="valuation-summary-title">가치평가 요약</h2>
           </div>
-          <p class="panel-note">단일 정답이 아니라 가정별 참고 범위입니다.</p>
+          <div class="panel-actions" aria-label="분석 결과 활용">
+            <button class="text-button" id="copy-report" type="button">리포트 복사</button>
+            <button class="text-button" id="print-report" type="button">인쇄/PDF</button>
+          </div>
         </div>
         <div class="valuation-band" id="valuation-band"></div>
+        <div class="decision-cockpit" id="decision-cockpit"></div>
         <div class="metric-row" id="valuation-metrics"></div>
         <p class="judgment-copy">
           DCF와 상대가치는 평균내지 않습니다. 모델은 숫자를 정리할 뿐이며, 성장률·할인율·비교 배수의 현실성은 사용자가 직접 판단해야 합니다.
@@ -372,10 +376,10 @@
           </div>
           <p>모델 결과를 결론으로 쓰기 전에 공시와 방법론 원천을 함께 확인하세요.</p>
           <ul>
-            <li><a href="https://www.investor.gov/introduction-investing/getting-started/researching-investments/using-edgar-research-investments">Investor.gov EDGAR 투자 리서치 안내</a></li>
-            <li><a href="https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/free-cash-flow-valuation">CFA Institute 자유현금흐름 가치평가 개요</a></li>
-            <li><a href="https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/market-based-valuation-price-enterprise-value-multiples">CFA Institute 시장 배수 가치평가 개요</a></li>
-            <li><a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/valquestions/termvalapproaches.htm">Damodaran terminal value 접근법</a></li>
+            <li><a href="https://www.investor.gov/introduction-investing/getting-started/researching-investments/using-edgar-research-investments" target="_blank" rel="noopener noreferrer">Investor.gov EDGAR 투자 리서치 안내</a></li>
+            <li><a href="https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/free-cash-flow-valuation" target="_blank" rel="noopener noreferrer">CFA Institute 자유현금흐름 가치평가 개요</a></li>
+            <li><a href="https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/market-based-valuation-price-enterprise-value-multiples" target="_blank" rel="noopener noreferrer">CFA Institute 시장 배수 가치평가 개요</a></li>
+            <li><a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/valquestions/termvalapproaches.htm" target="_blank" rel="noopener noreferrer">Damodaran terminal value 접근법</a></li>
           </ul>
         </article>
       </div>

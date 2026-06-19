@@ -16,6 +16,9 @@ class StaticCopyTest(unittest.TestCase):
         self.assertIn("PBR은 ROE와 함께 읽어야 합니다", html)
         self.assertIn("CFA Institute 자유현금흐름 가치평가 개요", html)
         self.assertIn("Investor.gov EDGAR 투자 리서치 안내", html)
+        self.assertIn("리포트 복사", html)
+        self.assertIn("인쇄/PDF", html)
+        self.assertIn('id="decision-cockpit"', html)
         self.assertIn("Content-Security-Policy", html)
 
     def test_methodology_section_structure_is_locked(self):
@@ -29,6 +32,7 @@ class StaticCopyTest(unittest.TestCase):
             "pages.stern.nyu.edu/~adamodar/New_Home_Page/valquestions/termvalapproaches.htm",
         ]:
             self.assertIn(source, html)
+        self.assertGreaterEqual(html.count('target="_blank" rel="noopener noreferrer"'), 5)
 
     def test_browser_app_uses_same_origin_data_only(self):
         app = Path("docs/assets/app.js").read_text(encoding="utf-8")
@@ -39,6 +43,13 @@ class StaticCopyTest(unittest.TestCase):
         self.assertNotIn("summarizeRange", app)
         self.assertIn("relativeConfirmed", app)
         self.assertIn("user-confirmed", app)
+        self.assertIn("Decision Cockpit", app)
+        self.assertIn("DCF 현금흐름 시각화", app)
+        self.assertIn("navigator.clipboard.writeText", app)
+        self.assertIn("window.print()", app)
+        self.assertIn("sensitivity-cell", app)
+        self.assertIn('id="status-title"', app)
+        self.assertIn("색 막대는 모델 가치", app)
         self.assertIn("source[key] === null", assumptions)
         self.assertNotIn("baseFreeCashFlow ??", app)
 
