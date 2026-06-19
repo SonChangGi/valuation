@@ -187,11 +187,15 @@ h3 { font-size: clamp(1.15rem, 2vw, 1.65rem); }
 .text-button { min-height: 36px; padding: 7px 12px; box-shadow: none; }
 
 .valuation-band { margin-bottom: 18px; }
-.band-track { position: relative; min-height: 96px; padding: 20px 16px 10px; border: 1px solid var(--line); border-radius: var(--radius-md); background: linear-gradient(90deg, #eff6ff, #ecfdf5 48%, #fffbeb); }
-.band-line { position: absolute; left: 8%; right: 8%; top: 48px; height: 10px; border-radius: 999px; background: linear-gradient(90deg, var(--primary), var(--accent), #f59e0b); opacity: 0.85; }
-.price-marker { position: absolute; top: 25px; width: 2px; height: 44px; background: var(--ink); }
-.price-marker::after { content: attr(data-label); position: absolute; left: 50%; top: -24px; transform: translateX(-50%); white-space: nowrap; font-size: 0.78rem; font-weight: 900; color: var(--ink); }
-.band-labels { display: flex; justify-content: space-between; gap: 12px; margin-top: 62px; color: var(--muted); font-size: 0.86rem; font-weight: 850; }
+.method-compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+.method-card {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, #fff, #f8fbff);
+}
+.method-card strong { display: block; margin: 8px 0 4px; font-size: 1.22rem; }
+.method-card small { color: var(--muted); line-height: 1.5; }
 .judgment-copy { margin: 18px 0 0; padding: 14px 16px; border-radius: var(--radius-md); background: var(--surface-soft); color: var(--primary-dark); font-weight: 800; }
 
 .assumption-form { display: grid; gap: 16px; }
@@ -201,6 +205,27 @@ h3 { font-size: clamp(1.15rem, 2vw, 1.65rem); }
 .assumption-form input[type="range"] { width: 100%; accent-color: var(--primary); }
 .assumption-form input[type="number"] { min-height: 40px; border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 8px 10px; font-weight: 850; }
 .assumption-help { margin-bottom: 0; }
+.confirm-button {
+  width: 100%;
+  margin-top: 12px;
+  background: linear-gradient(135deg, #155eef, #0e9384);
+}
+.relative-review-status {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+.relative-review-status.confirmed {
+  background: #ecfdf5;
+  border-color: #bbf7d0;
+  color: #065f46;
+  font-weight: 850;
+}
 
 .explain-box { margin-bottom: 16px; padding: 16px; border-radius: var(--radius-md); background: #f8fbff; border: 1px solid var(--line); color: var(--muted); line-height: 1.7; }
 .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius-md); }

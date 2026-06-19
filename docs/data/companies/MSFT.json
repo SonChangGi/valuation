@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-18T16:00:38Z",
+  "generatedAt": "2026-06-19T13:16:09Z",
   "company": {
     "ticker": "MSFT",
     "cik": "0000789019",
@@ -19,7 +19,7 @@
       "note": "SEC EDGAR companyfacts/submissions에서 추출한 공개 재무제표 데이터입니다."
     },
     "market": {
-      "price": 378.034,
+      "price": 379.4,
       "currency": "USD",
       "asOf": "2026-06-18",
       "source": "Yahoo chart endpoint (best effort)",
@@ -28,7 +28,7 @@
     }
   },
   "market": {
-    "price": 378.034,
+    "price": 379.4,
     "currency": "USD",
     "asOf": "2026-06-18",
     "source": "Yahoo chart endpoint (best effort)",
@@ -54,81 +54,95 @@
         "sharesDiluted": 7608000000.0,
         "sharesBasic": 7547000000.0,
         "freeCashFlow": 56118000000.0,
+        "freeCashFlowStatus": "reported_capex",
         "sourceTags": {
           "revenue": {
             "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+            "unit": "USD",
             "filed": "2021-07-29",
             "form": "10-K",
             "end": "2021-06-30"
           },
           "operatingIncome": {
             "tag": "OperatingIncomeLoss",
+            "unit": "USD",
             "filed": "2021-07-29",
             "form": "10-K",
             "end": "2021-06-30"
           },
           "netIncome": {
             "tag": "NetIncomeLoss",
+            "unit": "USD",
             "filed": "2021-07-29",
             "form": "10-K",
             "end": "2021-06-30"
           },
           "operatingCashFlow": {
             "tag": "NetCashProvidedByUsedInOperatingActivities",
+            "unit": "USD",
             "filed": "2021-07-29",
             "form": "10-K",
             "end": "2021-06-30"
           },
           "capitalExpenditures": {
             "tag": "PaymentsToAcquirePropertyPlantAndEquipment",
+            "unit": "USD",
             "filed": "2021-07-29",
             "form": "10-K",
             "end": "2021-06-30"
           },
           "equity": {
             "tag": "StockholdersEquity",
+            "unit": "USD",
             "filed": "2021-07-29",
             "form": "10-K",
             "end": "2021-06-30"
           },
           "assets": {
             "tag": "Assets",
+            "unit": "USD",
             "filed": "2021-07-29",
             "form": "10-K",
             "end": "2021-06-30"
           },
           "liabilities": {
             "tag": "Liabilities",
+            "unit": "USD",
             "filed": "2021-07-29",
             "form": "10-K",
             "end": "2021-06-30"
           },
           "cash": {
             "tag": "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
+            "unit": "USD",
             "filed": "2021-07-29",
             "form": "10-K",
             "end": "2021-06-30"
           },
           "debtCurrent": {
             "tag": "LongTermDebtCurrent",
+            "unit": "USD",
             "filed": "2021-07-29",
             "form": "10-K",
             "end": "2021-06-30"
           },
           "debtNoncurrent": {
             "tag": "LongTermDebtNoncurrent",
+            "unit": "USD",
             "filed": "2021-07-29",
             "form": "10-K",
             "end": "2021-06-30"
           },
           "sharesDiluted": {
             "tag": "WeightedAverageNumberOfDilutedSharesOutstanding",
+            "unit": "shares",
             "filed": "2021-07-29",
             "form": "10-K",
             "end": "2021-06-30"
           },
           "sharesBasic": {
             "tag": "WeightedAverageNumberOfSharesOutstandingBasic",
+            "unit": "shares",
             "filed": "2021-07-29",
             "form": "10-K",
             "end": "2021-06-30"
@@ -151,81 +165,95 @@
         "sharesDiluted": 7540000000.0,
         "sharesBasic": 7496000000.0,
         "freeCashFlow": 65149000000.0,
+        "freeCashFlowStatus": "reported_capex",
         "sourceTags": {
           "revenue": {
             "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+            "unit": "USD",
             "filed": "2022-07-28",
             "form": "10-K",
             "end": "2022-06-30"
           },
           "operatingIncome": {
             "tag": "OperatingIncomeLoss",
+            "unit": "USD",
             "filed": "2022-07-28",
             "form": "10-K",
             "end": "2022-06-30"
           },
           "netIncome": {
             "tag": "NetIncomeLoss",
+            "unit": "USD",
             "filed": "2022-07-28",
             "form": "10-K",
             "end": "2022-06-30"
           },
           "operatingCashFlow": {
             "tag": "NetCashProvidedByUsedInOperatingActivities",
+            "unit": "USD",
             "filed": "2022-07-28",
             "form": "10-K",
             "end": "2022-06-30"
           },
           "capitalExpenditures": {
             "tag": "PaymentsToAcquirePropertyPlantAndEquipment",
+            "unit": "USD",
             "filed": "2022-07-28",
             "form": "10-K",
             "end": "2022-06-30"
           },
           "equity": {
             "tag": "StockholdersEquity",
+            "unit": "USD",
             "filed": "2022-07-28",
             "form": "10-K",
             "end": "2022-06-30"
           },
           "assets": {
             "tag": "Assets",
+            "unit": "USD",
             "filed": "2022-07-28",
             "form": "10-K",
             "end": "2022-06-30"
           },
           "liabilities": {
             "tag": "Liabilities",
+            "unit": "USD",
             "filed": "2022-07-28",
             "form": "10-K",
             "end": "2022-06-30"
           },
           "cash": {
             "tag": "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
+            "unit": "USD",
             "filed": "2022-07-28",
             "form": "10-K",
             "end": "2022-06-30"
           },
           "debtCurrent": {
             "tag": "LongTermDebtCurrent",
+            "unit": "USD",
             "filed": "2022-07-28",
             "form": "10-K",
             "end": "2022-06-30"
           },
           "debtNoncurrent": {
             "tag": "LongTermDebtNoncurrent",
+            "unit": "USD",
             "filed": "2022-07-28",
             "form": "10-K",
             "end": "2022-06-30"
           },
           "sharesDiluted": {
             "tag": "WeightedAverageNumberOfDilutedSharesOutstanding",
+            "unit": "shares",
             "filed": "2022-07-28",
             "form": "10-K",
             "end": "2022-06-30"
           },
           "sharesBasic": {
             "tag": "WeightedAverageNumberOfSharesOutstandingBasic",
+            "unit": "shares",
             "filed": "2022-07-28",
             "form": "10-K",
             "end": "2022-06-30"
@@ -248,81 +276,95 @@
         "sharesDiluted": 7472000000.0,
         "sharesBasic": 7446000000.0,
         "freeCashFlow": 59475000000.0,
+        "freeCashFlowStatus": "reported_capex",
         "sourceTags": {
           "revenue": {
             "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+            "unit": "USD",
             "filed": "2023-07-27",
             "form": "10-K",
             "end": "2023-06-30"
           },
           "operatingIncome": {
             "tag": "OperatingIncomeLoss",
+            "unit": "USD",
             "filed": "2023-07-27",
             "form": "10-K",
             "end": "2023-06-30"
           },
           "netIncome": {
             "tag": "NetIncomeLoss",
+            "unit": "USD",
             "filed": "2023-07-27",
             "form": "10-K",
             "end": "2023-06-30"
           },
           "operatingCashFlow": {
             "tag": "NetCashProvidedByUsedInOperatingActivities",
+            "unit": "USD",
             "filed": "2023-07-27",
             "form": "10-K",
             "end": "2023-06-30"
           },
           "capitalExpenditures": {
             "tag": "PaymentsToAcquirePropertyPlantAndEquipment",
+            "unit": "USD",
             "filed": "2023-07-27",
             "form": "10-K",
             "end": "2023-06-30"
           },
           "equity": {
             "tag": "StockholdersEquity",
+            "unit": "USD",
             "filed": "2023-07-27",
             "form": "10-K",
             "end": "2023-06-30"
           },
           "assets": {
             "tag": "Assets",
+            "unit": "USD",
             "filed": "2023-07-27",
             "form": "10-K",
             "end": "2023-06-30"
           },
           "liabilities": {
             "tag": "Liabilities",
+            "unit": "USD",
             "filed": "2023-07-27",
             "form": "10-K",
             "end": "2023-06-30"
           },
           "cash": {
             "tag": "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
+            "unit": "USD",
             "filed": "2023-07-27",
             "form": "10-K",
             "end": "2023-06-30"
           },
           "debtCurrent": {
             "tag": "LongTermDebtCurrent",
+            "unit": "USD",
             "filed": "2023-07-27",
             "form": "10-K",
             "end": "2023-06-30"
           },
           "debtNoncurrent": {
             "tag": "LongTermDebtNoncurrent",
+            "unit": "USD",
             "filed": "2023-07-27",
             "form": "10-K",
             "end": "2023-06-30"
           },
           "sharesDiluted": {
             "tag": "WeightedAverageNumberOfDilutedSharesOutstanding",
+            "unit": "shares",
             "filed": "2023-07-27",
             "form": "10-K",
             "end": "2023-06-30"
           },
           "sharesBasic": {
             "tag": "WeightedAverageNumberOfSharesOutstandingBasic",
+            "unit": "shares",
             "filed": "2023-07-27",
             "form": "10-K",
             "end": "2023-06-30"
@@ -345,81 +387,95 @@
         "sharesDiluted": 7469000000.0,
         "sharesBasic": 7431000000.0,
         "freeCashFlow": 74071000000.0,
+        "freeCashFlowStatus": "reported_capex",
         "sourceTags": {
           "revenue": {
             "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+            "unit": "USD",
             "filed": "2024-07-30",
             "form": "10-K",
             "end": "2024-06-30"
           },
           "operatingIncome": {
             "tag": "OperatingIncomeLoss",
+            "unit": "USD",
             "filed": "2024-07-30",
             "form": "10-K",
             "end": "2024-06-30"
           },
           "netIncome": {
             "tag": "NetIncomeLoss",
+            "unit": "USD",
             "filed": "2024-07-30",
             "form": "10-K",
             "end": "2024-06-30"
           },
           "operatingCashFlow": {
             "tag": "NetCashProvidedByUsedInOperatingActivities",
+            "unit": "USD",
             "filed": "2024-07-30",
             "form": "10-K",
             "end": "2024-06-30"
           },
           "capitalExpenditures": {
             "tag": "PaymentsToAcquirePropertyPlantAndEquipment",
+            "unit": "USD",
             "filed": "2024-07-30",
             "form": "10-K",
             "end": "2024-06-30"
           },
           "equity": {
             "tag": "StockholdersEquity",
+            "unit": "USD",
             "filed": "2024-07-30",
             "form": "10-K",
             "end": "2024-06-30"
           },
           "assets": {
             "tag": "Assets",
+            "unit": "USD",
             "filed": "2024-07-30",
             "form": "10-K",
             "end": "2024-06-30"
           },
           "liabilities": {
             "tag": "Liabilities",
+            "unit": "USD",
             "filed": "2024-07-30",
             "form": "10-K",
             "end": "2024-06-30"
           },
           "cash": {
             "tag": "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
+            "unit": "USD",
             "filed": "2024-07-30",
             "form": "10-K",
             "end": "2024-06-30"
           },
           "debtCurrent": {
             "tag": "LongTermDebtCurrent",
+            "unit": "USD",
             "filed": "2024-07-30",
             "form": "10-K",
             "end": "2024-06-30"
           },
           "debtNoncurrent": {
             "tag": "LongTermDebtNoncurrent",
+            "unit": "USD",
             "filed": "2024-07-30",
             "form": "10-K",
             "end": "2024-06-30"
           },
           "sharesDiluted": {
             "tag": "WeightedAverageNumberOfDilutedSharesOutstanding",
+            "unit": "shares",
             "filed": "2024-07-30",
             "form": "10-K",
             "end": "2024-06-30"
           },
           "sharesBasic": {
             "tag": "WeightedAverageNumberOfSharesOutstandingBasic",
+            "unit": "shares",
             "filed": "2024-07-30",
             "form": "10-K",
             "end": "2024-06-30"
@@ -442,81 +498,95 @@
         "sharesDiluted": 7465000000.0,
         "sharesBasic": 7433000000.0,
         "freeCashFlow": 71611000000.0,
+        "freeCashFlowStatus": "reported_capex",
         "sourceTags": {
           "revenue": {
             "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+            "unit": "USD",
             "filed": "2025-07-30",
             "form": "10-K",
             "end": "2025-06-30"
           },
           "operatingIncome": {
             "tag": "OperatingIncomeLoss",
+            "unit": "USD",
             "filed": "2025-07-30",
             "form": "10-K",
             "end": "2025-06-30"
           },
           "netIncome": {
             "tag": "NetIncomeLoss",
+            "unit": "USD",
             "filed": "2025-07-30",
             "form": "10-K",
             "end": "2025-06-30"
           },
           "operatingCashFlow": {
             "tag": "NetCashProvidedByUsedInOperatingActivities",
+            "unit": "USD",
             "filed": "2025-07-30",
             "form": "10-K",
             "end": "2025-06-30"
           },
           "capitalExpenditures": {
             "tag": "PaymentsToAcquirePropertyPlantAndEquipment",
+            "unit": "USD",
             "filed": "2025-07-30",
             "form": "10-K",
             "end": "2025-06-30"
           },
           "equity": {
             "tag": "StockholdersEquity",
+            "unit": "USD",
             "filed": "2025-07-30",
             "form": "10-K",
             "end": "2025-06-30"
           },
           "assets": {
             "tag": "Assets",
+            "unit": "USD",
             "filed": "2025-07-30",
             "form": "10-K",
             "end": "2025-06-30"
           },
           "liabilities": {
             "tag": "Liabilities",
+            "unit": "USD",
             "filed": "2025-07-30",
             "form": "10-K",
             "end": "2025-06-30"
           },
           "cash": {
             "tag": "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
+            "unit": "USD",
             "filed": "2025-07-30",
             "form": "10-K",
             "end": "2025-06-30"
           },
           "debtCurrent": {
             "tag": "LongTermDebtCurrent",
+            "unit": "USD",
             "filed": "2025-07-30",
             "form": "10-K",
             "end": "2025-06-30"
           },
           "debtNoncurrent": {
             "tag": "LongTermDebtNoncurrent",
+            "unit": "USD",
             "filed": "2025-07-30",
             "form": "10-K",
             "end": "2025-06-30"
           },
           "sharesDiluted": {
             "tag": "WeightedAverageNumberOfDilutedSharesOutstanding",
+            "unit": "shares",
             "filed": "2025-07-30",
             "form": "10-K",
             "end": "2025-06-30"
           },
           "sharesBasic": {
             "tag": "WeightedAverageNumberOfSharesOutstandingBasic",
+            "unit": "shares",
             "filed": "2025-07-30",
             "form": "10-K",
             "end": "2025-06-30"
@@ -540,81 +610,95 @@
       "sharesDiluted": 7465000000.0,
       "sharesBasic": 7433000000.0,
       "freeCashFlow": 71611000000.0,
+      "freeCashFlowStatus": "reported_capex",
       "sourceTags": {
         "revenue": {
           "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "unit": "USD",
           "filed": "2025-07-30",
           "form": "10-K",
           "end": "2025-06-30"
         },
         "operatingIncome": {
           "tag": "OperatingIncomeLoss",
+          "unit": "USD",
           "filed": "2025-07-30",
           "form": "10-K",
           "end": "2025-06-30"
         },
         "netIncome": {
           "tag": "NetIncomeLoss",
+          "unit": "USD",
           "filed": "2025-07-30",
           "form": "10-K",
           "end": "2025-06-30"
         },
         "operatingCashFlow": {
           "tag": "NetCashProvidedByUsedInOperatingActivities",
+          "unit": "USD",
           "filed": "2025-07-30",
           "form": "10-K",
           "end": "2025-06-30"
         },
         "capitalExpenditures": {
           "tag": "PaymentsToAcquirePropertyPlantAndEquipment",
+          "unit": "USD",
           "filed": "2025-07-30",
           "form": "10-K",
           "end": "2025-06-30"
         },
         "equity": {
           "tag": "StockholdersEquity",
+          "unit": "USD",
           "filed": "2025-07-30",
           "form": "10-K",
           "end": "2025-06-30"
         },
         "assets": {
           "tag": "Assets",
+          "unit": "USD",
           "filed": "2025-07-30",
           "form": "10-K",
           "end": "2025-06-30"
         },
         "liabilities": {
           "tag": "Liabilities",
+          "unit": "USD",
           "filed": "2025-07-30",
           "form": "10-K",
           "end": "2025-06-30"
         },
         "cash": {
           "tag": "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
+          "unit": "USD",
           "filed": "2025-07-30",
           "form": "10-K",
           "end": "2025-06-30"
         },
         "debtCurrent": {
           "tag": "LongTermDebtCurrent",
+          "unit": "USD",
           "filed": "2025-07-30",
           "form": "10-K",
           "end": "2025-06-30"
         },
         "debtNoncurrent": {
           "tag": "LongTermDebtNoncurrent",
+          "unit": "USD",
           "filed": "2025-07-30",
           "form": "10-K",
           "end": "2025-06-30"
         },
         "sharesDiluted": {
           "tag": "WeightedAverageNumberOfDilutedSharesOutstanding",
+          "unit": "shares",
           "filed": "2025-07-30",
           "form": "10-K",
           "end": "2025-06-30"
         },
         "sharesBasic": {
           "tag": "WeightedAverageNumberOfSharesOutstandingBasic",
+          "unit": "shares",
           "filed": "2025-07-30",
           "form": "10-K",
           "end": "2025-06-30"
@@ -739,7 +823,7 @@
           "key": "pe",
           "label": "PER",
           "baseMetric": 13.64125920964501,
-          "currentMultiple": 27.712544288632255,
+          "currentMultiple": 27.812681671773113,
           "benchmarkMultiple": 22.0,
           "impliedValue": 300.1077026121902,
           "description": "순이익 1주당 이익(EPS)에 비교 PER을 곱한 값"
@@ -748,7 +832,7 @@
           "key": "pb",
           "label": "PBR",
           "baseMetric": 46.011922304085736,
-          "currentMultiple": 8.216001007339603,
+          "currentMultiple": 8.245688964973112,
           "benchmarkMultiple": 4.0,
           "impliedValue": 184.04768921634295,
           "description": "1주당 순자산(BPS)에 비교 PBR을 곱한 값"
@@ -757,7 +841,7 @@
           "key": "ps",
           "label": "P/S",
           "baseMetric": 37.73931681178835,
-          "currentMultiple": 10.016980484445769,
+          "currentMultiple": 10.05317615822578,
           "benchmarkMultiple": 5.0,
           "impliedValue": 188.69658405894174,
           "description": "1주당 매출에 비교 P/S를 곱한 보조 값"
@@ -766,7 +850,7 @@
           "key": "pfcf",
           "label": "P/FCF",
           "baseMetric": 9.59290020093771,
-          "currentMultiple": 39.407686109675886,
+          "currentMultiple": 39.55008308779377,
           "benchmarkMultiple": 20.0,
           "impliedValue": 191.85800401875417,
           "description": "1주당 자유현금흐름에 비교 P/FCF를 곱한 보조 값"
@@ -776,7 +860,8 @@
         "low": 184.04768921634295,
         "mid": 242.0776959142666,
         "high": 300.1077026121902,
-        "basis": "PER/PBR headline only"
+        "basis": "PER/PBR headline only",
+        "confirmed": false
       },
       "auxiliaryRange": {
         "low": 188.69658405894174,
@@ -784,12 +869,14 @@
         "high": 191.85800401875417,
         "basis": "P/S and P/FCF auxiliary cross-check only"
       },
-      "benchmarkSource": "사용자가 비교기업/산업 기준에 맞게 수정해야 하는 기본 참고 배수"
+      "benchmarkSource": "illustrative-default",
+      "benchmarkNote": "기본 배수는 예시값이며 사용자가 산업/비교기업 기준으로 확인해야 합니다."
     },
-    "blendedRange": {
-      "low": 223.61184950046587,
-      "mid": 232.84477270736625,
-      "high": 242.0776959142666
+    "methodComparison": {
+      "dcfPerShare": 223.61184950046587,
+      "relativePerShare": 242.0776959142666,
+      "relativeConfirmed": false,
+      "note": "DCF와 PER/PBR 상대가치는 평균내지 않습니다. 상대가치는 사용자 배수 확인 전 예시값입니다."
     }
   },
   "quality": {

@@ -7,10 +7,8 @@ contract without network access.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from decimal import Decimal, ROUND_HALF_UP
 from statistics import median
-from typing import Any, Iterable
+from typing import Any
 
 
 DEFAULT_ASSUMPTIONS = {
@@ -30,13 +28,6 @@ SENSITIVITY_TERMINAL_RATES = [0.015, 0.025, 0.035]
 
 class ValuationError(ValueError):
     """Raised when assumptions cannot produce a meaningful valuation."""
-
-
-def round_money(value: float | int | None, places: int = 2) -> float | None:
-    if value is None:
-        return None
-    quant = Decimal("1") if places == 0 else Decimal("1." + ("0" * places))
-    return float(Decimal(str(value)).quantize(quant, rounding=ROUND_HALF_UP))
 
 
 def safe_div(numerator: float | int | None, denominator: float | int | None) -> float | None:
@@ -59,13 +50,6 @@ def cagr(start: float | None, end: float | None, years: int) -> float | None:
     if start is None or end is None or years <= 0 or start <= 0 or end <= 0:
         return None
     return (end / start) ** (1 / years) - 1
-
-
-def median_non_null(values: Iterable[float | None]) -> float | None:
-    cleaned = [float(v) for v in values if v is not None]
-    if not cleaned:
-        return None
-    return float(median(cleaned))
 
 
 def derive_growth_rate(annual_rows: list[dict[str, Any]]) -> float:
@@ -188,6 +172,7 @@ def calculate_relative_valuation(
     benchmark_pb: float = DEFAULT_ASSUMPTIONS["benchmarkPb"],
     benchmark_ps: float = DEFAULT_ASSUMPTIONS["benchmarkPs"],
     benchmark_pfcf: float = DEFAULT_ASSUMPTIONS["benchmarkPfcf"],
+    benchmark_source: str = "illustrative-default",
 ) -> dict[str, Any]:
     if shares_outstanding <= 0:
         raise ValuationError("shares_outstanding must be positive")
@@ -258,6 +243,7 @@ def calculate_relative_valuation(
             "mid": median(headline_values) if headline_values else None,
             "high": max(headline_values) if headline_values else None,
             "basis": "PER/PBR headline only",
+            "confirmed": benchmark_source != "illustrative-default",
         },
         "auxiliaryRange": {
             "low": min(auxiliary_values) if auxiliary_values else None,
@@ -265,15 +251,9 @@ def calculate_relative_valuation(
             "high": max(auxiliary_values) if auxiliary_values else None,
             "basis": "P/S and P/FCF auxiliary cross-check only",
         },
-        "benchmarkSource": "사용자가 비교기업/산업 기준에 맞게 수정해야 하는 기본 참고 배수",
+        "benchmarkSource": benchmark_source,
+        "benchmarkNote": "기본 배수는 예시값이며 사용자가 산업/비교기업 기준으로 확인해야 합니다.",
     }
-
-
-def summarize_range(*values: float | None) -> dict[str, float | None]:
-    usable = [float(value) for value in values if value is not None]
-    if not usable:
-        return {"low": None, "mid": None, "high": None}
-    return {"low": min(usable), "mid": float(median(usable)), "high": max(usable)}
 
 
 def classify_quality(warnings: list[str], fatal_missing: bool = False) -> str:

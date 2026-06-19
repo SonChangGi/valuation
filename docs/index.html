@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="티커를 입력해 DCF와 PER/PBR 기반 상대가치평가를 함께 검토하는 정적 가치평가 대시보드" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'" />
   <title>Stock Valuation Workspace</title>
   <link rel="stylesheet" href="assets/styles.css" />
   <script type="module" src="assets/app.js"></script>
@@ -102,7 +103,7 @@
         <div class="valuation-band" id="valuation-band"></div>
         <div class="metric-row" id="valuation-metrics"></div>
         <p class="judgment-copy">
-          모델은 숫자를 정리할 뿐입니다. 성장률·할인율·비교 배수의 현실성은 사용자가 직접 판단해야 합니다.
+          DCF와 상대가치는 평균내지 않습니다. 모델은 숫자를 정리할 뿐이며, 성장률·할인율·비교 배수의 현실성은 사용자가 직접 판단해야 합니다.
         </p>
       </article>
 
@@ -141,6 +142,8 @@
             <label>P/FCF 보조 배수
               <input id="benchmark-pfcf" type="number" min="0" step="0.5" />
             </label>
+            <button class="confirm-button" id="confirm-relative" type="button">PER/PBR 배수 검토 완료</button>
+            <p class="relative-review-status" id="relative-review-status">상대가치 배수는 아직 사용자가 확인하지 않았습니다.</p>
           </fieldset>
         </form>
         <p class="assumption-help">
@@ -207,7 +210,7 @@
         </article>
         <article>
           <h3>PER · PBR 상대가치</h3>
-          <p>EPS와 BPS에 사용자가 정한 비교 배수를 적용합니다. P/S와 P/FCF는 보조 지표로만 사용합니다.</p>
+          <p>EPS와 BPS에 사용자가 확인한 비교 배수를 적용합니다. 기본 배수는 예시값이며, P/S와 P/FCF는 보조 지표로만 사용합니다.</p>
         </article>
         <article>
           <h3>데이터 정책</h3>

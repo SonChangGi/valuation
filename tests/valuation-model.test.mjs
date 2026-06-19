@@ -1,6 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateDcf, calculateRelativeValuation, summarizeRange } from '../docs/assets/valuation-model.js';
+import fs from 'node:fs';
+import { calculateDcf, calculateRelativeValuation } from '../docs/assets/valuation-model.js';
+
+const fixtures = JSON.parse(fs.readFileSync(new URL('./fixtures/valuation_cases.json', import.meta.url), 'utf8'));
+
+function assertClose(actual, expected, tolerance = 1e-9) {
+  assert.ok(Number.isFinite(actual), `expected finite actual value, got ${actual}`);
+  assert.ok(Math.abs(actual - expected) <= tolerance * Math.max(1, Math.abs(expected)), `${actual} != ${expected}`);
+}
 
 test('calculateDcf returns a per-share equity value and projection rows', () => {
   const result = calculateDcf({
@@ -48,6 +56,8 @@ test('calculateRelativeValuation exposes PER and PBR rows', () => {
   assert.equal(result.range.mid, 137.5);
   assert.equal(result.range.high, 200);
   assert.equal(result.range.basis, 'PER/PBR headline only');
+  assert.equal(result.range.confirmed, false);
+  assert.equal(result.benchmarkSource, 'illustrative-default');
 });
 
 test('calculateRelativeValuation excludes auxiliary multiples from headline range', () => {
@@ -68,6 +78,32 @@ test('calculateRelativeValuation excludes auxiliary multiples from headline rang
   assert.ok(result.auxiliaryRange.mid > result.range.high);
 });
 
-test('summarizeRange ignores null values', () => {
-  assert.deepEqual(summarizeRange(null, 10, 20), { low: 10, mid: 15, high: 20 });
+test('calculateRelativeValuation marks user-confirmed benchmark multiples', () => {
+  const result = calculateRelativeValuation({
+    price: 50,
+    revenue: 1000,
+    netIncome: 100,
+    equity: 250,
+    freeCashFlow: 80,
+    sharesOutstanding: 10,
+    benchmarkPe: 20,
+    benchmarkPb: 3,
+    benchmarkSource: 'user-confirmed',
+  });
+  assert.equal(result.range.confirmed, true);
+  assert.equal(result.benchmarkSource, 'user-confirmed');
+});
+
+test('browser valuation formulas match shared fixture', () => {
+  const dcf = calculateDcf(fixtures.dcf.inputs);
+  assertClose(dcf.perShareValue, fixtures.dcf.expected.perShareValue);
+  assertClose(dcf.enterpriseValue, fixtures.dcf.expected.enterpriseValue);
+  assertClose(dcf.equityValue, fixtures.dcf.expected.equityValue);
+
+  const relative = calculateRelativeValuation(fixtures.relative.inputs);
+  assertClose(relative.range.low, fixtures.relative.expected.range.low);
+  assertClose(relative.range.mid, fixtures.relative.expected.range.mid);
+  assertClose(relative.range.high, fixtures.relative.expected.range.high);
+  assertClose(relative.auxiliaryRange.mid, fixtures.relative.expected.auxiliaryRange.mid);
+  assert.equal(relative.range.confirmed, false);
 });

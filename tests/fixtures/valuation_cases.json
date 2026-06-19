@@ -1,0 +1,45 @@
+{
+  "dcf": {
+    "inputs": {
+      "baseFreeCashFlow": 100,
+      "sharesOutstanding": 10,
+      "cash": 20,
+      "debt": 5,
+      "growthRate": 0.05,
+      "discountRate": 0.1,
+      "terminalGrowthRate": 0.02,
+      "projectionYears": 3
+    },
+    "expected": {
+      "enterpriseValue": 1382.4638429752065,
+      "equityValue": 1397.4638429752065,
+      "perShareValue": 139.74638429752065
+    }
+  },
+  "relative": {
+    "inputs": {
+      "price": 50,
+      "revenue": 1000,
+      "netIncome": 100,
+      "equity": 250,
+      "freeCashFlow": 80,
+      "sharesOutstanding": 10,
+      "benchmarkPe": 20,
+      "benchmarkPb": 3,
+      "benchmarkPs": 2,
+      "benchmarkPfcf": 15
+    },
+    "expected": {
+      "range": {
+        "low": 75,
+        "mid": 137.5,
+        "high": 200
+      },
+      "auxiliaryRange": {
+        "low": 120,
+        "mid": 160,
+        "high": 200
+      }
+    }
+  }
+}

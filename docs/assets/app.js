@@ -5,15 +5,15 @@ import {
   formatMoney,
   formatMultiple,
   formatPercent,
-  safeDivide,
-  summarizeRange,
 } from './valuation-model.js';
+import { normalizeDashboardAssumptions } from './assumptions.js';
 
 const state = {
   index: null,
   company: null,
   assumptions: null,
   currentTicker: null,
+  relativeConfirmed: false,
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -42,6 +42,8 @@ function bindElements() {
     valuationMetrics: $('#valuation-metrics'),
     assumptionForm: $('#assumption-form'),
     resetAssumptions: $('#reset-assumptions'),
+    confirmRelative: $('#confirm-relative'),
+    relativeReviewStatus: $('#relative-review-status'),
     dcfExplanation: $('#dcf-explanation'),
     dcfTableWrap: $('#dcf-table-wrap'),
     sensitivityWrap: $('#sensitivity-wrap'),
@@ -132,6 +134,7 @@ async function loadTicker(ticker) {
   state.company = await response.json();
   state.currentTicker = normalized;
   state.assumptions = normalizeAssumptions(state.company.assumptions || {});
+  state.relativeConfirmed = false;
   elements.tickerInput.value = normalized;
   hydrateAssumptionInputs();
   renderCompany();
@@ -142,20 +145,7 @@ async function loadTicker(ticker) {
 }
 
 function normalizeAssumptions(assumptions) {
-  return {
-    projectionYears: Number(assumptions.projectionYears ?? 5),
-    growthRate: Number(assumptions.growthRate ?? 0.04),
-    discountRate: Number(assumptions.discountRate ?? 0.09),
-    terminalGrowthRate: Number(assumptions.terminalGrowthRate ?? 0.025),
-    benchmarkPe: Number(assumptions.benchmarkPe ?? 22),
-    benchmarkPb: Number(assumptions.benchmarkPb ?? 4),
-    benchmarkPs: Number(assumptions.benchmarkPs ?? 5),
-    benchmarkPfcf: Number(assumptions.benchmarkPfcf ?? 20),
-    baseFreeCashFlow: Number(assumptions.baseFreeCashFlow ?? state.company?.financials?.latest?.freeCashFlow ?? 0),
-    cash: Number(assumptions.cash ?? state.company?.financials?.latest?.cash ?? 0),
-    debt: Number(assumptions.debt ?? 0),
-    sharesOutstanding: Number(assumptions.sharesOutstanding ?? state.company?.financials?.latest?.sharesDiluted ?? 0),
-  };
+  return normalizeDashboardAssumptions(assumptions, state.company?.financials?.latest || {});
 }
 
 function hydrateAssumptionInputs() {
@@ -168,6 +158,7 @@ function hydrateAssumptionInputs() {
   $('#benchmark-ps').value = String(a.benchmarkPs);
   $('#benchmark-pfcf').value = String(a.benchmarkPfcf);
   updateAssumptionOutputs();
+  updateRelativeReviewStatus();
 }
 
 function readAssumptionsFromInputs() {
@@ -188,6 +179,13 @@ function updateAssumptionOutputs() {
   $('#growth-output').textContent = formatPercent(Number($('#growth-rate').value) / 100, 2);
   $('#discount-output').textContent = formatPercent(Number($('#discount-rate').value) / 100, 2);
   $('#terminal-output').textContent = formatPercent(Number($('#terminal-growth-rate').value) / 100, 2);
+}
+
+function updateRelativeReviewStatus() {
+  elements.relativeReviewStatus.textContent = state.relativeConfirmed
+    ? '사용자가 PER/PBR 비교 배수를 검토했습니다. 상대가치 참고값을 요약에 표시합니다.'
+    : '기본 PER/PBR 배수는 예시값입니다. 산업·비교기업 현실성을 확인한 뒤 적용하세요.';
+  elements.relativeReviewStatus.classList.toggle('confirmed', state.relativeConfirmed);
 }
 
 function renderCompany() {
@@ -243,46 +241,52 @@ function recalculateAndRender() {
       benchmarkPb: state.assumptions.benchmarkPb,
       benchmarkPs: state.assumptions.benchmarkPs,
       benchmarkPfcf: state.assumptions.benchmarkPfcf,
+      benchmarkSource: state.relativeConfirmed ? 'user-confirmed' : 'illustrative-default',
     });
   } catch (error) {
     relativeError = error.message;
     relative = null;
   }
-  const blended = summarizeRange(dcf?.perShareValue, relative?.range?.mid);
-  renderValuationSummary(dcf, relative, blended, dcfError);
+  renderValuationSummary(dcf, relative, dcfError);
   renderDcf(dcf, dcfError);
   renderRelative(relative, relativeError);
+  updateRelativeReviewStatus();
 }
 
-function renderValuationSummary(dcf, relative, blended, dcfError) {
+function renderValuationSummary(dcf, relative, dcfError) {
   const currency = state.company.company.currency || 'USD';
   const price = state.company.market.price;
-  elements.valuationBand.innerHTML = renderBand(blended, price, currency);
-  const upside = price && blended.mid ? (blended.mid / price) - 1 : null;
+  elements.valuationBand.innerHTML = renderMethodComparison(dcf, relative, price, currency);
+  const dcfUpside = price && dcf?.perShareValue ? (dcf.perShareValue / price) - 1 : null;
+  const relativeUpside = price && state.relativeConfirmed && relative?.range?.mid ? (relative.range.mid / price) - 1 : null;
   elements.valuationMetrics.innerHTML = [
     metricCard('현재가', formatMoney(price, currency, { compact: false }), '시장가격은 best-effort 스냅샷'),
     metricCard('DCF 주당가치', dcf ? formatMoney(dcf.perShareValue, currency, { compact: false }) : 'N/A', dcfError || 'FCF 기반 절대가치'),
-    metricCard('상대가치 중앙값', relative?.range?.mid ? formatMoney(relative.range.mid, currency, { compact: false }) : 'N/A', 'PER/PBR 핵심 배수 기준'),
-    metricCard('참고 범위 중앙값 차이', upside === null ? 'N/A' : formatPercent(upside, 1), '매수/매도 신호가 아닌 가정별 차이'),
+    metricCard('DCF 현재가 대비', dcfUpside === null ? 'N/A' : formatPercent(dcfUpside, 1), '매수/매도 신호가 아닌 DCF 가정 차이'),
+    metricCard('상대가치 상태', state.relativeConfirmed && relative?.range?.mid ? formatMoney(relative.range.mid, currency, { compact: false }) : '검토 전', 'PER/PBR은 사용자 확인 뒤 요약 반영'),
+    metricCard('상대가치 현재가 대비', relativeUpside === null ? 'N/A' : formatPercent(relativeUpside, 1), '확인된 비교 배수일 때만 표시'),
   ].join('');
 }
 
-function renderBand(range, price, currency) {
-  if (!range.low || !range.high || range.low === range.high) {
-    return '<div class="explain-box">가치 범위를 만들 데이터가 부족합니다. FCF, 주식수, 상대가치 배수를 확인하세요.</div>';
-  }
-  const min = Math.min(range.low, price || range.low);
-  const max = Math.max(range.high, price || range.high);
-  const percent = price ? Math.max(5, Math.min(95, ((price - min) / (max - min)) * 84 + 8)) : 50;
+function renderMethodComparison(dcf, relative, price, currency) {
+  const relativeValue = state.relativeConfirmed ? relative?.range?.mid : null;
   return `
-    <div class="band-track" aria-label="가치평가 범위와 현재가 위치">
-      <div class="band-line"></div>
-      ${price ? `<div class="price-marker" style="left:${percent}%" data-label="현재가 ${escapeHtml(formatMoney(price, currency, { compact: false }))}"></div>` : ''}
-      <div class="band-labels">
-        <span>낮은 참고값 ${escapeHtml(formatMoney(range.low, currency, { compact: false }))}</span>
-        <span>중앙 ${escapeHtml(formatMoney(range.mid, currency, { compact: false }))}</span>
-        <span>높은 참고값 ${escapeHtml(formatMoney(range.high, currency, { compact: false }))}</span>
-      </div>
+    <div class="method-compare" aria-label="DCF와 상대가치 독립 비교">
+      <article class="method-card">
+        <span>DCF 독립 결과</span>
+        <strong>${escapeHtml(dcf ? formatMoney(dcf.perShareValue, currency, { compact: false }) : 'N/A')}</strong>
+        <small>정규화 FCF와 사용자가 조정한 성장률·할인율 기준입니다.</small>
+      </article>
+      <article class="method-card">
+        <span>PER/PBR 상대가치</span>
+        <strong>${escapeHtml(relativeValue ? formatMoney(relativeValue, currency, { compact: false }) : '사용자 검토 전')}</strong>
+        <small>기본 배수는 예시값입니다. 비교기업/산업 현실성을 확인해야 요약값으로 사용합니다.</small>
+      </article>
+      <article class="method-card">
+        <span>현재가</span>
+        <strong>${escapeHtml(formatMoney(price, currency, { compact: false }))}</strong>
+        <small>두 방법은 평균내지 않고 독립적으로 비교합니다.</small>
+      </article>
     </div>`;
 }
 
@@ -332,6 +336,11 @@ function renderRelative(relative, error) {
       <td>${escapeHtml(row.description)}</td>
     </tr>`;
   elements.relativeTableWrap.innerHTML = `
+    <div class="explain-box">
+      ${state.relativeConfirmed
+        ? 'PER/PBR 배수가 사용자 확인 상태입니다. 그래도 비교기업·산업·ROE 차이는 직접 검토해야 합니다.'
+        : '아래 PER/PBR 값은 기본 예시 배수로 계산한 출발점입니다. 사용자 확인 전에는 요약 가치로 취급하지 않습니다.'}
+    </div>
     <table>
       <caption>PER/PBR 핵심 상대가치 산출표</caption>
       <thead><tr><th>지표</th><th>1주당 기준값</th><th>현재 배수</th><th>비교 배수</th><th>암시 주가</th><th>해석</th></tr></thead>
@@ -358,7 +367,10 @@ function bindEvents() {
     event.preventDefault();
     loadTicker(elements.tickerInput.value).catch((error) => setStatus('티커 로드 실패', error.message, 'error'));
   });
-  elements.assumptionForm.addEventListener('input', () => {
+  elements.assumptionForm.addEventListener('input', (event) => {
+    if (event.target?.id?.startsWith('benchmark-')) {
+      state.relativeConfirmed = false;
+    }
     try {
       recalculateAndRender();
     } catch (error) {
@@ -367,7 +379,12 @@ function bindEvents() {
   });
   elements.resetAssumptions.addEventListener('click', () => {
     state.assumptions = normalizeAssumptions(state.company.assumptions || {});
+    state.relativeConfirmed = false;
     hydrateAssumptionInputs();
+    recalculateAndRender();
+  });
+  elements.confirmRelative.addEventListener('click', () => {
+    state.relativeConfirmed = true;
     recalculateAndRender();
   });
   elements.memo.addEventListener('input', () => {

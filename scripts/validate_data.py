@@ -5,12 +5,20 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 from typing import Any
 
+try:
+    from .valuation_core import calculate_dcf, calculate_relative_valuation
+except ImportError:  # pragma: no cover - exercised when run as a script
+    from valuation_core import calculate_dcf, calculate_relative_valuation
+
 REQUIRED_COMPANY_TOP_KEYS = {"schemaVersion", "generatedAt", "company", "sources", "market", "financials", "assumptions", "valuations", "quality"}
 REQUIRED_COMPANY_FIELDS = {"ticker", "cik", "name", "currency"}
-REQUIRED_VALUATION_KEYS = {"dcf", "dcfSensitivity", "relative", "blendedRange"}
+REQUIRED_VALUATION_KEYS = {"dcf", "dcfSensitivity", "relative", "methodComparison"}
+MONETARY_FIELDS = {"revenue", "operatingIncome", "netIncome", "operatingCashFlow", "capitalExpenditures", "equity", "assets", "liabilities", "cash", "debtCurrent", "debtNoncurrent"}
+SHARE_FIELDS = {"sharesDiluted", "sharesBasic"}
 
 
 class ValidationFailure(AssertionError):
@@ -27,6 +35,27 @@ def read_json(path: Path) -> Any:
 def require(condition: bool, message: str) -> None:
     if not condition:
         raise ValidationFailure(message)
+
+
+def require_close(actual: float | None, expected: float | None, message: str, tolerance: float = 1e-6) -> None:
+    if actual is None or expected is None:
+        require(actual is expected, message)
+        return
+    require(math.isfinite(float(actual)), f"{message}: actual is not finite")
+    require(math.isfinite(float(expected)), f"{message}: expected is not finite")
+    scale = max(1.0, abs(float(expected)))
+    require(abs(float(actual) - float(expected)) <= tolerance * scale, f"{message}: {actual} != {expected}")
+
+
+def require_finite_numbers(value: Any, path: str) -> None:
+    if isinstance(value, dict):
+        for key, child in value.items():
+            require_finite_numbers(child, f"{path}.{key}")
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            require_finite_numbers(child, f"{path}[{index}]")
+    elif isinstance(value, float):
+        require(math.isfinite(value), f"{path}: numeric value must be finite")
 
 
 def validate_company(path: Path) -> list[str]:
@@ -47,6 +76,17 @@ def validate_company(path: Path) -> list[str]:
     require(financials.get("latest") is not None, f"{path}: financials.latest required")
     if not financials["annual"]:
         warnings.append(f"{path}: no annual rows")
+    for row in financials["annual"]:
+        source_tags = row.get("sourceTags", {})
+        for key in MONETARY_FIELDS & set(row):
+            unit = (source_tags.get(key) or {}).get("unit")
+            require(unit == "USD", f"{path}: {key} must have USD unit provenance")
+        for key in SHARE_FIELDS & set(row):
+            unit = (source_tags.get(key) or {}).get("unit")
+            require(unit == "shares", f"{path}: {key} must have shares unit provenance")
+        if row.get("freeCashFlow") is not None:
+            require(row.get("freeCashFlowStatus") == "reported_capex", f"{path}: freeCashFlow requires reported_capex status")
+            require("operatingCashFlow" in row and "capitalExpenditures" in row, f"{path}: freeCashFlow requires OCF and CAPEX")
 
     assumptions = payload["assumptions"]
     for key in ["projectionYears", "growthRate", "discountRate", "terminalGrowthRate", "benchmarkPe", "benchmarkPb"]:
@@ -57,8 +97,20 @@ def validate_company(path: Path) -> list[str]:
     valuations = payload["valuations"]
     missing_valuations = REQUIRED_VALUATION_KEYS - set(valuations)
     require(not missing_valuations, f"{path}: missing valuations {sorted(missing_valuations)}")
+    require("blendedRange" not in valuations, f"{path}: blendedRange must not be published")
     if valuations.get("dcf"):
+        expected_dcf = calculate_dcf(
+            base_fcf=assumptions["baseFreeCashFlow"],
+            shares_outstanding=assumptions["sharesOutstanding"],
+            cash=assumptions.get("cash") or 0,
+            debt=assumptions.get("debt") or 0,
+            growth_rate=assumptions["growthRate"],
+            discount_rate=assumptions["discountRate"],
+            terminal_growth_rate=assumptions["terminalGrowthRate"],
+            projection_years=assumptions["projectionYears"],
+        )
         require("perShareValue" in valuations["dcf"], f"{path}: DCF perShareValue required when DCF exists")
+        require_close(valuations["dcf"]["perShareValue"], expected_dcf["perShareValue"], f"{path}: DCF perShareValue mismatch")
         require(len(valuations.get("dcfSensitivity") or []) >= 1, f"{path}: DCF sensitivity matrix required")
     else:
         warnings.append(f"{path}: DCF missing")
@@ -68,13 +120,31 @@ def validate_company(path: Path) -> list[str]:
         labels = {row.get("label") for row in rows}
         require({"PER", "PBR"}.issubset(labels), f"{path}: PER and PBR rows are required")
         require((relative.get("range") or {}).get("basis") == "PER/PBR headline only", f"{path}: headline relative range must be PER/PBR only")
+        require((relative.get("range") or {}).get("confirmed") is False, f"{path}: generated relative defaults must be unconfirmed")
         require("auxiliaryRange" in relative, f"{path}: auxiliary relative range required for P/S and P/FCF")
+        expected_relative = calculate_relative_valuation(
+            price=payload["market"].get("price"),
+            revenue=financials["latest"].get("revenue"),
+            net_income=financials["latest"].get("netIncome"),
+            equity=financials["latest"].get("equity"),
+            free_cash_flow=financials["latest"].get("freeCashFlow"),
+            shares_outstanding=assumptions["sharesOutstanding"],
+            benchmark_pe=assumptions["benchmarkPe"],
+            benchmark_pb=assumptions["benchmarkPb"],
+            benchmark_ps=assumptions["benchmarkPs"],
+            benchmark_pfcf=assumptions["benchmarkPfcf"],
+            benchmark_source=relative.get("benchmarkSource", "illustrative-default"),
+        )
+        require_close(relative["range"]["mid"], expected_relative["range"]["mid"], f"{path}: relative midpoint mismatch")
     else:
         warnings.append(f"{path}: relative valuation missing")
+    method = valuations["methodComparison"]
+    require(method.get("relativeConfirmed") is False, f"{path}: generated methodComparison relative value must be unconfirmed")
 
     quality = payload["quality"]
     require("status" in quality and "warnings" in quality and "guardrails" in quality, f"{path}: quality fields missing")
     require(any("투자" in text or "판단" in text for text in quality.get("guardrails", [])), f"{path}: judgment/investment guardrail required")
+    require_finite_numbers(payload, str(path))
 
     return warnings
 
@@ -91,6 +161,7 @@ def validate_index(data_dir: Path) -> list[Path]:
     for item in tickers:
         for key in ["ticker", "name", "companyFile", "qualityStatus"]:
             require(key in item, f"{index_path}: ticker item missing {key}")
+        require("relativeMid" not in item, f"{index_path}: unconfirmed relative midpoint must not be published in index")
         company_path = data_dir / item["companyFile"]
         require(company_path.exists(), f"{index_path}: referenced company file missing: {company_path}")
         company_paths.append(company_path)
@@ -101,16 +172,20 @@ def validate_static_files(root: Path) -> None:
     html = root / "docs" / "index.html"
     css = root / "docs" / "assets" / "styles.css"
     app = root / "docs" / "assets" / "app.js"
+    assumptions = root / "docs" / "assets" / "assumptions.js"
     model = root / "docs" / "assets" / "valuation-model.js"
-    for path in [html, css, app, model]:
+    for path in [html, css, app, assumptions, model]:
         require(path.exists(), f"{path}: missing static asset")
     html_text = html.read_text(encoding="utf-8")
-    for needle in ["Stock Valuation Workspace", "티커", "가치평가", "사용자의 판단", "data/index.json"]:
+    for needle in ["Stock Valuation Workspace", "티커", "가치평가", "사용자의 판단", "data/index.json", "Content-Security-Policy", "DCF와 상대가치는 평균내지 않습니다"]:
         require(needle in html_text, f"{html}: missing expected copy/reference {needle!r}")
     require("sonchanggi.github.io/quant-dashboard" in html_text, f"{html}: should reference dashboard only as navigation/reference")
     app_text = app.read_text(encoding="utf-8")
     require("fetch('data/index.json')" in app_text or 'fetch("data/index.json")' in app_text, f"{app}: should load same-origin data/index.json")
     require("query1.finance.yahoo" not in app_text and "data.sec.gov" not in app_text, f"{app}: browser app must not fetch third-party finance APIs")
+    for path in [html, app, assumptions, model]:
+        text = path.read_text(encoding="utf-8")
+        require("blendedRange" not in text, f"{path}: DCF and relative valuations must not be blended")
 
 
 def main() -> int:

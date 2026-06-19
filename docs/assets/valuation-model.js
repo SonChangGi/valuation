@@ -13,6 +13,7 @@ const SENSITIVITY_DISCOUNT_RATES = [0.08, 0.09, 0.10];
 const SENSITIVITY_TERMINAL_RATES = [0.015, 0.025, 0.035];
 
 function safeNumber(value) {
+  if (value === null || value === undefined || value === '') return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
 }
@@ -95,6 +96,7 @@ function calculateRelativeValuation({
   benchmarkPb = DEFAULT_ASSUMPTIONS.benchmarkPb,
   benchmarkPs = DEFAULT_ASSUMPTIONS.benchmarkPs,
   benchmarkPfcf = DEFAULT_ASSUMPTIONS.benchmarkPfcf,
+  benchmarkSource = 'illustrative-default',
 }) {
   const shares = safeNumber(sharesOutstanding);
   if (shares === null || shares <= 0) {
@@ -158,6 +160,7 @@ function calculateRelativeValuation({
       mid: median(headlineValues),
       high: headlineValues.length ? Math.max(...headlineValues) : null,
       basis: 'PER/PBR headline only',
+      confirmed: benchmarkSource !== 'illustrative-default',
     },
     auxiliaryRange: {
       low: auxiliaryValues.length ? Math.min(...auxiliaryValues) : null,
@@ -165,7 +168,8 @@ function calculateRelativeValuation({
       high: auxiliaryValues.length ? Math.max(...auxiliaryValues) : null,
       basis: 'P/S and P/FCF auxiliary cross-check only',
     },
-    benchmarkSource: '사용자가 비교기업/산업 기준에 맞게 수정해야 하는 기본 참고 배수',
+    benchmarkSource,
+    benchmarkNote: '기본 배수는 예시값이며 사용자가 산업/비교기업 기준으로 확인해야 합니다.',
   };
 }
 
@@ -192,15 +196,6 @@ function buildSensitivity({ baseFreeCashFlow, sharesOutstanding, cash, debt, gro
       }
     }),
   }));
-}
-
-function summarizeRange(...values) {
-  const usable = values.filter((value) => value !== null && value !== undefined).map(Number).filter(Number.isFinite);
-  return {
-    low: usable.length ? Math.min(...usable) : null,
-    mid: median(usable),
-    high: usable.length ? Math.max(...usable) : null,
-  };
 }
 
 function formatMoney(value, currency = 'USD', options = {}) {
@@ -239,5 +234,4 @@ export {
   formatPercent,
   median,
   safeDivide,
-  summarizeRange,
 };

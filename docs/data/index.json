@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "valuation",
   "title": "Stock Valuation Workspace",
-  "generatedAt": "2026-06-18T16:00:40Z",
+  "generatedAt": "2026-06-19T13:16:11Z",
   "basePath": "/valuation/",
   "dataPolicy": "Static JSON generated from public SEC fundamentals and best-effort market price snapshots.",
   "tickers": [
@@ -11,39 +11,36 @@
       "name": "Apple Inc.",
       "exchange": "Nasdaq",
       "currency": "USD",
-      "price": 297.69,
+      "price": 298.01,
       "priceAsOf": "2026-06-18",
       "qualityStatus": "충분",
       "companyFile": "companies/AAPL.json",
       "dcfPerShare": 104.59517896320538,
-      "relativeMid": 91.9429429331362,
-      "generatedAt": "2026-06-18T16:00:36Z"
+      "generatedAt": "2026-06-19T13:16:08Z"
     },
     {
       "ticker": "MSFT",
       "name": "MICROSOFT CORPORATION",
       "exchange": "Nasdaq",
       "currency": "USD",
-      "price": 378.034,
+      "price": 379.4,
       "priceAsOf": "2026-06-18",
       "qualityStatus": "충분",
       "companyFile": "companies/MSFT.json",
       "dcfPerShare": 223.61184950046587,
-      "relativeMid": 242.0776959142666,
-      "generatedAt": "2026-06-18T16:00:38Z"
+      "generatedAt": "2026-06-19T13:16:09Z"
     },
     {
       "ticker": "NVDA",
       "name": "NVIDIA CORP",
       "exchange": "Nasdaq",
       "currency": "USD",
-      "price": 209.105,
+      "price": 210.69,
       "priceAsOf": "2026-06-18",
       "qualityStatus": "일부 누락",
       "companyFile": "companies/NVDA.json",
       "dcfPerShare": 58.39922778438662,
-      "relativeMid": 66.70975768948357,
-      "generatedAt": "2026-06-18T16:00:40Z"
+      "generatedAt": "2026-06-19T13:16:11Z"
     }
   ],
   "errors": []

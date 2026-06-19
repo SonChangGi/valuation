@@ -29,7 +29,6 @@ try:  # Allow both `python scripts/update_data.py` and package-style test import
         classify_quality,
         derive_growth_rate,
         normalize_fcf,
-        summarize_range,
     )
 except ImportError:  # pragma: no cover - exercised when run as a script
     from valuation_core import (
@@ -40,7 +39,6 @@ except ImportError:  # pragma: no cover - exercised when run as a script
         classify_quality,
         derive_growth_rate,
         normalize_fcf,
-        summarize_range,
     )
 
 SEC_TICKERS_URL = "https://www.sec.gov/files/company_tickers_exchange.json"
@@ -76,7 +74,7 @@ TAG_GROUPS = {
     "sharesBasic": ["WeightedAverageNumberOfSharesOutstandingBasic"],
 }
 
-USD_UNIT_PREFERENCE = ("USD", "USD/shares")
+USD_UNIT_PREFERENCE = ("USD",)
 SHARE_UNIT_PREFERENCE = ("shares",)
 
 
@@ -114,20 +112,19 @@ def load_ticker_map(user_agent: str) -> dict[str, dict[str, Any]]:
     return result
 
 
-def unit_values(concept: dict[str, Any], preferred_units: tuple[str, ...]) -> list[dict[str, Any]]:
+def unit_values(concept: dict[str, Any], preferred_units: tuple[str, ...]) -> list[tuple[str, dict[str, Any]]]:
     units = concept.get("units", {}) if concept else {}
+    values: list[tuple[str, dict[str, Any]]] = []
     for unit in preferred_units:
         if unit in units:
-            return list(units[unit])
-    for values in units.values():
-        return list(values)
-    return []
+            values.extend((unit, fact) for fact in units[unit])
+    return values
 
 
-def choose_fact_value(facts: dict[str, Any], tags: list[str], preferred_units: tuple[str, ...], *, fy: int | None = None, annual: bool = True) -> tuple[float | None, str | None, dict[str, Any] | None]:
+def choose_fact_value(facts: dict[str, Any], tags: list[str], preferred_units: tuple[str, ...], *, fy: int | None = None, annual: bool = True) -> tuple[float | None, str | None, dict[str, Any] | None, str | None]:
     candidates = []
     for tag in tags:
-        for fact in unit_values(facts.get(tag, {}), preferred_units):
+        for unit, fact in unit_values(facts.get(tag, {}), preferred_units):
             if fact.get("val") is None:
                 continue
             if annual:
@@ -138,21 +135,21 @@ def choose_fact_value(facts: dict[str, Any], tags: list[str], preferred_units: t
             if fy is not None and fact.get("fy") != fy:
                 continue
             filed = fact.get("filed") or fact.get("end") or ""
-            candidates.append((str(filed), tag, fact))
+            candidates.append((str(filed), tag, fact, unit))
     if not candidates:
-        return None, None, None
+        return None, None, None, None
     candidates.sort(key=lambda item: item[0])
-    _, tag, fact = candidates[-1]
+    _, tag, fact, unit = candidates[-1]
     try:
-        return float(fact["val"]), tag, fact
+        return float(fact["val"]), tag, fact, unit
     except (TypeError, ValueError):
-        return None, tag, fact
+        return None, tag, fact, unit
 
 
 def available_fiscal_years(facts: dict[str, Any]) -> list[int]:
     years = set()
     for tag in TAG_GROUPS["revenue"] + TAG_GROUPS["netIncome"] + TAG_GROUPS["operatingCashFlow"]:
-        for fact in unit_values(facts.get(tag, {}), USD_UNIT_PREFERENCE):
+        for _, fact in unit_values(facts.get(tag, {}), USD_UNIT_PREFERENCE):
             fy = fact.get("fy")
             if fact.get("form") in {"10-K", "10-K/A", "20-F", "40-F", "20-F/A", "40-F/A"} and isinstance(fy, int):
                 years.add(fy)
@@ -170,15 +167,16 @@ def build_annual_rows(companyfacts: dict[str, Any], max_years: int = 5) -> tuple
             if key in {"sharesOutstanding"}:
                 continue
             units = SHARE_UNIT_PREFERENCE if key.startswith("shares") else USD_UNIT_PREFERENCE
-            value, tag, fact = choose_fact_value(us_gaap, tags, units, fy=fy, annual=True)
+            value, tag, fact, unit = choose_fact_value(us_gaap, tags, units, fy=fy, annual=True)
             if value is not None:
                 row[key] = value
-                row_sources[key] = {"tag": tag, "filed": fact.get("filed"), "form": fact.get("form"), "end": fact.get("end")}
+                row_sources[key] = {"tag": tag, "unit": unit, "filed": fact.get("filed"), "form": fact.get("form"), "end": fact.get("end")}
         if row.get("operatingCashFlow") is not None and row.get("capitalExpenditures") is not None:
             row["freeCashFlow"] = row["operatingCashFlow"] - abs(row["capitalExpenditures"])
+            row["freeCashFlowStatus"] = "reported_capex"
         elif row.get("operatingCashFlow") is not None:
-            row["freeCashFlow"] = row["operatingCashFlow"]
-            warnings.append(f"{fy}년 CAPEX 태그가 없어 영업현금흐름을 FCF 대용치로 사용했습니다.")
+            row["freeCashFlowStatus"] = "missing_capex_excluded"
+            warnings.append(f"{fy}년 CAPEX 태그가 없어 해당 연도는 FCF 정규화에서 제외했습니다.")
         row["sourceTags"] = row_sources
         rows.append(row)
     if not rows:
@@ -189,7 +187,7 @@ def build_annual_rows(companyfacts: dict[str, Any], max_years: int = 5) -> tuple
 def latest_period_value(companyfacts: dict[str, Any], key: str) -> tuple[float | None, str | None]:
     us_gaap = companyfacts.get("facts", {}).get("us-gaap", {})
     units = SHARE_UNIT_PREFERENCE if key.startswith("shares") else USD_UNIT_PREFERENCE
-    value, tag, _ = choose_fact_value(us_gaap, TAG_GROUPS[key], units, fy=None, annual=False)
+    value, tag, _, _ = choose_fact_value(us_gaap, TAG_GROUPS[key], units, fy=None, annual=False)
     return value, tag
 
 
@@ -269,7 +267,12 @@ def build_company_payload(
 
     cash = latest.get("cash") or 0.0
     debt = (latest.get("debtCurrent") or 0.0) + (latest.get("debtNoncurrent") or 0.0)
+    recent_rows = sorted(annual_rows, key=lambda row: row.get("fy") or 0, reverse=True)[:3]
+    recent_confirmed_fcf = [row for row in recent_rows if row.get("freeCashFlow") is not None]
     base_fcf = normalize_fcf(annual_rows)
+    if len(recent_confirmed_fcf) < 2:
+        base_fcf = None
+        warnings.append("최근 3년 중 CAPEX가 확인된 FCF가 2개 미만이어서 DCF를 수동 확인 대상으로 격하했습니다.")
     if base_fcf is None:
         warnings.append("자유현금흐름을 산출할 수 없어 DCF 기준값이 제한됩니다.")
 
@@ -325,16 +328,19 @@ def build_company_payload(
                 benchmark_pb=assumptions["benchmarkPb"],
                 benchmark_ps=assumptions["benchmarkPs"],
                 benchmark_pfcf=assumptions["benchmarkPfcf"],
+                benchmark_source="illustrative-default",
             )
         except Exception as exc:  # noqa: BLE001
             warnings.append(f"상대가치 산출 실패: {exc}")
     else:
         warnings.append("상대가치 산출에 필요한 주식수 데이터가 부족합니다.")
 
-    blended = summarize_range(
-        dcf.get("perShareValue") if dcf else None,
-        relative.get("range", {}).get("mid") if relative else None,
-    )
+    method_comparison = {
+        "dcfPerShare": dcf.get("perShareValue") if dcf else None,
+        "relativePerShare": relative.get("range", {}).get("mid") if relative else None,
+        "relativeConfirmed": False,
+        "note": "DCF와 PER/PBR 상대가치는 평균내지 않습니다. 상대가치는 사용자 배수 확인 전 예시값입니다.",
+    }
 
     required_missing = not annual_rows or not shares or base_fcf is None
     quality_status = classify_quality(warnings, fatal_missing=required_missing)
@@ -374,7 +380,7 @@ def build_company_payload(
             "dcf": dcf,
             "dcfSensitivity": sensitivity,
             "relative": relative,
-            "blendedRange": blended,
+            "methodComparison": method_comparison,
         },
         "quality": {
             "status": quality_status,
@@ -403,7 +409,6 @@ def compact_index_item(payload: dict[str, Any]) -> dict[str, Any]:
         "qualityStatus": payload.get("quality", {}).get("status"),
         "companyFile": f"companies/{company['ticker']}.json",
         "dcfPerShare": (valuations.get("dcf") or {}).get("perShareValue"),
-        "relativeMid": ((valuations.get("relative") or {}).get("range") or {}).get("mid"),
         "generatedAt": payload.get("generatedAt"),
     }
 
