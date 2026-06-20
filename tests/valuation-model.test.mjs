@@ -1,7 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { calculateDcf, calculateRelativeValuation } from '../docs/assets/valuation-model.js';
+import {
+  buildReverseDcf,
+  buildSensitivity,
+  calculateDcf,
+  calculateRelativeValuation,
+  summarizeSensitivity,
+} from '../docs/assets/valuation-model.js';
 
 const fixtures = JSON.parse(fs.readFileSync(new URL('./fixtures/valuation_cases.json', import.meta.url), 'utf8'));
 
@@ -62,6 +68,7 @@ test('calculateRelativeValuation exposes PER and PBR rows', () => {
   assert.equal(result.benchmarkSource, 'illustrative-default');
   assert.equal(result.qualitySignals.roe, 0.4);
   assert.equal(result.diagnostics.usableHeadlineMultiples, 2);
+  assert.equal(result.diagnostics.qualityGate.status, 'needs_user_review');
 });
 
 test('calculateRelativeValuation excludes auxiliary multiples from headline range', () => {
@@ -112,4 +119,50 @@ test('browser valuation formulas match shared fixture', () => {
   assertClose(relative.auxiliaryRange.mid, fixtures.relative.expected.auxiliaryRange.mid);
   assert.equal(relative.range.confirmed, false);
   assertClose(relative.qualitySignals.roe, fixtures.relative.expected.qualitySignals.roe);
+});
+
+test('buildReverseDcf solves current price implied growth from existing assumptions', () => {
+  const dcf = calculateDcf({
+    baseFreeCashFlow: 100,
+    sharesOutstanding: 10,
+    cash: 20,
+    debt: 5,
+    growthRate: 0.05,
+    discountRate: 0.1,
+    terminalGrowthRate: 0.02,
+    projectionYears: 3,
+  });
+  const reverse = buildReverseDcf({
+    marketPrice: dcf.perShareValue,
+    baseFreeCashFlow: 100,
+    sharesOutstanding: 10,
+    cash: 20,
+    debt: 5,
+    growthRate: 0.05,
+    discountRate: 0.1,
+    terminalGrowthRate: 0.02,
+    projectionYears: 3,
+  });
+  assert.equal(reverse.status, 'available');
+  assert.equal(reverse.explicitGrowth.status, 'solved');
+  assertClose(reverse.explicitGrowth.rate, 0.05, 1e-6);
+});
+
+test('summarizeSensitivity turns the matrix into a fragility signal', () => {
+  const assumptions = {
+    baseFreeCashFlow: 100,
+    sharesOutstanding: 10,
+    cash: 0,
+    debt: 0,
+    growthRate: 0.04,
+    discountRate: 0.09,
+    terminalGrowthRate: 0.025,
+    projectionYears: 5,
+  };
+  const dcf = calculateDcf(assumptions);
+  const sensitivity = buildSensitivity(assumptions);
+  const summary = summarizeSensitivity(sensitivity, { baseValue: dcf.perShareValue, marketPrice: dcf.perShareValue });
+  assert.ok(['stable', 'sensitive', 'fragile'].includes(summary.fragility));
+  assert.ok(summary.high > summary.low);
+  assert.equal(summary.priceCoverage, 'mixed');
 });

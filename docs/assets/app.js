@@ -1,10 +1,12 @@
 import {
   buildSensitivity,
+  buildReverseDcf,
   calculateDcf,
   calculateRelativeValuation,
   formatMoney,
   formatMultiple,
   formatPercent,
+  summarizeSensitivity,
 } from './valuation-model.js';
 import { normalizeDashboardAssumptions } from './assumptions.js';
 
@@ -91,6 +93,32 @@ function comparisonLabel(value, price) {
   if (upside >= 0.15) return `현재가 대비 ${formatPercent(upside, 1)} 높음`;
   if (upside <= -0.15) return `현재가 대비 ${formatPercent(Math.abs(upside), 1)} 낮음`;
   return `현재가와 근접 (${formatPercent(upside, 1)})`;
+}
+
+function formatImpliedRate(result, label = '가정') {
+  if (!result) return 'N/A';
+  if (result.status === 'solved') return formatPercent(result.rate, 2);
+  if (result.status === 'above_range') return `${formatPercent(result.upperBound, 1)} 초과`;
+  if (result.status === 'below_range') return `${formatPercent(result.lowerBound, 1)} 미만`;
+  return `${label} 역산 불가`;
+}
+
+function impliedRateDetail(result) {
+  if (!result) return '역산 데이터가 부족합니다.';
+  if (result.status === 'solved') return `현재가를 설명하는 내재 가정은 ${formatPercent(result.rate, 2)}입니다.`;
+  if (result.status === 'above_range') return `현재가를 설명하려면 검토 범위 상단 ${formatPercent(result.upperBound, 1)}를 넘어야 합니다.`;
+  if (result.status === 'below_range') return `현재가가 검토 범위 하단 ${formatPercent(result.lowerBound, 1)}보다 낮은 기대를 반영합니다.`;
+  return '시장가격·FCF·주식수 조건을 확인하세요.';
+}
+
+function sensitivityLabel(summary) {
+  const labels = {
+    stable: '안정',
+    sensitive: '민감',
+    fragile: '취약',
+    unavailable: 'N/A',
+  };
+  return labels[summary?.fragility] || 'N/A';
 }
 
 function scaledPercent(value, maxValue) {
@@ -323,6 +351,15 @@ function calculateCurrentValuations() {
   } catch (error) {
     dcfError = error.message;
   }
+  const sensitivity = buildSensitivity(state.assumptions);
+  const sensitivitySummary = summarizeSensitivity(sensitivity, {
+    baseValue: dcf?.perShareValue,
+    marketPrice: market.price,
+  });
+  const reverseDcf = buildReverseDcf({
+    marketPrice: market.price,
+    ...state.assumptions,
+  });
   let relative = null;
   let relativeError = null;
   try {
@@ -343,30 +380,32 @@ function calculateCurrentValuations() {
     relativeError = error.message;
     relative = null;
   }
-  return { dcf, dcfError, relative, relativeError };
+  return { dcf, dcfError, sensitivity, sensitivitySummary, reverseDcf, relative, relativeError };
 }
 
 function recalculateAndRender() {
   if (!state.company || !state.assumptions) return;
   readAssumptionsFromInputs();
-  const { dcf, dcfError, relative, relativeError } = calculateCurrentValuations();
-  renderValuationSummary(dcf, relative, dcfError);
-  renderDcf(dcf, dcfError);
+  const { dcf, dcfError, sensitivity, sensitivitySummary, reverseDcf, relative, relativeError } = calculateCurrentValuations();
+  renderValuationSummary(dcf, relative, dcfError, sensitivitySummary, reverseDcf);
+  renderDcf(dcf, dcfError, sensitivity, sensitivitySummary, reverseDcf);
   renderRelative(relative, relativeError);
   updateRelativeReviewStatus();
 }
 
-function renderValuationSummary(dcf, relative, dcfError) {
+function renderValuationSummary(dcf, relative, dcfError, sensitivitySummary, reverseDcf) {
   const currency = state.company.company.currency || 'USD';
   const price = state.company.market.price;
   elements.valuationBand.innerHTML = renderMethodComparison(dcf, relative, price, currency);
-  elements.decisionCockpit.innerHTML = renderDecisionCockpit(dcf, relative, dcfError, price, currency);
+  elements.decisionCockpit.innerHTML = renderDecisionCockpit(dcf, relative, dcfError, sensitivitySummary, reverseDcf, price, currency);
   const dcfUpside = price && dcf?.perShareValue ? (dcf.perShareValue / price) - 1 : null;
   const relativeUpside = price && state.relativeConfirmed && relative?.range?.mid ? (relative.range.mid / price) - 1 : null;
   elements.valuationMetrics.innerHTML = [
     metricCard('현재가', formatMoney(price, currency, { compact: false }), '시장가격은 best-effort 스냅샷'),
     metricCard('DCF 주당가치', dcf ? formatMoney(dcf.perShareValue, currency, { compact: false }) : 'N/A', dcfError || 'FCF 기반 절대가치'),
     metricCard('DCF 현재가 대비', dcfUpside === null ? 'N/A' : formatPercent(dcfUpside, 1), '매수/매도 신호가 아닌 DCF 가정 차이'),
+    metricCard('Reverse DCF', formatImpliedRate(reverseDcf?.explicitGrowth, '성장률'), '현재가가 요구하는 명시 성장 기대'),
+    metricCard('민감도 취약성', sensitivityLabel(sensitivitySummary), '할인율×영구성장률 범위'),
     metricCard('상대가치 상태', state.relativeConfirmed && relative?.range?.mid ? formatMoney(relative.range.mid, currency, { compact: false }) : '검토 전', 'PER/PBR은 사용자 확인 뒤 요약 반영'),
     metricCard('상대가치 현재가 대비', relativeUpside === null ? 'N/A' : formatPercent(relativeUpside, 1), '확인된 비교 배수일 때만 표시'),
   ].join('');
@@ -410,19 +449,17 @@ function renderFlagList(flags = [], emptyCopy = '진단 플래그 없음') {
   return `<ul>${flags.map((flag) => `<li class="${escapeHtml(flag.level || 'watch')}"><strong>${escapeHtml(flag.title)}</strong><span>${escapeHtml(flag.detail)}</span></li>`).join('')}</ul>`;
 }
 
-function renderDecisionCockpit(dcf, relative, dcfError, price, currency) {
+function renderDecisionCockpit(dcf, relative, dcfError, sensitivitySummary, reverseDcf, price, currency) {
   const quality = state.company.quality || {};
   const warnings = quality.warnings || [];
   const dcfUpside = calculateUpside(dcf?.perShareValue, price);
   const relativeValue = state.relativeConfirmed ? relative?.range?.mid : null;
   const relativeUpside = calculateUpside(relativeValue, price);
-  const sensitivityValues = buildSensitivity(state.assumptions)
-    .flatMap((row) => row.values.map((cell) => finiteNumber(cell.perShareValue)))
-    .filter((value) => value !== null);
-  const sensitivityLow = sensitivityValues.length ? Math.min(...sensitivityValues) : null;
-  const sensitivityHigh = sensitivityValues.length ? Math.max(...sensitivityValues) : null;
+  const sensitivityLow = sensitivitySummary?.low ?? null;
+  const sensitivityHigh = sensitivitySummary?.high ?? null;
   const memoReady = Boolean(elements.memo?.value?.trim());
   const nextAction = nextActionText({ dcf, dcfError, warnings, memoReady, dcfUpside, relativeUpside });
+  const reverseTone = reverseDcf?.explicitGrowth?.status === 'solved' ? 'neutral' : reverseDcf?.status === 'available' ? 'warning' : 'muted';
   return `
     <div class="cockpit-header">
       <div>
@@ -443,10 +480,15 @@ function renderDecisionCockpit(dcf, relative, dcfError, price, currency) {
         <strong>${dcfUpside === null ? 'N/A' : escapeHtml(formatPercent(dcfUpside, 1))}</strong>
         <small>${escapeHtml(dcfError || comparisonLabel(dcf?.perShareValue, price))}</small>
       </article>
+      <article class="cockpit-card ${reverseTone}">
+        <span>Reverse DCF</span>
+        <strong>${escapeHtml(formatImpliedRate(reverseDcf?.explicitGrowth, '성장률'))}</strong>
+        <small>${escapeHtml(impliedRateDetail(reverseDcf?.explicitGrowth))}</small>
+      </article>
       <article class="cockpit-card ${state.relativeConfirmed ? toneForUpside(relativeUpside) : 'warning'}">
         <span>상대가치 활용 상태</span>
-        <strong>${state.relativeConfirmed ? escapeHtml(formatPercent(relativeUpside, 1)) : '검토 전'}</strong>
-        <small>${state.relativeConfirmed ? escapeHtml(comparisonLabel(relativeValue, price)) : 'PER/PBR 비교군 검토 후 반영'}</small>
+        <strong>${escapeHtml(relative?.diagnostics?.qualityGate?.label || (state.relativeConfirmed ? formatPercent(relativeUpside, 1) : '검토 전'))}</strong>
+        <small>${escapeHtml(relative?.diagnostics?.qualityGate?.detail || (state.relativeConfirmed ? comparisonLabel(relativeValue, price) : 'PER/PBR 비교군 검토 후 반영'))}</small>
       </article>
       <article class="cockpit-card action">
         <span>다음 행동</span>
@@ -470,9 +512,14 @@ function renderDecisionCockpit(dcf, relative, dcfError, price, currency) {
         <strong>${relative?.qualitySignals?.roe === null || relative?.qualitySignals?.roe === undefined ? 'N/A' : escapeHtml(formatPercent(relative.qualitySignals.roe, 1))}</strong>
         <small>PBR은 장부가치보다 ROE 지속성과 함께 해석합니다.</small>
       </article>
+      <article class="diagnostic-card">
+        <span>민감도 취약성</span>
+        <strong>${escapeHtml(sensitivityLabel(sensitivitySummary))}</strong>
+        <small>${sensitivitySummary?.rangeToBase === null || sensitivitySummary?.rangeToBase === undefined ? '범위 계산 불가' : `범위/기준값 ${escapeHtml(formatPercent(sensitivitySummary.rangeToBase, 1))}`}</small>
+      </article>
     </div>
     <div class="diagnostic-flags">
-      ${renderFlagList([...(dcf?.diagnostics?.flags || []), ...(relative?.diagnostics?.flags || [])], '현재 가정에서는 핵심 모델 진단 경고가 없습니다. 그래도 원문 공시와 비교군은 확인하세요.')}
+      ${renderFlagList([...(dcf?.diagnostics?.flags || []), ...(sensitivitySummary?.flags || []), ...(reverseDcf?.flags || []), ...(relative?.diagnostics?.flags || [])], '현재 가정에서는 핵심 모델 진단 경고가 없습니다. 그래도 원문 공시와 비교군은 확인하세요.')}
     </div>
     <div class="radar-grid">
       ${renderValuationScale('DCF 기준 가치', dcf?.perShareValue, price, currency, '현금흐름 가정 기반')}
@@ -527,7 +574,7 @@ function renderMethodComparison(dcf, relative, price, currency) {
     </div>`;
 }
 
-function renderDcf(dcf, error) {
+function renderDcf(dcf, error, sensitivity, sensitivitySummary, reverseDcf) {
   const currency = state.company.company.currency || 'USD';
   elements.dcfExplanation.innerHTML = error
     ? `<strong>DCF 계산 제한:</strong> ${escapeHtml(error)} <br />FCF·주식수·할인율 조건이 충족되지 않으면 절대가치는 계산하지 않고 원문 공시 확인 대상으로 남깁니다.`
@@ -563,22 +610,41 @@ function renderDcf(dcf, error) {
       <article class="diagnostic-card"><span>터미널 가치 비중</span><strong>${formatPercent(dcf.diagnostics?.terminalValueWeight, 1)}</strong><small>명시 예측 이후 가치 비중</small></article>
       <article class="diagnostic-card"><span>예측기간 가치 비중</span><strong>${formatPercent(dcf.diagnostics?.forecastValueWeight, 1)}</strong><small>5년 FCF 현재가치 비중</small></article>
       <article class="diagnostic-card"><span>순부채</span><strong>${formatMoney(dcf.diagnostics?.netDebt, currency)}</strong><small>부채 - 현금</small></article>
+      <article class="diagnostic-card"><span>민감도 취약성</span><strong>${escapeHtml(sensitivityLabel(sensitivitySummary))}</strong><small>${sensitivitySummary?.rangeToBase === null || sensitivitySummary?.rangeToBase === undefined ? '범위 계산 불가' : `DCF 범위/기준값 ${formatPercent(sensitivitySummary.rangeToBase, 1)}`}</small></article>
     </div>
-    <div class="diagnostic-flags">${renderFlagList(dcf.diagnostics?.flags || [], 'DCF 진단 플래그 없음. 민감도 표와 공시 원문은 계속 확인하세요.')}</div>
+    <div class="reverse-dcf-grid" aria-label="Reverse DCF 내재 기대">
+      <article class="reverse-card">
+        <span>현재가 내재 명시 성장률</span>
+        <strong>${escapeHtml(formatImpliedRate(reverseDcf?.explicitGrowth, '성장률'))}</strong>
+        <small>${escapeHtml(impliedRateDetail(reverseDcf?.explicitGrowth))}</small>
+      </article>
+      <article class="reverse-card">
+        <span>현재가 내재 영구성장률</span>
+        <strong>${escapeHtml(formatImpliedRate(reverseDcf?.terminalGrowth, '영구성장률'))}</strong>
+        <small>${escapeHtml(impliedRateDetail(reverseDcf?.terminalGrowth))}</small>
+      </article>
+      <article class="reverse-card">
+        <span>해석 원칙</span>
+        <strong>가격의 전제 보기</strong>
+        <small>${escapeHtml(reverseDcf?.interpretation || 'Reverse DCF는 시장가격이 요구하는 가정을 보여주는 보조 분석입니다.')}</small>
+      </article>
+    </div>
+    <div class="diagnostic-flags">${renderFlagList([...(dcf.diagnostics?.flags || []), ...(sensitivitySummary?.flags || []), ...(reverseDcf?.flags || [])], 'DCF 진단 플래그 없음. 민감도 표와 공시 원문은 계속 확인하세요.')}</div>
     <table>
       <caption>DCF 자유현금흐름 예측</caption>
       <thead><tr><th>연도</th><th>예상 FCF</th><th>현재가치</th></tr></thead>
       <tbody>${dcf.projectedFreeCashFlows.map((row) => `<tr><td>${row.year}</td><td>${formatMoney(row.freeCashFlow, currency)}</td><td>${formatMoney(row.presentValue, currency)}</td></tr>`).join('')}</tbody>
     </table>`;
-  const sensitivity = buildSensitivity(state.assumptions);
+  const matrix = sensitivity || buildSensitivity(state.assumptions);
   const price = state.company.market.price;
   elements.sensitivityWrap.innerHTML = `
     <h3>할인율 × 영구성장률 민감도</h3>
+    <p class="panel-note">범위: ${escapeHtml(formatMoney(sensitivitySummary?.low, currency, { compact: false }))} ~ ${escapeHtml(formatMoney(sensitivitySummary?.high, currency, { compact: false }))} · 취약성 ${escapeHtml(sensitivityLabel(sensitivitySummary))}. 이 값은 목표가가 아니라 가정 변화에 대한 흔들림입니다.</p>
     <div class="table-wrap">
       <table>
         <caption>DCF 민감도 매트릭스</caption>
-        <thead><tr><th>할인율</th>${sensitivity[0].values.map((cell) => `<th>${formatPercent(cell.terminalGrowthRate, 1)}</th>`).join('')}</tr></thead>
-        <tbody>${sensitivity.map((row) => `<tr><th scope="row">${formatPercent(row.discountRate, 1)}</th>${row.values.map((cell) => {
+        <thead><tr><th>할인율</th>${matrix[0].values.map((cell) => `<th>${formatPercent(cell.terminalGrowthRate, 1)}</th>`).join('')}</tr></thead>
+        <tbody>${matrix.map((row) => `<tr><th scope="row">${formatPercent(row.discountRate, 1)}</th>${row.values.map((cell) => {
     const upside = calculateUpside(cell.perShareValue, price);
     return `<td class="sensitivity-cell ${toneForUpside(upside)}"><strong>${formatMoney(cell.perShareValue, currency, { compact: false })}</strong><small>${comparisonLabel(cell.perShareValue, price)}</small></td>`;
   }).join('')}</tr>`).join('')}</tbody>
@@ -595,6 +661,7 @@ function renderRelative(relative, error) {
   const coreRows = relative.rows.filter((row) => row.key === 'pe' || row.key === 'pb');
   const auxiliaryRows = relative.rows.filter((row) => row.key !== 'pe' && row.key !== 'pb');
   const price = state.company.market.price;
+  const qualityGate = relative.diagnostics?.qualityGate;
   const rowHtml = (row) => `
     <tr>
       <th scope="row">${escapeHtml(row.label)}</th>
@@ -619,6 +686,16 @@ function renderRelative(relative, error) {
       <article class="diagnostic-card"><span>ROE</span><strong>${formatPercent(relative.qualitySignals?.roe, 1)}</strong><small>PBR 정당화의 핵심 품질 신호</small></article>
       <article class="diagnostic-card"><span>순이익률</span><strong>${formatPercent(relative.qualitySignals?.netMargin, 1)}</strong><small>PER 비교군의 수익성 유사성 점검</small></article>
       <article class="diagnostic-card"><span>FCF 마진</span><strong>${formatPercent(relative.qualitySignals?.fcfMargin, 1)}</strong><small>P/FCF 보조 확인의 현금 전환 품질</small></article>
+    </div>
+    <div class="quality-gate ${escapeHtml(qualityGate?.status || 'needs_user_review')}">
+      <div>
+        <span>상대가치 품질 게이트</span>
+        <strong>${escapeHtml(qualityGate?.label || '검토 전')}</strong>
+        <p>${escapeHtml(qualityGate?.detail || 'PER/PBR 비교군을 사용자가 확인해야 합니다.')}</p>
+      </div>
+      <ul>
+        ${(qualityGate?.checks || []).map((check) => `<li class="${check.passed ? 'passed' : 'failed'}">${check.passed ? '✓' : '!'} ${escapeHtml(check.label)}</li>`).join('')}
+      </ul>
     </div>
     <div class="diagnostic-flags">${renderFlagList(relative.diagnostics?.flags || [], '상대가치 진단 플래그 없음. 비교기업·산업·성장률은 사용자가 확인해야 합니다.')}</div>
     <div class="relative-visual-grid" aria-label="상대가치 시각화">
@@ -689,7 +766,7 @@ function clearRelativeReview() {
 
 function buildReportSummary() {
   readAssumptionsFromInputs();
-  const { dcf, dcfError, relative, relativeError } = calculateCurrentValuations();
+  const { dcf, dcfError, sensitivitySummary, reverseDcf, relative, relativeError } = calculateCurrentValuations();
   const { company, market, quality } = state.company;
   const currency = company.currency || 'USD';
   const relativeValue = state.relativeConfirmed ? relative?.range?.mid : null;
@@ -701,8 +778,11 @@ function buildReportSummary() {
     `DCF 주당가치: ${dcf ? formatMoney(dcf.perShareValue, currency, { compact: false }) : `N/A - ${dcfError}`}`,
     `DCF 현재가 대비: ${dcf ? comparisonLabel(dcf.perShareValue, market.price) : '비교 불가'}`,
     `DCF 터미널 가치 비중: ${dcf?.diagnostics?.terminalValueWeight === null || dcf?.diagnostics?.terminalValueWeight === undefined ? 'N/A' : formatPercent(dcf.diagnostics.terminalValueWeight, 1)}`,
+    `DCF 민감도 취약성: ${sensitivityLabel(sensitivitySummary)} (${sensitivitySummary?.rangeToBase === null || sensitivitySummary?.rangeToBase === undefined ? '범위 N/A' : formatPercent(sensitivitySummary.rangeToBase, 1)})`,
+    `Reverse DCF 내재 명시 성장률: ${formatImpliedRate(reverseDcf?.explicitGrowth, '성장률')}`,
+    `Reverse DCF 내재 영구성장률: ${formatImpliedRate(reverseDcf?.terminalGrowth, '영구성장률')}`,
     `PER/PBR 상대가치: ${relativeValue ? formatMoney(relativeValue, currency, { compact: false }) : `검토 전${relativeError ? ` - ${relativeError}` : ''}`}`,
-    `상대가치 상태: ${state.relativeConfirmed ? '사용자 검토 완료' : '기본 배수 예시값 - 검토 필요'}`,
+    `상대가치 상태: ${relative?.diagnostics?.qualityGate?.label || (state.relativeConfirmed ? '사용자 검토 완료' : '기본 배수 예시값 - 검토 필요')}`,
     `가정: 성장률 ${formatPercent(state.assumptions.growthRate, 2)}, 할인율 ${formatPercent(state.assumptions.discountRate, 2)}, 영구성장률 ${formatPercent(state.assumptions.terminalGrowthRate, 2)}, PER ${formatMultiple(state.assumptions.benchmarkPe)}, PBR ${formatMultiple(state.assumptions.benchmarkPb)}`,
     `비교 배수 기록: ${state.relativeConfirmed ? '브라우저 로컬에 사용자 확인 배수 저장됨' : '저장된 사용자 확인 배수 없음'}`,
     `데이터 품질: ${quality.status || 'N/A'} / ${warnings}`,

@@ -89,7 +89,10 @@ test('browser app renders decision cockpit and valuation visuals from static dat
   await new Promise((resolve) => setTimeout(resolve, 50));
 
   assert.match(nodes.get('#decision-cockpit')?.innerHTML || '', /가치 레이더와 다음 행동/);
+  assert.match(nodes.get('#decision-cockpit')?.innerHTML || '', /Reverse DCF/);
   assert.match(nodes.get('#dcf-table-wrap')?.innerHTML || '', /DCF 현금흐름 시각화/);
+  assert.match(nodes.get('#dcf-table-wrap')?.innerHTML || '', /내재 명시 성장률/);
   assert.match(nodes.get('#relative-table-wrap')?.innerHTML || '', /상대가치 시각화/);
+  assert.match(nodes.get('#relative-table-wrap')?.innerHTML || '', /상대가치 품질 게이트/);
   assert.match(nodes.get('#valuation-band')?.innerHTML || '', /valuation-scale/);
 });

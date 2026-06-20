@@ -16,7 +16,8 @@ except ImportError:  # pragma: no cover - exercised when run as a script
 
 REQUIRED_COMPANY_TOP_KEYS = {"schemaVersion", "generatedAt", "company", "sources", "market", "financials", "assumptions", "valuations", "quality"}
 REQUIRED_COMPANY_FIELDS = {"ticker", "cik", "name", "currency", "sector", "sectorLabel", "themeTags"}
-REQUIRED_VALUATION_KEYS = {"dcf", "dcfSensitivity", "relative", "methodComparison"}
+REQUIRED_VALUATION_KEYS = {"dcf", "dcfSensitivity", "dcfSensitivitySummary", "reverseDcf", "relative", "methodComparison"}
+REQUIRED_SCHEMA_CAPABILITIES = {"dcfSensitivitySummary", "reverseDcf", "relativeQualityGate"}
 MONETARY_FIELDS = {"revenue", "operatingIncome", "netIncome", "operatingCashFlow", "capitalExpenditures", "equity", "assets", "liabilities", "cash", "debtCurrent", "debtNoncurrent"}
 SHARE_FIELDS = {"sharesDiluted", "sharesBasic"}
 
@@ -64,6 +65,8 @@ def validate_company(path: Path) -> list[str]:
     missing = REQUIRED_COMPANY_TOP_KEYS - set(payload)
     require(not missing, f"{path}: missing top-level keys {sorted(missing)}")
     require(payload.get("schemaVersion") == 1, f"{path}: schemaVersion must be 1")
+    capabilities = set(payload.get("schemaCapabilities") or [])
+    require(REQUIRED_SCHEMA_CAPABILITIES.issubset(capabilities), f"{path}: missing schema capabilities {sorted(REQUIRED_SCHEMA_CAPABILITIES - capabilities)}")
 
     company = payload["company"]
     missing_company = REQUIRED_COMPANY_FIELDS - set(company)
@@ -116,6 +119,12 @@ def validate_company(path: Path) -> list[str]:
         require("terminalValueWeight" in valuations["dcf"]["diagnostics"], f"{path}: DCF terminal value weight required")
         require_close(valuations["dcf"]["perShareValue"], expected_dcf["perShareValue"], f"{path}: DCF perShareValue mismatch")
         require(len(valuations.get("dcfSensitivity") or []) >= 1, f"{path}: DCF sensitivity matrix required")
+        sensitivity_summary = valuations.get("dcfSensitivitySummary") or {}
+        require(sensitivity_summary.get("fragility") in {"stable", "sensitive", "fragile", "unavailable"}, f"{path}: DCF sensitivity fragility required")
+        require("rangeToBase" in sensitivity_summary, f"{path}: DCF sensitivity rangeToBase required")
+        reverse_dcf = valuations.get("reverseDcf") or {}
+        require(reverse_dcf.get("status") in {"available", "not_available"}, f"{path}: reverseDcf status required")
+        require("interpretation" in reverse_dcf, f"{path}: reverseDcf interpretation required")
     else:
         warnings.append(f"{path}: DCF missing")
     if valuations.get("relative"):
@@ -127,6 +136,9 @@ def validate_company(path: Path) -> list[str]:
         require((relative.get("range") or {}).get("confirmed") is False, f"{path}: generated relative defaults must be unconfirmed")
         require("auxiliaryRange" in relative, f"{path}: auxiliary relative range required for P/S and P/FCF")
         require("qualitySignals" in relative and "diagnostics" in relative, f"{path}: relative quality signals and diagnostics required")
+        quality_gate = relative.get("diagnostics", {}).get("qualityGate") or {}
+        require(quality_gate.get("status") in {"limited", "needs_user_review", "usable_with_caution", "usable"}, f"{path}: relative quality gate required")
+        require(isinstance(quality_gate.get("checks"), list) and quality_gate["checks"], f"{path}: relative quality gate checks required")
         expected_relative = calculate_relative_valuation(
             price=payload["market"].get("price"),
             revenue=financials["latest"].get("revenue"),
@@ -159,6 +171,8 @@ def validate_index(data_dir: Path) -> list[Path]:
     require(index_path.exists(), f"{index_path}: missing")
     index = read_json(index_path)
     require(index.get("schemaVersion") == 1, f"{index_path}: schemaVersion must be 1")
+    capabilities = set(index.get("schemaCapabilities") or [])
+    require(REQUIRED_SCHEMA_CAPABILITIES.issubset(capabilities), f"{index_path}: missing schema capabilities {sorted(REQUIRED_SCHEMA_CAPABILITIES - capabilities)}")
     require(index.get("basePath") == "/valuation/", f"{index_path}: basePath should be /valuation/")
     require(index.get("methodologyReferences"), f"{index_path}: methodologyReferences required")
     require(index.get("modelPolicy"), f"{index_path}: modelPolicy required")
@@ -181,6 +195,8 @@ def validate_public_summary(data_dir: Path) -> None:
     require(summary_path.exists(), f"{summary_path}: missing")
     summary = read_json(summary_path)
     require(summary.get("schemaVersion") == 1, f"{summary_path}: schemaVersion must be 1")
+    capabilities = set(summary.get("capabilities") or [])
+    require(REQUIRED_SCHEMA_CAPABILITIES.issubset(capabilities), f"{summary_path}: missing capabilities {sorted(REQUIRED_SCHEMA_CAPABILITIES - capabilities)}")
     require(summary.get("contract") == "quant-research-summary", f"{summary_path}: contract mismatch")
     require(summary.get("projectId") == "valuation", f"{summary_path}: projectId mismatch")
     require(summary.get("generatedAt"), f"{summary_path}: generatedAt required")

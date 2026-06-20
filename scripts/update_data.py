@@ -24,22 +24,26 @@ from typing import Any
 try:  # Allow both `python scripts/update_data.py` and package-style test imports.
     from .valuation_core import (
         DEFAULT_ASSUMPTIONS,
+        build_reverse_dcf,
         build_sensitivity,
         calculate_dcf,
         calculate_relative_valuation,
         classify_quality,
         derive_growth_rate,
         normalize_fcf,
+        summarize_sensitivity,
     )
 except ImportError:  # pragma: no cover - exercised when run as a script
     from valuation_core import (
         DEFAULT_ASSUMPTIONS,
+        build_reverse_dcf,
         build_sensitivity,
         calculate_dcf,
         calculate_relative_valuation,
         classify_quality,
         derive_growth_rate,
         normalize_fcf,
+        summarize_sensitivity,
     )
 
 SEC_TICKERS_URL = "https://www.sec.gov/files/company_tickers_exchange.json"
@@ -86,10 +90,22 @@ METHODOLOGY_REFERENCES = [
         "use": "PER/PBR/P/S/P/FCF 배수 비교의 조건과 한계",
     },
     {
+        "key": "cfa-equity-valuation-tools",
+        "title": "CFA Institute Equity Valuation: Concepts and Basic Tools",
+        "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/equity-valuation-concepts-basic-tools",
+        "use": "복수 가치평가 모델, 입력값 판단, 단순성 원칙",
+    },
+    {
         "key": "damodaran-terminal-value",
         "title": "Aswath Damodaran, Terminal Value Approaches",
         "url": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/valquestions/termvalapproaches.htm",
         "use": "안정성장 터미널 가치와 영구성장률 점검",
+    },
+    {
+        "key": "damodaran-terminal-reinvestment",
+        "title": "Aswath Damodaran, Closure in Valuation: Estimating Terminal Value",
+        "url": "https://pages.stern.nyu.edu/~adamodar/pdfiles/papers/termvalue.pdf",
+        "use": "영구성장률, 재투자율, 자본수익률의 경제적 일관성",
     },
     {
         "key": "fama-french-1992",
@@ -103,6 +119,12 @@ METHODOLOGY_REFERENCES = [
         "url": "https://www.investor.gov/introduction-investing/getting-started/researching-investments/using-edgar-research-investments",
         "use": "공시 원문 확인과 데이터 품질 검증",
     },
+    {
+        "key": "sec-edgar-apis",
+        "title": "SEC EDGAR Application Programming Interfaces",
+        "url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
+        "use": "SEC submissions/companyfacts JSON 원천과 정적 데이터 갱신",
+    },
 ]
 
 MODEL_POLICY = {
@@ -111,6 +133,13 @@ MODEL_POLICY = {
     "relativeMethod": "PER/PBR headline range with P/S and P/FCF as auxiliary cross-checks only.",
     "decisionOwner": "The user, not the model, owns final valuation judgment and must verify assumptions and comparable multiples.",
 }
+
+SCHEMA_REVISION = "1.1"
+SCHEMA_CAPABILITIES = [
+    "dcfSensitivitySummary",
+    "reverseDcf",
+    "relativeQualityGate",
+]
 
 SECTOR_LABELS = {
     "Technology": "기술",
@@ -468,6 +497,8 @@ def build_company_payload(
 
     dcf = None
     sensitivity = []
+    sensitivity_summary = None
+    reverse_dcf = None
     if base_fcf is not None and shares and shares > 0:
         try:
             dcf = calculate_dcf(
@@ -488,10 +519,37 @@ def build_company_payload(
                 growth_rate=assumptions["growthRate"],
                 projection_years=assumptions["projectionYears"],
             )
+            sensitivity_summary = summarize_sensitivity(
+                sensitivity,
+                base_value=dcf.get("perShareValue") if dcf else None,
+                market_price=market.get("price"),
+            )
+            reverse_dcf = build_reverse_dcf(
+                market_price=market.get("price"),
+                base_fcf=base_fcf,
+                shares_outstanding=shares,
+                cash=cash,
+                debt=debt,
+                growth_rate=assumptions["growthRate"],
+                discount_rate=assumptions["discountRate"],
+                terminal_growth_rate=assumptions["terminalGrowthRate"],
+                projection_years=assumptions["projectionYears"],
+            )
         except Exception as exc:  # noqa: BLE001
             warnings.append(f"DCF 산출 실패: {exc}")
     else:
         warnings.append("DCF 산출에 필요한 FCF 또는 주식수 데이터가 부족합니다.")
+        reverse_dcf = build_reverse_dcf(
+            market_price=market.get("price"),
+            base_fcf=base_fcf,
+            shares_outstanding=shares,
+            cash=cash,
+            debt=debt,
+            growth_rate=assumptions["growthRate"],
+            discount_rate=assumptions["discountRate"],
+            terminal_growth_rate=assumptions["terminalGrowthRate"],
+            projection_years=assumptions["projectionYears"],
+        )
 
     relative = None
     if shares and shares > 0:
@@ -528,6 +586,8 @@ def build_company_payload(
 
     return {
         "schemaVersion": 1,
+        "schemaRevision": SCHEMA_REVISION,
+        "schemaCapabilities": SCHEMA_CAPABILITIES,
         "generatedAt": generated_at,
         "company": {
             "ticker": ticker,
@@ -563,6 +623,8 @@ def build_company_payload(
         "valuations": {
             "dcf": dcf,
             "dcfSensitivity": sensitivity,
+            "dcfSensitivitySummary": sensitivity_summary,
+            "reverseDcf": reverse_dcf,
             "relative": relative,
             "methodComparison": method_comparison,
         },
@@ -598,6 +660,8 @@ def compact_index_item(payload: dict[str, Any]) -> dict[str, Any]:
         "qualityStatus": payload.get("quality", {}).get("status"),
         "companyFile": f"companies/{company['ticker']}.json",
         "dcfPerShare": (valuations.get("dcf") or {}).get("perShareValue"),
+        "dcfFragility": (valuations.get("dcfSensitivitySummary") or {}).get("fragility"),
+        "reverseDcfStatus": (valuations.get("reverseDcf") or {}).get("status"),
         "generatedAt": payload.get("generatedAt"),
     }
 
@@ -637,11 +701,14 @@ def build_public_summary(index: dict[str, Any], output: Path) -> dict[str, Any]:
                     "price": item.get("price"),
                     "priceAsOf": item.get("priceAsOf"),
                     "dcfPerShare": item.get("dcfPerShare"),
+                    "dcfFragility": item.get("dcfFragility"),
+                    "reverseDcfStatus": item.get("reverseDcfStatus"),
                     "qualityStatus": item.get("qualityStatus"),
                 },
                 "signals": [
                     "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
                     "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
+                    "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다.",
                 ],
                 "warnings": ["SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."],
                 "detailPath": item.get("companyFile"),
@@ -650,6 +717,8 @@ def build_public_summary(index: dict[str, Any], output: Path) -> dict[str, Any]:
     detail_path = output / "index.json"
     return {
         "schemaVersion": 1,
+        "schemaRevision": SCHEMA_REVISION,
+        "capabilities": SCHEMA_CAPABILITIES,
         "contract": "quant-research-summary",
         "projectId": "valuation",
         "projectName": "기업 가치평가 Lab",
@@ -774,6 +843,8 @@ def main() -> int:
 
     index = {
         "schemaVersion": 1,
+        "schemaRevision": SCHEMA_REVISION,
+        "schemaCapabilities": SCHEMA_CAPABILITIES,
         "project": "valuation",
         "title": "Stock Valuation Workspace",
         "generatedAt": now_iso(),

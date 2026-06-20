@@ -54,6 +54,9 @@ class UpdateDataTest(unittest.TestCase):
         pe_row = next(row for row in payload["valuations"]["relative"]["rows"] if row["key"] == "pe")
         self.assertEqual(pe_row["currentMultiple"], 5)
         self.assertFalse(payload["valuations"]["relative"]["range"]["confirmed"])
+        self.assertIn("reverseDcf", payload["valuations"])
+        self.assertIn("dcfSensitivitySummary", payload["valuations"])
+        self.assertEqual(payload["valuations"]["relative"]["diagnostics"]["qualityGate"]["status"], "needs_user_review")
         self.assertNotIn("blendedRange", payload["valuations"])
 
     def test_missing_capex_does_not_fallback_to_operating_cash_flow(self):
@@ -145,6 +148,7 @@ class UpdateDataTest(unittest.TestCase):
 
         self.assertIsNone(payload["assumptions"]["baseFreeCashFlow"])
         self.assertIsNone(payload["valuations"]["dcf"])
+        self.assertEqual(payload["valuations"]["reverseDcf"]["status"], "not_available")
         self.assertEqual(payload["quality"]["status"], "수동 확인 필요")
         self.assertTrue(any("CAPEX가 확인된 FCF가 2개 미만" in warning for warning in payload["quality"]["warnings"]))
 

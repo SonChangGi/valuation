@@ -5,10 +5,13 @@ from pathlib import Path
 
 from scripts.valuation_core import (
     ValuationError,
+    build_reverse_dcf,
+    build_sensitivity,
     calculate_dcf,
     calculate_relative_valuation,
     derive_growth_rate,
     normalize_fcf,
+    summarize_sensitivity,
 )
 
 
@@ -61,6 +64,7 @@ class ValuationCoreTest(unittest.TestCase):
         self.assertEqual(result["benchmarkSource"], "illustrative-default")
         self.assertAlmostEqual(result["qualitySignals"]["roe"], 0.4)
         self.assertIn("diagnostics", result)
+        self.assertEqual(result["diagnostics"]["qualityGate"]["status"], "needs_user_review")
 
     def test_relative_headline_range_excludes_auxiliary_multiples(self):
         result = calculate_relative_valuation(
@@ -147,6 +151,51 @@ class ValuationCoreTest(unittest.TestCase):
         self.assertAlmostEqual(relative["auxiliaryRange"]["mid"], fixtures["relative"]["expected"]["auxiliaryRange"]["mid"])
         self.assertAlmostEqual(dcf["diagnostics"]["terminalValueWeight"], fixtures["dcf"]["expected"]["terminalValueWeight"])
         self.assertAlmostEqual(relative["qualitySignals"]["roe"], fixtures["relative"]["expected"]["qualitySignals"]["roe"])
+
+    def test_reverse_dcf_solves_market_implied_growth(self):
+        baseline = calculate_dcf(
+            base_fcf=100,
+            shares_outstanding=10,
+            cash=20,
+            debt=5,
+            growth_rate=0.05,
+            discount_rate=0.10,
+            terminal_growth_rate=0.02,
+            projection_years=3,
+        )
+        reverse = build_reverse_dcf(
+            market_price=baseline["perShareValue"],
+            base_fcf=100,
+            shares_outstanding=10,
+            cash=20,
+            debt=5,
+            growth_rate=0.05,
+            discount_rate=0.10,
+            terminal_growth_rate=0.02,
+            projection_years=3,
+        )
+        self.assertEqual(reverse["status"], "available")
+        self.assertEqual(reverse["explicitGrowth"]["status"], "solved")
+        self.assertAlmostEqual(reverse["explicitGrowth"]["rate"], 0.05, places=5)
+        self.assertIn("Reverse DCF", reverse["interpretation"])
+
+    def test_sensitivity_summary_marks_fragility_and_price_coverage(self):
+        baseline = calculate_dcf(
+            base_fcf=100,
+            shares_outstanding=10,
+            cash=0,
+            debt=0,
+            growth_rate=0.04,
+            discount_rate=0.09,
+            terminal_growth_rate=0.025,
+            projection_years=5,
+        )
+        sensitivity = build_sensitivity(100, 10, 0, 0, 0.04, 5)
+        summary = summarize_sensitivity(sensitivity, base_value=baseline["perShareValue"], market_price=baseline["perShareValue"])
+        self.assertIn(summary["fragility"], {"stable", "sensitive", "fragile"})
+        self.assertGreater(summary["high"], summary["low"])
+        self.assertEqual(summary["priceCoverage"], "mixed")
+        self.assertIn("interpretation", summary)
 
 
 if __name__ == "__main__":

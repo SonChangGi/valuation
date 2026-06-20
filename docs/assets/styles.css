@@ -238,7 +238,7 @@ h3 { font-size: clamp(1.15rem, 2vw, 1.65rem); }
 }
 .cockpit-header h3 { font-size: clamp(1.2rem, 2vw, 1.8rem); }
 .scale-legend { margin: -6px 0 0; color: var(--muted); font-size: 0.86rem; font-weight: 850; line-height: 1.55; }
-.cockpit-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.cockpit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
 .cockpit-card {
   min-height: 132px;
   padding: 15px;
@@ -257,7 +257,7 @@ h3 { font-size: clamp(1.15rem, 2vw, 1.65rem); }
 .relative-visual-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .diagnostic-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 12px;
   margin: 16px 0;
 }
@@ -302,6 +302,59 @@ h3 { font-size: clamp(1.15rem, 2vw, 1.65rem); }
 .diagnostic-flags li.warning strong { color: var(--danger); }
 .diagnostic-flags li.watch strong { color: var(--warning); }
 .diagnostic-empty { margin: 0; padding: 13px 14px; color: var(--muted); line-height: 1.55; }
+.reverse-dcf-grid,
+.quality-gate {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.reverse-card,
+.quality-gate {
+  padding: 16px;
+  border: 1px solid rgba(15, 118, 110, 0.18);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, #fff, #f0fdfa);
+}
+.reverse-card span,
+.quality-gate span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+.reverse-card strong,
+.quality-gate strong { display: block; margin: 8px 0; font-size: 1.15rem; }
+.reverse-card small,
+.quality-gate p { color: var(--muted); line-height: 1.55; margin: 0; }
+.quality-gate {
+  grid-template-columns: minmax(0, 0.9fr) minmax(220px, 1fr);
+  border-color: rgba(36, 87, 214, 0.16);
+  background: linear-gradient(135deg, #fff, #f8fbff);
+}
+.quality-gate.usable { border-color: rgba(4, 120, 87, 0.24); background: #f0fdf4; }
+.quality-gate.usable_with_caution,
+.quality-gate.needs_user_review { border-color: rgba(180, 83, 9, 0.24); background: #fffbeb; }
+.quality-gate.limited { border-color: rgba(180, 35, 24, 0.22); background: #fff5f5; }
+.quality-gate ul {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.quality-gate li {
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: rgba(255,255,255,0.74);
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+.quality-gate li.passed { color: var(--success); }
+.quality-gate li.failed { color: var(--warning); }
 .valuation-scale {
   display: grid;
   gap: 8px;

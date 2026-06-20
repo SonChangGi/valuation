@@ -48,10 +48,22 @@
         "use": "PER/PBR/P/S/P/FCF 배수 비교의 조건과 한계"
       },
       {
+        "key": "cfa-equity-valuation-tools",
+        "title": "CFA Institute Equity Valuation: Concepts and Basic Tools",
+        "url": "https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/equity-valuation-concepts-basic-tools",
+        "use": "복수 가치평가 모델, 입력값 판단, 단순성 원칙"
+      },
+      {
         "key": "damodaran-terminal-value",
         "title": "Aswath Damodaran, Terminal Value Approaches",
         "url": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/valquestions/termvalapproaches.htm",
         "use": "안정성장 터미널 가치와 영구성장률 점검"
+      },
+      {
+        "key": "damodaran-terminal-reinvestment",
+        "title": "Aswath Damodaran, Closure in Valuation: Estimating Terminal Value",
+        "url": "https://pages.stern.nyu.edu/~adamodar/pdfiles/papers/termvalue.pdf",
+        "use": "영구성장률, 재투자율, 자본수익률의 경제적 일관성"
       },
       {
         "key": "fama-french-1992",
@@ -64,6 +76,12 @@
         "title": "Investor.gov Using EDGAR to Research Investments",
         "url": "https://www.investor.gov/introduction-investing/getting-started/researching-investments/using-edgar-research-investments",
         "use": "공시 원문 확인과 데이터 품질 검증"
+      },
+      {
+        "key": "sec-edgar-apis",
+        "title": "SEC EDGAR Application Programming Interfaces",
+        "url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
+        "use": "SEC submissions/companyfacts JSON 원천과 정적 데이터 갱신"
       }
     ]
   },
@@ -795,6 +813,44 @@
       "benchmarkNote": "기본 배수는 예시값이며 사용자가 산업/비교기업 기준으로 확인해야 합니다.",
       "diagnostics": {
         "usableHeadlineMultiples": 2,
+        "qualityGate": {
+          "status": "needs_user_review",
+          "label": "검토 전",
+          "checks": [
+            {
+              "key": "positive_eps",
+              "label": "EPS 양수",
+              "passed": true
+            },
+            {
+              "key": "positive_bps",
+              "label": "BPS 양수",
+              "passed": true
+            },
+            {
+              "key": "headline_pair",
+              "label": "PER/PBR 모두 산출",
+              "passed": true
+            },
+            {
+              "key": "user_confirmed",
+              "label": "사용자 비교배수 확인",
+              "passed": false
+            },
+            {
+              "key": "profit_quality",
+              "label": "수익성 신호 양호",
+              "passed": true
+            },
+            {
+              "key": "roe_context",
+              "label": "ROE 맥락 확인",
+              "passed": true
+            }
+          ],
+          "detail": "기본 배수는 예시값입니다. 비교기업의 산업·성장률·ROE 유사성을 확인해야 합니다.",
+          "interpretation": "상대가치는 싸다/비싸다 자동판정이 아니라 비교군 품질을 통과했는지 확인하는 절차입니다."
+        },
         "flags": [],
         "interpretation": "시장 배수는 성장률·수익성·위험·회계 품질이 비슷한 비교군을 전제로 할 때만 의미가 커집니다."
       }
@@ -804,6 +860,55 @@
       "relativePerShare": 199.92009291521487,
       "relativeConfirmed": false,
       "note": "DCF와 PER/PBR 상대가치는 평균내지 않습니다. 상대가치는 사용자 배수 확인 전 예시값입니다."
+    },
+    "dcfSensitivitySummary": {
+      "low": 95.060812972816,
+      "mid": 120.29523806026549,
+      "high": 167.714450597044,
+      "rangeWidth": 72.653637624228,
+      "rangeToBase": 0.6039610444748443,
+      "valuesAbovePrice": 2,
+      "valuesBelowPrice": 7,
+      "priceCoverage": "mixed",
+      "fragility": "sensitive",
+      "flags": [
+        {
+          "level": "watch",
+          "title": "민감도 확인 필요",
+          "detail": "DCF 범위가 기준값 대비 의미 있게 넓습니다. 낙관·비관 가정의 근거를 나눠 검토하세요."
+        },
+        {
+          "level": "watch",
+          "title": "현재가 판단이 가정에 따라 뒤집힘",
+          "detail": "민감도 행렬 안에서 현재가보다 높은 칸과 낮은 칸이 모두 있습니다. 결론보다 가정 검증이 우선입니다."
+        }
+      ],
+      "interpretation": "민감도 범위는 DCF가 정밀한 목표가인지, 아니면 가정 취약성 지도를 먼저 읽어야 하는지 알려줍니다."
+    },
+    "reverseDcf": {
+      "status": "available",
+      "marketPrice": 137.81,
+      "targetEquityValue": 593272050000.0,
+      "explicitGrowth": {
+        "status": "solved",
+        "rate": 0.07078151799437393,
+        "lowerBound": -0.1,
+        "upperBound": 0.18,
+        "valueAtLowerBound": 65.04738999590924,
+        "valueAtUpperBound": 213.88137564498422,
+        "valueAtSolvedRate": 137.8099999999999
+      },
+      "terminalGrowth": {
+        "status": "solved",
+        "rate": 0.0352154534880431,
+        "lowerBound": -0.02,
+        "upperBound": 0.045,
+        "valueAtLowerBound": 81.86929917487022,
+        "valueAtUpperBound": 162.04193709625045,
+        "valueAtSolvedRate": 137.80999999999997
+      },
+      "flags": [],
+      "interpretation": "Reverse DCF는 목표가를 제시하지 않고, 현재 시장가격이 어떤 성장률/영구성장률을 요구하는지 보여줍니다."
     }
   },
   "quality": {
@@ -815,7 +920,16 @@
       "터미널 가치 비중이 높을수록 안정성장 가정을 더 보수적으로 검토하세요.",
       "상대가치는 비교 배수 선택에 따라 크게 달라집니다.",
       "PER/PBR은 수익성, 성장률, 위험, 회계 품질이 유사한 비교군에서만 해석력이 커집니다.",
-      "SEC 재무 데이터와 시장가격 스냅샷의 신뢰도를 분리해서 확인하세요."
+      "SEC 재무 데이터와 시장가격 스냅샷의 신뢰도를 분리해서 확인하세요.",
+      "Reverse DCF는 목표가가 아니라 현재가가 요구하는 성장 기대를 보여주는 보조 분석입니다.",
+      "민감도 취약성이 높으면 단일 DCF 값보다 할인율·영구성장률 범위를 먼저 읽으세요.",
+      "상대가치 품질 게이트가 검토 전이면 PER/PBR 결과를 핵심 결론으로 쓰지 마세요."
     ]
-  }
+  },
+  "schemaRevision": "1.1",
+  "schemaCapabilities": [
+    "dcfSensitivitySummary",
+    "reverseDcf",
+    "relativeQualityGate"
+  ]
 }
