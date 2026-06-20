@@ -666,6 +666,29 @@ def compact_index_item(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+DCF_METHOD_REVIEW_SECTORS = {"Financials", "Real Estate", "Utilities"}
+
+
+def dcf_summary_status(item: dict[str, Any]) -> tuple[str, str]:
+    if item.get("dcfPerShare") is not None:
+        return "available", "DCF 산출 가능"
+    sector = str(item.get("sector") or "")
+    if sector in DCF_METHOD_REVIEW_SECTORS:
+        return (
+            "method_review",
+            "금융·부동산·유틸리티처럼 FCFF DCF보다 업종별 규제자본/자산가치/요금제 모델 검토가 필요한 섹터입니다.",
+        )
+    return "insufficient_cash_flow", "CAPEX가 확인된 최근 FCF 이력이 부족해 DCF를 산출하지 않았습니다."
+
+
+def dcf_summary_warning(status: str) -> str:
+    if status == "method_review":
+        return "이 섹터는 일반 FCFF DCF를 그대로 목표가처럼 쓰기보다 업종별 방법론 검토가 먼저 필요합니다."
+    if status == "insufficient_cash_flow":
+        return "확인된 FCF 이력이 부족해 DCF가 비어 있습니다. 상대가치와 재무 원천을 먼저 확인하세요."
+    return "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
+
+
 def write_json(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=False) + "\n", encoding="utf-8")
@@ -687,8 +710,35 @@ def build_public_summary(index: dict[str, Any], output: Path) -> dict[str, Any]:
     for item in tickers:
         for theme in item.get("themeTags") or []:
             theme_counts[str(theme)] = theme_counts.get(str(theme), 0) + 1
+    dcf_status_by_ticker: dict[str, str] = {}
+    dcf_note_by_ticker: dict[str, str] = {}
+    for item in tickers:
+        status, note = dcf_summary_status(item)
+        ticker = str(item.get("ticker") or "")
+        dcf_status_by_ticker[ticker] = status
+        dcf_note_by_ticker[ticker] = note
+
+    dcf_available = [item for item in tickers if dcf_status_by_ticker.get(str(item.get("ticker") or "")) == "available"]
+    missing_dcf = [item for item in tickers if dcf_status_by_ticker.get(str(item.get("ticker") or "")) != "available"]
+    method_review_tickers = [str(item.get("ticker")) for item in missing_dcf if dcf_status_by_ticker.get(str(item.get("ticker") or "")) == "method_review"]
+    insufficient_cash_flow_tickers = [str(item.get("ticker")) for item in missing_dcf if dcf_status_by_ticker.get(str(item.get("ticker") or "")) == "insufficient_cash_flow"]
+    missing_dcf_tickers = [str(item.get("ticker")) for item in missing_dcf]
+    dcf_coverage_ratio = (len(dcf_available) / len(tickers)) if tickers else 0
+    degraded_reasons = []
+    if missing_dcf:
+        degraded_reasons.append(f"dcf_coverage_incomplete:{len(missing_dcf)}_missing")
+    if method_review_tickers:
+        degraded_reasons.append(f"method_review_sectors:{','.join(method_review_tickers)}")
+    if insufficient_cash_flow_tickers:
+        degraded_reasons.append(f"insufficient_cash_flow:{','.join(insufficient_cash_flow_tickers)}")
+
     primary_entities = []
     for item in tickers:
+        ticker = str(item.get("ticker") or "")
+        dcf_status = dcf_status_by_ticker.get(ticker, "insufficient_cash_flow")
+        warnings = [dcf_summary_warning(dcf_status)]
+        if dcf_status != "available":
+            warnings.append(dcf_note_by_ticker.get(ticker, "DCF 산출 불가 사유를 회사 상세에서 확인하세요."))
         primary_entities.append(
             {
                 "symbol": item.get("ticker"),
@@ -702,6 +752,8 @@ def build_public_summary(index: dict[str, Any], output: Path) -> dict[str, Any]:
                     "priceAsOf": item.get("priceAsOf"),
                     "dcfPerShare": item.get("dcfPerShare"),
                     "dcfFragility": item.get("dcfFragility"),
+                    "dcfStatus": dcf_status,
+                    "dcfMethodNote": dcf_note_by_ticker.get(ticker),
                     "reverseDcfStatus": item.get("reverseDcfStatus"),
                     "qualityStatus": item.get("qualityStatus"),
                 },
@@ -710,11 +762,12 @@ def build_public_summary(index: dict[str, Any], output: Path) -> dict[str, Any]:
                     "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
                     "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다.",
                 ],
-                "warnings": ["SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."],
+                "warnings": warnings,
                 "detailPath": item.get("companyFile"),
             }
         )
     detail_path = output / "index.json"
+    status_state = "ok" if tickers and not missing_dcf else "degraded"
     return {
         "schemaVersion": 1,
         "schemaRevision": SCHEMA_REVISION,
@@ -728,15 +781,22 @@ def build_public_summary(index: dict[str, Any], output: Path) -> dict[str, Any]:
         "detailUrl": "https://sonchanggi.github.io/valuation/",
         "detailDataUrl": "https://sonchanggi.github.io/valuation/data/index.json",
         "status": {
-            "state": "ok" if tickers else "degraded",
-            "label": f"{len(tickers)}개 기업 가치평가 캐시",
+            "state": status_state,
+            "label": f"{len(tickers)}개 기업 · DCF {len(dcf_available)}/{len(tickers)}",
             "cadence": "scheduled / manual GitHub Actions refresh",
             "expectedFreshnessDays": 14,
+            "degradedReasons": degraded_reasons,
         },
         "coverage": {
             "entityCount": len(tickers),
             "sectorCount": len(sectors),
             "sectors": sectors,
+            "dcfAvailableCount": len(dcf_available),
+            "missingDcfCount": len(missing_dcf),
+            "missingDcfTickers": missing_dcf_tickers,
+            "dcfMethodReviewTickers": method_review_tickers,
+            "dcfInsufficientCashFlowTickers": insufficient_cash_flow_tickers,
+            "dcfCoverageRatio": dcf_coverage_ratio,
             "topThemes": [
                 {"theme": theme, "count": count}
                 for theme, count in sorted(theme_counts.items(), key=lambda pair: (-pair[1], pair[0]))[:12]
@@ -745,6 +805,7 @@ def build_public_summary(index: dict[str, Any], output: Path) -> dict[str, Any]:
         "highlights": [
             {"label": "지원 티커", "value": len(tickers), "description": "SEC 공시 기반 정적 valuation 캐시"},
             {"label": "섹터", "value": len(sectors), "description": "섹터/테마 필터 지원"},
+            {"label": "DCF coverage", "value": f"{len(dcf_available)}/{len(tickers)}", "description": "DCF 산출 가능 기업 수 / 전체 기업 수"},
             {
                 "label": "방법론",
                 "value": len(index.get("methodologyReferences") or []),
@@ -755,6 +816,7 @@ def build_public_summary(index: dict[str, Any], output: Path) -> dict[str, Any]:
         "limitations": [
             "모형은 판단 주체가 아니라 계산 보조 도구입니다.",
             "DCF는 성장률·할인율·영구성장률에 민감합니다.",
+            "DCF가 비어 있는 기업은 업종별 방법론 검토 또는 확인된 FCF 이력 부족으로 별도 표시합니다.",
             "PER/PBR 비교군은 사용자가 산업·성장률·ROE 유사성을 확인해야 합니다.",
         ],
         "sources": [

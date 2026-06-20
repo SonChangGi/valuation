@@ -12,6 +12,23 @@ class DataContractTest(unittest.TestCase):
             validate_company(path)
         validate_public_summary(Path("docs/data"))
 
+
+    def test_public_summary_exposes_dcf_coverage_degradation(self):
+        import json
+
+        summary = json.loads(Path("docs/data/summary.json").read_text(encoding="utf-8"))
+        coverage = summary["coverage"]
+        self.assertEqual(summary["status"]["state"], "degraded")
+        self.assertEqual(coverage["dcfAvailableCount"], 17)
+        self.assertEqual(coverage["missingDcfCount"], 4)
+        self.assertEqual(coverage["missingDcfTickers"], ["JPM", "LLY", "NEE", "PLD"])
+        self.assertEqual(coverage["dcfMethodReviewTickers"], ["JPM", "NEE", "PLD"])
+        self.assertEqual(coverage["dcfInsufficientCashFlowTickers"], ["LLY"])
+        self.assertAlmostEqual(coverage["dcfCoverageRatio"], 17 / 21)
+        entity_by_symbol = {entity["symbol"]: entity for entity in summary["primaryEntities"]}
+        self.assertEqual(entity_by_symbol["JPM"]["metrics"]["dcfStatus"], "method_review")
+        self.assertEqual(entity_by_symbol["LLY"]["metrics"]["dcfStatus"], "insufficient_cash_flow")
+
     def test_static_assets_contract(self):
         validate_static_files(Path.cwd())
 
