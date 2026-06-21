@@ -7,8 +7,8 @@ on:
         description: 'Space-separated ticker list to regenerate'
         required: false
         default: 'AAPL MSFT NVDA GOOGL AMZN META TSLA JPM MA JNJ LLY UNH XOM WMT COST PG KO CAT NEE PLD LIN'
-  schedule:
-    - cron: '30 11 * * 1-5'
+  # Automatic SEC/price refresh is suspended after the multi-repo rollback.
+  # Use workflow_dispatch only after reviewing the generated valuation snapshots.
 
 permissions:
   contents: write

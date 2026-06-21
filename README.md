@@ -84,7 +84,7 @@ npm run serve
 
 `.github/workflows/pages.yml`는 `docs/` 디렉터리를 Pages artifact로 업로드합니다. 저장소 Pages URL은 `https://sonchanggi.github.io/valuation/` 형태가 됩니다.
 
-데이터 갱신은 `.github/workflows/data-refresh.yml`에서 수동 실행하거나 예약 실행할 수 있습니다. 실행 전 저장소 변수 `SEC_USER_AGENT`를 설정해야 하며, 수동 실행 시 `tickers` 입력에 공백으로 구분한 티커 목록을 넣으면 해당 목록으로 `docs/data`를 다시 생성합니다.
+데이터 갱신은 `.github/workflows/data-refresh.yml`에서 검토 후 수동 실행합니다. 자동 SEC/가격 refresh 스케줄은 멀티 repo 롤백 이후 중지되어 있습니다. 실행 전 저장소 변수 `SEC_USER_AGENT`를 설정해야 하며, 수동 실행 시 `tickers` 입력에 공백으로 구분한 티커 목록을 넣으면 해당 목록으로 `docs/data`를 다시 생성합니다.
 
 ## 방법론 사용법과 해석
 

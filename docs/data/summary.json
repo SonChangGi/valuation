@@ -17,7 +17,7 @@
   "status": {
     "state": "ok",
     "label": "21개 기업 가치평가 캐시",
-    "cadence": "scheduled / manual GitHub Actions refresh",
+    "cadence": "manual workflow_dispatch after review",
     "expectedFreshnessDays": 14
   },
   "coverage": {

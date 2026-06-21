@@ -203,6 +203,7 @@ def validate_public_summary(data_dir: Path) -> None:
     require(summary.get("status", {}).get("state") in {"ok", "degraded", "stale"}, f"{summary_path}: invalid status.state")
     entities = summary.get("primaryEntities")
     require(isinstance(entities, list) and entities, f"{summary_path}: primaryEntities required")
+    require(len(entities) >= 10, f"{summary_path}: at least 10 primary entities required before publishing")
     for entity in entities:
         require(entity.get("symbol"), f"{summary_path}: entity symbol required")
         require(isinstance(entity.get("themes"), list), f"{summary_path}: entity themes must be a list")
