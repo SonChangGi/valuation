@@ -1,17 +1,18 @@
+import re
 import unittest
 from pathlib import Path
 
 
 NODE24_ACTIONS = {
-    "actions/checkout@v7",
-    "actions/setup-python@v6",
-    "actions/setup-node@v6",
-    "actions/configure-pages@v6",
-    "actions/upload-pages-artifact@v5",
-    "actions/deploy-pages@v5",
+    "actions/checkout": "v7",
+    "actions/setup-python": "v6",
+    "actions/setup-node": "v6",
+    "actions/configure-pages": "v6",
+    "actions/upload-pages-artifact": "v5",
+    "actions/deploy-pages": "v5",
 }
 
-NODE20_ACTIONS = {
+NODE20_ACTION_TAGS = {
     "actions/checkout@v4",
     "actions/setup-python@v5",
     "actions/setup-node@v4",
@@ -46,9 +47,10 @@ class WorkflowPermissionsTest(unittest.TestCase):
 
     def test_workflows_use_node24_action_majors(self):
         workflows = "\n".join(path.read_text(encoding="utf-8") for path in Path(".github/workflows").glob("*.yml"))
-        for action in NODE24_ACTIONS:
-            self.assertIn(action, workflows)
-        for action in NODE20_ACTIONS:
+        for action, tag in NODE24_ACTIONS.items():
+            self.assertRegex(workflows, rf"{re.escape(action)}@[0-9a-f]{{40}} # {tag}")
+            self.assertNotIn(f"{action}@{tag}\n", workflows)
+        for action in NODE20_ACTION_TAGS:
             self.assertNotIn(action, workflows)
 
 
