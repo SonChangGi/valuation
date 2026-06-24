@@ -1288,6 +1288,391 @@ button,
   .methodology-section { padding: 18px !important; }
 }
 
+
+/* Visual Ralph readability pass — contrast, tables, charts, 2026-06-24. */
+:root {
+  --surface-cyan: rgba(14, 116, 144, 0.16);
+  --surface-teal: rgba(20, 184, 166, 0.13);
+  --surface-violet: rgba(139, 92, 246, 0.14);
+  --surface-amber: rgba(245, 158, 11, 0.13);
+  --surface-rose: rgba(244, 63, 94, 0.13);
+  --text-strong: #f8fafc;
+  --text-readable: #dce3ee;
+  --text-muted-readable: #b8c2d1;
+}
+
+.table-wrap,
+.table-scroll,
+.data-table-wrap,
+.performance-table-wrap,
+.signal-table-wrap,
+.sensitivity-wrap,
+.chart,
+.line-chart,
+.chart-card,
+.forecast-chart {
+  scrollbar-color: rgba(125, 211, 252, 0.58) rgba(255, 255, 255, 0.05);
+}
+
+.table-wrap,
+.table-scroll,
+.data-table-wrap,
+.performance-table-wrap,
+.signal-table-wrap {
+  background:
+    linear-gradient(90deg, rgba(125, 211, 252, 0.10), transparent 24px) left / 32px 100% no-repeat,
+    linear-gradient(270deg, rgba(196, 181, 253, 0.14), transparent 30px) right / 40px 100% no-repeat,
+    rgba(255, 255, 255, 0.025) !important;
+  border-color: rgba(226, 232, 240, 0.18) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.045), 0 18px 50px rgba(0,0,0,0.24) !important;
+}
+
+.table-wrap table,
+.table-scroll table,
+.data-table-wrap table,
+.performance-table,
+.data-table,
+table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  font-variant-numeric: tabular-nums lining-nums;
+  background: transparent !important;
+}
+
+th,
+td {
+  border-bottom-color: rgba(226, 232, 240, 0.13) !important;
+}
+
+th {
+  color: #dbeafe !important;
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.22), rgba(15, 23, 42, 0.42)) !important;
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+
+td {
+  color: var(--text-readable) !important;
+}
+
+tbody tr:nth-child(even) {
+  background: rgba(125, 211, 252, 0.045) !important;
+}
+
+tbody tr:hover {
+  background: rgba(196, 181, 253, 0.10) !important;
+}
+
+td:not(:first-child),
+.value-cell,
+.sensitivity-cell,
+.metric-card strong,
+.card strong,
+.chart-summary-item em,
+.status-value,
+.bar-value {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.line-chart,
+.chart-card,
+.chart,
+.forecast-chart {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(125, 211, 252, 0.08), transparent 20rem),
+    linear-gradient(180deg, rgba(18, 24, 36, 0.98), rgba(10, 13, 20, 0.96)) !important;
+  border-color: rgba(226, 232, 240, 0.18) !important;
+}
+
+.axis-label,
+.axis-title,
+.axis-range,
+.chart-card svg text,
+.line-chart svg text,
+.chart svg text,
+.line-end-label text {
+  fill: #dbe3ee !important;
+  color: #dbe3ee !important;
+  paint-order: stroke;
+  stroke: rgba(8, 10, 15, 0.78);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+.grid,
+.line-grid,
+.chart-card .axis-row line,
+.chart-card .axis-column line,
+.line-chart .axis-line {
+  stroke: rgba(226, 232, 240, 0.18) !important;
+}
+
+.axis,
+.axis-line {
+  stroke: rgba(226, 232, 240, 0.34) !important;
+}
+
+.legend,
+.line-legend,
+.chart-legend,
+.chart-help,
+.chart-meta,
+.axis-note,
+.scale-legend,
+.scale-foot {
+  color: var(--text-muted-readable) !important;
+}
+
+.empty,
+.empty-state,
+.skeleton-line {
+  color: var(--text-readable) !important;
+  background: linear-gradient(135deg, rgba(125, 211, 252, 0.08), rgba(196, 181, 253, 0.07)) !important;
+  border-color: rgba(125, 211, 252, 0.24) !important;
+}
+
+.status-pill,
+.badge,
+.classification,
+.factor-pill,
+.marker-help,
+.rank-badge,
+.warn-badge {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+}
+
+/* Valuation page: dark decision/assumption/method cards with print kept white below. */
+.method-card,
+.decision-cockpit,
+.cockpit-card,
+.diagnostic-card,
+.diagnostic-flags,
+.reverse-card,
+.quality-gate,
+.valuation-scale,
+.assumption-form fieldset,
+.relative-review-status,
+.explain-box,
+.forecast-chart,
+.methodology-card,
+.workflow-step,
+.checklist-grid label,
+.memo-box,
+.warning-list p,
+.metric-card,
+.hero-note,
+.notice-card,
+.lookup-status,
+.company-section,
+.panel {
+  color: var(--ink) !important;
+  background: linear-gradient(145deg, rgba(125,211,252,0.08), rgba(255,255,255,0.035)) !important;
+  border-color: rgba(226,232,240,0.14) !important;
+}
+.method-card:nth-child(3n+2),
+.cockpit-card:nth-child(3n+2),
+.diagnostic-card:nth-child(3n+2),
+.methodology-card:nth-child(2n),
+.workflow-step:nth-child(2n) {
+  background: linear-gradient(145deg, rgba(196,181,253,0.10), rgba(255,255,255,0.035)) !important;
+}
+.method-card:nth-child(3n),
+.cockpit-card:nth-child(3n),
+.diagnostic-card:nth-child(3n),
+.metric-card:nth-child(3n) {
+  background: linear-gradient(145deg, rgba(20,184,166,0.11), rgba(255,255,255,0.035)) !important;
+}
+.method-card.positive,
+.cockpit-card.positive,
+.quality-gate.usable { background: linear-gradient(145deg, rgba(34,197,94,0.15), rgba(255,255,255,0.035)) !important; border-color: rgba(134,239,172,0.30) !important; }
+.method-card.negative,
+.cockpit-card.negative,
+.quality-gate.limited { background: linear-gradient(145deg, rgba(244,63,94,0.14), rgba(255,255,255,0.035)) !important; border-color: rgba(251,113,133,0.30) !important; }
+.method-card.warning,
+.cockpit-card.warning,
+.quality-gate.usable_with_caution,
+.quality-gate.needs_user_review,
+.warning-list p { background: linear-gradient(145deg, rgba(245,158,11,0.15), rgba(255,255,255,0.035)) !important; border-color: rgba(251,191,36,0.30) !important; }
+.method-card small,
+.cockpit-card small,
+.diagnostic-card small,
+.reverse-card small,
+.quality-gate p,
+.assumption-form label,
+.assumption-help,
+.relative-review-status,
+.explain-box,
+.auxiliary-relative p,
+.methodology-card p,
+.methodology-card li,
+.workflow-step p,
+.memo-box,
+.metric-card small,
+.panel-note,
+.judgment-copy { color: var(--text-muted-readable) !important; }
+.method-card strong,
+.cockpit-card strong,
+.diagnostic-card strong,
+.reverse-card strong,
+.quality-gate strong,
+.metric-card strong { color: var(--text-strong) !important; }
+.assumption-form legend { color: #bae6fd !important; }
+.assumption-form input[type="number"],
+.memo-box textarea,
+.ticker-row input {
+  color: var(--text-strong) !important;
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(226,232,240,0.18) !important;
+}
+.scale-track { background: rgba(226,232,240,0.14) !important; }
+.scale-marker { background: #f8fafc !important; border: 1px solid rgba(8,10,15,0.85) !important; }
+@media (max-width: 640px) {
+  h1 { max-width: 100%; overflow-wrap: anywhere; }
+  .top-nav { overflow-x: auto; flex-wrap: nowrap; justify-content: flex-start; padding-bottom: 4px; }
+  .top-nav a { flex: 0 0 auto; }
+}
+
+
+/* Valuation mobile overflow repair — Visual Ralph readability pass. */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.hero-grid,
+.hero-grid > *,
+.hero-main,
+.hero-note,
+.ticker-form,
+.ticker-row,
+.ticker-filters,
+.sample-tickers,
+.section,
+.company-section,
+.panel,
+.notice-card,
+.lookup-status,
+.dashboard-grid,
+.detail-grid {
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 640px) {
+  .hero { padding-inline: 14px !important; }
+  .hero h1 {
+    max-width: 7em !important;
+    font-size: clamp(2rem, 10vw, 3.05rem) !important;
+    line-height: 1.08 !important;
+    letter-spacing: -0.055em !important;
+    word-break: normal;
+    overflow-wrap: anywhere;
+  }
+  .section-heading h2,
+  .company-section h2,
+  .panel h2,
+  .methodology-card h3,
+  .workflow-step h3 {
+    word-break: normal;
+    overflow-wrap: anywhere;
+  }
+  .hero-copy { font-size: 0.98rem !important; }
+  .ticker-filters,
+  .sample-tickers,
+  .quality-stack,
+  .panel-actions {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+  }
+  .ticker-filters button,
+  .sample-tickers button,
+  .quality-stack > *,
+  .panel-actions > * { flex: 0 0 auto; }
+  .metric-row { grid-template-columns: 1fr !important; }
+}
+
+
+/* Valuation mobile no-clipping hardening — Visual Ralph readability pass. */
+@media (max-width: 640px) {
+  .hero,
+  main,
+  .section,
+  .site-footer {
+    width: min(100% - 20px, 360px) !important;
+    margin-left: 10px !important;
+    margin-right: auto !important;
+  }
+  .hero,
+  .hero-grid > div,
+  .hero-note,
+  .panel,
+  .company-section,
+  .notice-card,
+  .lookup-status,
+  .methodology-card,
+  .workflow-step,
+  .memo-box,
+  .checklist-grid label {
+    padding: 18px !important;
+  }
+  .top-nav,
+  .ticker-filters,
+  .sample-tickers,
+  .quality-stack,
+  .panel-actions {
+    flex-wrap: wrap !important;
+    overflow: visible !important;
+    max-width: 100%;
+  }
+  .top-nav a,
+  .ticker-filters button,
+  .sample-tickers button,
+  .quality-stack > *,
+  .panel-actions > * {
+    flex: 0 1 auto !important;
+    min-width: 0;
+    white-space: normal !important;
+    padding-inline: 12px !important;
+    font-size: 0.86rem !important;
+  }
+  .hero h1 {
+    max-width: 100% !important;
+    font-size: clamp(1.82rem, 8.7vw, 2.42rem) !important;
+    line-height: 1.12 !important;
+    letter-spacing: -0.06em !important;
+    word-break: break-all !important;
+    overflow-wrap: anywhere !important;
+  }
+  .section-heading h2,
+  .company-section h2,
+  .panel h2,
+  .methodology-card h3,
+  .workflow-step h3 {
+    font-size: clamp(1.45rem, 7.2vw, 2rem) !important;
+    line-height: 1.16 !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
+  p,
+  small,
+  strong,
+  span,
+  code,
+  li,
+  td,
+  th {
+    overflow-wrap: anywhere;
+  }
+  .ticker-row { gap: 8px; }
+  .ticker-row input,
+  .ticker-form button { min-height: 48px !important; }
+  .status-pill,
+  .badge { white-space: normal !important; }
+}
+
+
 @media print {
   :root { color-scheme: light; }
 
@@ -1324,6 +1709,22 @@ button,
   .panel,
   .company-section,
   .decision-cockpit,
+  .cockpit-card,
+  .method-card,
+  .diagnostic-card,
+  .diagnostic-flags,
+  .reverse-card,
+  .quality-gate,
+  .valuation-scale,
+  .assumption-form fieldset,
+  .relative-review-status,
+  .explain-box,
+  .forecast-chart,
+  .workflow-step,
+  .checklist-grid label,
+  .memo-box,
+  .warning-list p,
+  .notice-card,
   .metric-card,
   .methodology-card,
   .table-wrap {
@@ -1332,6 +1733,32 @@ button,
     box-shadow: none !important;
     border-color: #d0d5dd !important;
     break-inside: avoid;
+  }
+
+  .hero-note *,
+  .panel *,
+  .company-section *,
+  .decision-cockpit *,
+  .cockpit-card *,
+  .method-card *,
+  .diagnostic-card *,
+  .reverse-card *,
+  .quality-gate *,
+  .valuation-scale *,
+  .assumption-form fieldset *,
+  .relative-review-status *,
+  .explain-box *,
+  .forecast-chart *,
+  .workflow-step *,
+  .checklist-grid label *,
+  .memo-box *,
+  .warning-list p *,
+  .notice-card *,
+  .metric-card *,
+  .methodology-card *,
+  .table-wrap * {
+    color: #111827 !important;
+    text-shadow: none !important;
   }
 
   .hero-grid,
