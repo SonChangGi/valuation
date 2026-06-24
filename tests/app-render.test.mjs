@@ -83,16 +83,28 @@ function installBrowserMocks() {
   return nodes;
 }
 
+async function waitForRenderedHtml(nodes, selector, pattern, timeoutMs = 1_000) {
+  const startedAt = Date.now();
+  let html = '';
+  while (Date.now() - startedAt < timeoutMs) {
+    html = nodes.get(selector)?.innerHTML || '';
+    if (pattern.test(html)) return html;
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+  assert.match(html, pattern);
+  return html;
+}
+
 test('browser app renders decision cockpit and valuation visuals from static data', async () => {
   const nodes = installBrowserMocks();
   await import(`../docs/assets/app.js?test=${Date.now()}`);
-  await new Promise((resolve) => setTimeout(resolve, 50));
 
-  assert.match(nodes.get('#decision-cockpit')?.innerHTML || '', /가치 레이더와 다음 행동/);
-  assert.match(nodes.get('#decision-cockpit')?.innerHTML || '', /Reverse DCF/);
-  assert.match(nodes.get('#dcf-table-wrap')?.innerHTML || '', /DCF 현금흐름 시각화/);
-  assert.match(nodes.get('#dcf-table-wrap')?.innerHTML || '', /내재 명시 성장률/);
-  assert.match(nodes.get('#relative-table-wrap')?.innerHTML || '', /상대가치 시각화/);
-  assert.match(nodes.get('#relative-table-wrap')?.innerHTML || '', /상대가치 품질 게이트/);
-  assert.match(nodes.get('#valuation-band')?.innerHTML || '', /valuation-scale/);
+  const cockpitHtml = await waitForRenderedHtml(nodes, '#decision-cockpit', /가치 레이더와 다음 행동/);
+  assert.match(cockpitHtml, /Reverse DCF/);
+  const dcfHtml = await waitForRenderedHtml(nodes, '#dcf-table-wrap', /DCF 현금흐름 시각화/);
+  assert.match(dcfHtml, /내재 명시 성장률/);
+  const relativeHtml = await waitForRenderedHtml(nodes, '#relative-table-wrap', /상대가치 시각화/);
+  assert.match(relativeHtml, /상대가치 품질 게이트/);
+  const bandHtml = await waitForRenderedHtml(nodes, '#valuation-band', /valuation-scale/);
+  assert.match(bandHtml, /valuation-scale/);
 });
