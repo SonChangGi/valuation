@@ -1776,3 +1776,60 @@ body {
     color: #111827 !important;
   }
 }
+
+@media screen {
+/* Visual Ralph follow-up: valuation badges, legends, and workflow contrast, 2026-06-25. */
+.scale-legend,
+.scale-labels,
+.scale-foot,
+.chart-legend span,
+.status-pill,
+.badge,
+.pill,
+.quality-gate,
+.workflow-step,
+.method-card,
+.valuation-scale,
+.forecast-row,
+.relative-review-status,
+.methodology-warning,
+.notice-card,
+.metric-card {
+  background: linear-gradient(135deg, rgba(15,23,42,0.82), rgba(30,41,59,0.64)) !important;
+  border-color: rgba(226,232,240,0.16) !important;
+  color: var(--text-readable) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.055) !important;
+}
+.quality-gate:nth-child(3n+1),
+.workflow-step:nth-child(3n+1),
+.method-card:nth-child(3n+1),
+.metric-card:nth-child(3n+1) {
+  background: linear-gradient(135deg, rgba(14,116,144,0.18), rgba(15,23,42,0.84)) !important;
+}
+.quality-gate:nth-child(3n+2),
+.workflow-step:nth-child(3n+2),
+.method-card:nth-child(3n+2),
+.metric-card:nth-child(3n+2) {
+  background: linear-gradient(135deg, rgba(139,92,246,0.16), rgba(15,23,42,0.84)) !important;
+}
+.quality-gate strong,
+.workflow-step h3,
+.method-card strong,
+.valuation-scale strong,
+.forecast-chart h3,
+.metric-card strong { color: #f8fafc !important; }
+.quality-gate p,
+.quality-gate li,
+.workflow-step p,
+.method-card small,
+.methodology-card p,
+.methodology-card li,
+.scale-legend,
+.scale-labels,
+.scale-foot,
+.chart-legend,
+.relative-review-status p { color: #bac7d7 !important; }
+.chart-legend span::before { box-shadow: 0 0 0 1px rgba(255,255,255,0.24), 0 0 14px currentColor !important; }
+.forecast-row > span { color: #d8e2ee !important; }
+.scale-track { background: rgba(148,163,184,0.22) !important; }
+}
