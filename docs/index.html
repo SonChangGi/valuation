@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" data-project-id="valuation">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -7,11 +7,13 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'" />
   <title>Stock Valuation Workspace</title>
   <link rel="stylesheet" href="assets/styles.css" />
+  <link rel="stylesheet" href="assets/common-ui.css" />
   <script type="module" src="assets/app.js"></script>
+  <script src="assets/common-ui.js" defer></script>
 </head>
 <body id="top">
   <header class="hero" aria-labelledby="page-title">
-    <nav class="top-nav" aria-label="프로젝트 이동">
+    <nav class="top-nav" data-common-nav data-keep-local-nav aria-label="프로젝트 이동">
       <a href="https://sonchanggi.github.io/quant-dashboard/" target="_blank" rel="noopener noreferrer">← Quant Dashboard 참고</a>
       <a href="#valuation-dashboard">가치평가</a>
       <a href="#methodology">방법론</a>
