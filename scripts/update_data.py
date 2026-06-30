@@ -13,6 +13,7 @@ import gzip
 import json
 import os
 import re
+import sys
 import time
 import urllib.error
 import urllib.parse
@@ -300,8 +301,51 @@ def request_json(url: str, user_agent: str, timeout: int = 30) -> Any:
         return json.loads(body.decode("utf-8"))
 
 
-def load_ticker_map(user_agent: str) -> dict[str, dict[str, Any]]:
-    payload = request_json(SEC_TICKERS_URL, user_agent)
+def load_cached_ticker_map(company_dir: Path) -> dict[str, dict[str, Any]]:
+    """Recover ticker/CIK metadata from already published company payloads.
+
+    The SEC ticker exchange file is a convenience index.  The existing company
+    JSON files already contain the canonical CIKs needed for submissions and
+    companyfacts refreshes, so they are a safe fallback when the index endpoint
+    is temporarily blocked or rate-limited on GitHub-hosted runners.
+    """
+
+    result: dict[str, dict[str, Any]] = {}
+    if not company_dir.exists():
+        return result
+    for path in sorted(company_dir.glob("*.json")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        company = payload.get("company", {}) if isinstance(payload, dict) else {}
+        ticker = str(company.get("ticker") or path.stem).upper()
+        cik = str(company.get("cik") or "").zfill(10)
+        if not TICKER_PATTERN.match(ticker) or not cik.strip("0"):
+            continue
+        result[ticker] = {
+            "cik": cik,
+            "name": company.get("name") or ticker,
+            "ticker": ticker,
+            "exchange": company.get("exchange"),
+            "source": "cached-company-json",
+        }
+    return result
+
+
+def load_ticker_map(user_agent: str, cache_dir: Path | None = None) -> dict[str, dict[str, Any]]:
+    try:
+        payload = request_json(SEC_TICKERS_URL, user_agent)
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+        cached = load_cached_ticker_map(cache_dir or Path("docs/data/companies"))
+        if cached:
+            print(
+                f"Warning: SEC ticker map unavailable ({type(exc).__name__}: {exc}); "
+                f"using {len(cached)} cached company CIK mappings.",
+                file=sys.stderr,
+            )
+            return cached
+        raise
     fields = payload.get("fields", [])
     data = payload.get("data", [])
     result = {}
@@ -819,7 +863,7 @@ def main() -> int:
     output = Path(args.output)
     price_overrides = parse_price_overrides(args.price_override)
 
-    ticker_map = load_ticker_map(args.user_agent)
+    ticker_map = load_ticker_map(args.user_agent, cache_dir=output / "companies")
     companies = []
     errors = []
     for ticker in tickers:

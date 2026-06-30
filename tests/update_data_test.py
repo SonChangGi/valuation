@@ -1,7 +1,10 @@
 import unittest
+import urllib.error
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
-from scripts.update_data import build_annual_rows, build_company_payload, normalize_tickers
+from scripts.update_data import build_annual_rows, build_company_payload, load_ticker_map, normalize_tickers
 
 
 def annual_fact(value, unit="USD", fy=2025):
@@ -158,6 +161,38 @@ class UpdateDataTest(unittest.TestCase):
     def test_normalize_tickers_rejects_shell_like_input(self):
         with self.assertRaises(SystemExit):
             normalize_tickers(["AAPL; rm -rf /"])
+
+    def test_load_ticker_map_falls_back_to_cached_company_json(self):
+        with TemporaryDirectory() as tmp:
+            company_dir = Path(tmp)
+            (company_dir / "AAPL.json").write_text(
+                """{
+                  "company": {
+                    "ticker": "AAPL",
+                    "cik": "0000320193",
+                    "name": "Apple Inc.",
+                    "exchange": "Nasdaq"
+                  }
+                }""",
+                encoding="utf-8",
+            )
+            with patch(
+                "scripts.update_data.request_json",
+                side_effect=urllib.error.HTTPError("https://www.sec.gov/files/company_tickers_exchange.json", 403, "Forbidden", {}, None),
+            ):
+                ticker_map = load_ticker_map("valuation-pages-test", cache_dir=company_dir)
+
+        self.assertEqual(ticker_map["AAPL"]["cik"], "0000320193")
+        self.assertEqual(ticker_map["AAPL"]["source"], "cached-company-json")
+
+    def test_load_ticker_map_reraises_without_cache(self):
+        with TemporaryDirectory() as tmp:
+            with patch(
+                "scripts.update_data.request_json",
+                side_effect=urllib.error.HTTPError("https://www.sec.gov/files/company_tickers_exchange.json", 403, "Forbidden", {}, None),
+            ):
+                with self.assertRaises(urllib.error.HTTPError):
+                    load_ticker_map("valuation-pages-test", cache_dir=Path(tmp))
 
 
 if __name__ == "__main__":
