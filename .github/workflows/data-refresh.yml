@@ -7,8 +7,11 @@ on:
         description: 'Space-separated ticker list to regenerate'
         required: false
         default: 'AAPL MSFT NVDA GOOGL AMZN META TSLA JPM MA JNJ LLY UNH XOM WMT COST PG KO CAT NEE PLD LIN'
-  # Automatic SEC/price refresh is suspended after the multi-repo rollback.
-  # Use workflow_dispatch only after reviewing the generated valuation snapshots.
+  schedule:
+    # 14:15 KST Tue-Sat: staggered SEC/price snapshot refresh after U.S. close data settles.
+    - cron: "15 5 * * 2-6"
+    # 16:15 KST Tue-Sat: 2-hour retry for provider/API lag.
+    - cron: "15 7 * * 2-6"
 
 permissions:
   contents: write
@@ -26,7 +29,14 @@ jobs:
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: '22'
+      - name: Decide whether valuation refresh is needed
+        id: freshness
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_SCHEDULE: ${{ github.event.schedule }}
+        run: python scripts/check_data_freshness.py --event-name "$EVENT_NAME" --event-schedule "$EVENT_SCHEDULE"
       - name: Generate static valuation data
+        if: steps.freshness.outputs.should_update == 'true'
         env:
           TICKERS: ${{ github.event.inputs.tickers || 'AAPL MSFT NVDA GOOGL AMZN META TSLA JPM MA JNJ LLY UNH XOM WMT COST PG KO CAT NEE PLD LIN' }}
           SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
@@ -39,6 +49,7 @@ jobs:
       - name: Validate generated artifacts
         run: npm run build
       - name: Commit data refresh
+        if: steps.freshness.outputs.should_update == 'true'
         run: |
           if git diff --quiet -- docs/data; then
             echo "No data changes"

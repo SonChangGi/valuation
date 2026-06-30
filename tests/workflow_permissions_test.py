@@ -43,6 +43,8 @@ class WorkflowPermissionsTest(unittest.TestCase):
         refresh = self.read("data-refresh.yml")
         self.assertIn("permissions:\n  contents: write", refresh)
         self.assertIn("SEC_USER_AGENT", refresh)
+        self.assertIn("scripts/check_data_freshness.py", refresh)
+        self.assertIn("steps.freshness.outputs.should_update == 'true'", refresh)
         self.assertIn("npm run build", refresh)
 
     def test_workflows_use_node24_action_majors(self):

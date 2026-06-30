@@ -730,7 +730,7 @@ def build_public_summary(index: dict[str, Any], output: Path) -> dict[str, Any]:
         "status": {
             "state": "ok" if tickers else "degraded",
             "label": f"{len(tickers)}개 기업 가치평가 캐시",
-            "cadence": "manual workflow_dispatch after review",
+            "cadence": "scheduled 14:15/16:15 KST Tue-Sat plus reviewed workflow_dispatch",
             "expectedFreshnessDays": 14,
         },
         "coverage": {
