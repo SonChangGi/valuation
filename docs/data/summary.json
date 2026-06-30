@@ -9,16 +9,17 @@
   "contract": "quant-research-summary",
   "projectId": "valuation",
   "projectName": "기업 가치평가 Lab",
-  "generatedAt": "2026-06-19T14:43:32Z",
+  "generatedAt": "2026-06-30T07:32:54Z",
   "dataAsOf": "2026-06-18",
   "timezone": "UTC",
   "detailUrl": "https://sonchanggi.github.io/valuation/",
   "detailDataUrl": "https://sonchanggi.github.io/valuation/data/index.json",
   "status": {
-    "state": "ok",
-    "label": "21개 기업 가치평가 캐시",
+    "state": "degraded",
+    "label": "21개 기업 가치평가 캐시 · refresh warnings 21",
     "cadence": "scheduled 14:15/16:15 KST Tue-Sat plus reviewed workflow_dispatch",
-    "expectedFreshnessDays": 14
+    "expectedFreshnessDays": 14,
+    "refreshErrorCount": 21
   },
   "coverage": {
     "entityCount": 21,
@@ -135,325 +136,6 @@
       "detailPath": "companies/AAPL.json"
     },
     {
-      "symbol": "AMZN",
-      "name": "AMAZON COM INC",
-      "label": "AMZN · 임의소비재",
-      "sector": "Consumer Discretionary",
-      "sectorLabel": "임의소비재",
-      "themes": [
-        "E-commerce",
-        "Cloud",
-        "Logistics"
-      ],
-      "metrics": {
-        "price": 244.39,
-        "priceAsOf": "2026-06-18",
-        "dcfPerShare": 69.70848376188634,
-        "dcfFragility": "sensitive",
-        "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
-      },
-      "signals": [
-        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
-        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
-        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
-      ],
-      "warnings": [
-        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
-      ],
-      "detailPath": "companies/AMZN.json"
-    },
-    {
-      "symbol": "CAT",
-      "name": "CATERPILLAR INC",
-      "label": "CAT · 산업재",
-      "sector": "Industrials",
-      "sectorLabel": "산업재",
-      "themes": [
-        "Machinery",
-        "Infrastructure",
-        "Cycle"
-      ],
-      "metrics": {
-        "price": 985.82,
-        "priceAsOf": "2026-06-18",
-        "dcfPerShare": 356.2319798902439,
-        "dcfFragility": "sensitive",
-        "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
-      },
-      "signals": [
-        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
-        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
-        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
-      ],
-      "warnings": [
-        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
-      ],
-      "detailPath": "companies/CAT.json"
-    },
-    {
-      "symbol": "COST",
-      "name": "COSTCO WHOLESALE CORP /NEW",
-      "label": "COST · 필수소비재",
-      "sector": "Consumer Staples",
-      "sectorLabel": "필수소비재",
-      "themes": [
-        "Retail",
-        "Membership",
-        "Scale"
-      ],
-      "metrics": {
-        "price": 951.45,
-        "priceAsOf": "2026-06-18",
-        "dcfPerShare": 332.0755917833559,
-        "dcfFragility": "sensitive",
-        "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
-      },
-      "signals": [
-        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
-        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
-        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
-      ],
-      "warnings": [
-        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
-      ],
-      "detailPath": "companies/COST.json"
-    },
-    {
-      "symbol": "GOOGL",
-      "name": "Alphabet Inc.",
-      "label": "GOOGL · 커뮤니케이션",
-      "sector": "Communication Services",
-      "sectorLabel": "커뮤니케이션",
-      "themes": [
-        "Search",
-        "Advertising",
-        "AI"
-      ],
-      "metrics": {
-        "price": 368.03,
-        "priceAsOf": "2026-06-18",
-        "dcfPerShare": 137.2820151928357,
-        "dcfFragility": "sensitive",
-        "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
-      },
-      "signals": [
-        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
-        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
-        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
-      ],
-      "warnings": [
-        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
-      ],
-      "detailPath": "companies/GOOGL.json"
-    },
-    {
-      "symbol": "JNJ",
-      "name": "Johnson & Johnson",
-      "label": "JNJ · 헬스케어",
-      "sector": "Healthcare",
-      "sectorLabel": "헬스케어",
-      "themes": [
-        "Pharma",
-        "MedTech",
-        "Defensive"
-      ],
-      "metrics": {
-        "price": 228.39,
-        "priceAsOf": "2026-06-18",
-        "dcfPerShare": 103.57661700670104,
-        "dcfFragility": "sensitive",
-        "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
-      },
-      "signals": [
-        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
-        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
-        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
-      ],
-      "warnings": [
-        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
-      ],
-      "detailPath": "companies/JNJ.json"
-    },
-    {
-      "symbol": "JPM",
-      "name": "JPMORGAN CHASE & CO",
-      "label": "JPM · 금융",
-      "sector": "Financials",
-      "sectorLabel": "금융",
-      "themes": [
-        "Banking",
-        "Credit",
-        "Capital Markets"
-      ],
-      "metrics": {
-        "price": 325.22,
-        "priceAsOf": "2026-06-18",
-        "dcfPerShare": null,
-        "dcfFragility": null,
-        "reverseDcfStatus": "not_available",
-        "qualityStatus": "수동 확인 필요"
-      },
-      "signals": [
-        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
-        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
-        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
-      ],
-      "warnings": [
-        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
-      ],
-      "detailPath": "companies/JPM.json"
-    },
-    {
-      "symbol": "KO",
-      "name": "COCA COLA CO",
-      "label": "KO · 필수소비재",
-      "sector": "Consumer Staples",
-      "sectorLabel": "필수소비재",
-      "themes": [
-        "Beverages",
-        "Brands",
-        "Defensive"
-      ],
-      "metrics": {
-        "price": 79.39,
-        "priceAsOf": "2026-06-18",
-        "dcfPerShare": 24.60150721976946,
-        "dcfFragility": "sensitive",
-        "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
-      },
-      "signals": [
-        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
-        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
-        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
-      ],
-      "warnings": [
-        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
-      ],
-      "detailPath": "companies/KO.json"
-    },
-    {
-      "symbol": "LIN",
-      "name": "LINDE PLC",
-      "label": "LIN · 소재",
-      "sector": "Materials",
-      "sectorLabel": "소재",
-      "themes": [
-        "Industrial Gas",
-        "Materials",
-        "Pricing Power"
-      ],
-      "metrics": {
-        "price": 512.15,
-        "priceAsOf": "2026-06-18",
-        "dcfPerShare": 127.30464190560113,
-        "dcfFragility": "fragile",
-        "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
-      },
-      "signals": [
-        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
-        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
-        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
-      ],
-      "warnings": [
-        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
-      ],
-      "detailPath": "companies/LIN.json"
-    },
-    {
-      "symbol": "LLY",
-      "name": "ELI LILLY & Co",
-      "label": "LLY · 헬스케어",
-      "sector": "Healthcare",
-      "sectorLabel": "헬스케어",
-      "themes": [
-        "Pharma",
-        "GLP-1",
-        "Innovation"
-      ],
-      "metrics": {
-        "price": 1098.57,
-        "priceAsOf": "2026-06-18",
-        "dcfPerShare": null,
-        "dcfFragility": null,
-        "reverseDcfStatus": "not_available",
-        "qualityStatus": "수동 확인 필요"
-      },
-      "signals": [
-        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
-        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
-        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
-      ],
-      "warnings": [
-        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
-      ],
-      "detailPath": "companies/LLY.json"
-    },
-    {
-      "symbol": "MA",
-      "name": "Mastercard Inc",
-      "label": "MA · 금융",
-      "sector": "Financials",
-      "sectorLabel": "금융",
-      "themes": [
-        "Payments",
-        "Network",
-        "Consumer Spending"
-      ],
-      "metrics": {
-        "price": 489.79,
-        "priceAsOf": "2026-06-18",
-        "dcfPerShare": 364.57146438046624,
-        "dcfFragility": "sensitive",
-        "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
-      },
-      "signals": [
-        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
-        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
-        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
-      ],
-      "warnings": [
-        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
-      ],
-      "detailPath": "companies/MA.json"
-    },
-    {
-      "symbol": "META",
-      "name": "Meta Platforms, Inc.",
-      "label": "META · 커뮤니케이션",
-      "sector": "Communication Services",
-      "sectorLabel": "커뮤니케이션",
-      "themes": [
-        "Social",
-        "Advertising",
-        "AI"
-      ],
-      "metrics": {
-        "price": 577.22,
-        "priceAsOf": "2026-06-18",
-        "dcfPerShare": 413.1604993768063,
-        "dcfFragility": "sensitive",
-        "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
-      },
-      "signals": [
-        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
-        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
-        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
-      ],
-      "warnings": [
-        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
-      ],
-      "detailPath": "companies/META.json"
-    },
-    {
       "symbol": "MSFT",
       "name": "MICROSOFT CORPORATION",
       "label": "MSFT · 기술",
@@ -481,35 +163,6 @@
         "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
       ],
       "detailPath": "companies/MSFT.json"
-    },
-    {
-      "symbol": "NEE",
-      "name": "NEXTERA ENERGY, INC.",
-      "label": "NEE · 유틸리티",
-      "sector": "Utilities",
-      "sectorLabel": "유틸리티",
-      "themes": [
-        "Utility",
-        "Renewables",
-        "Dividend"
-      ],
-      "metrics": {
-        "price": 86.75,
-        "priceAsOf": "2026-06-18",
-        "dcfPerShare": null,
-        "dcfFragility": null,
-        "reverseDcfStatus": "not_available",
-        "qualityStatus": "수동 확인 필요"
-      },
-      "signals": [
-        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
-        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
-        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
-      ],
-      "warnings": [
-        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
-      ],
-      "detailPath": "companies/NEE.json"
     },
     {
       "symbol": "NVDA",
@@ -541,20 +194,20 @@
       "detailPath": "companies/NVDA.json"
     },
     {
-      "symbol": "PG",
-      "name": "PROCTER & GAMBLE CO",
-      "label": "PG · 필수소비재",
-      "sector": "Consumer Staples",
-      "sectorLabel": "필수소비재",
+      "symbol": "GOOGL",
+      "name": "Alphabet Inc.",
+      "label": "GOOGL · 커뮤니케이션",
+      "sector": "Communication Services",
+      "sectorLabel": "커뮤니케이션",
       "themes": [
-        "Brands",
-        "Household",
-        "Defensive"
+        "Search",
+        "Advertising",
+        "AI"
       ],
       "metrics": {
-        "price": 150.38,
+        "price": 368.03,
         "priceAsOf": "2026-06-18",
-        "dcfPerShare": 82.06296376841449,
+        "dcfPerShare": 137.2820151928357,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
         "qualityStatus": "충분"
@@ -567,26 +220,26 @@
       "warnings": [
         "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
       ],
-      "detailPath": "companies/PG.json"
+      "detailPath": "companies/GOOGL.json"
     },
     {
-      "symbol": "PLD",
-      "name": "Prologis, Inc.",
-      "label": "PLD · 부동산",
-      "sector": "Real Estate",
-      "sectorLabel": "부동산",
+      "symbol": "AMZN",
+      "name": "AMAZON COM INC",
+      "label": "AMZN · 임의소비재",
+      "sector": "Consumer Discretionary",
+      "sectorLabel": "임의소비재",
       "themes": [
-        "REIT",
-        "Logistics",
-        "Real Assets"
+        "E-commerce",
+        "Cloud",
+        "Logistics"
       ],
       "metrics": {
-        "price": 140.54,
+        "price": 244.39,
         "priceAsOf": "2026-06-18",
-        "dcfPerShare": null,
-        "dcfFragility": null,
-        "reverseDcfStatus": "not_available",
-        "qualityStatus": "수동 확인 필요"
+        "dcfPerShare": 69.70848376188634,
+        "dcfFragility": "sensitive",
+        "reverseDcfStatus": "available",
+        "qualityStatus": "충분"
       },
       "signals": [
         "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
@@ -596,7 +249,36 @@
       "warnings": [
         "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
       ],
-      "detailPath": "companies/PLD.json"
+      "detailPath": "companies/AMZN.json"
+    },
+    {
+      "symbol": "META",
+      "name": "Meta Platforms, Inc.",
+      "label": "META · 커뮤니케이션",
+      "sector": "Communication Services",
+      "sectorLabel": "커뮤니케이션",
+      "themes": [
+        "Social",
+        "Advertising",
+        "AI"
+      ],
+      "metrics": {
+        "price": 577.22,
+        "priceAsOf": "2026-06-18",
+        "dcfPerShare": 413.1604993768063,
+        "dcfFragility": "sensitive",
+        "reverseDcfStatus": "available",
+        "qualityStatus": "충분"
+      },
+      "signals": [
+        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
+        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
+        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
+      ],
+      "warnings": [
+        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
+      ],
+      "detailPath": "companies/META.json"
     },
     {
       "symbol": "TSLA",
@@ -628,6 +310,122 @@
       "detailPath": "companies/TSLA.json"
     },
     {
+      "symbol": "JPM",
+      "name": "JPMORGAN CHASE & CO",
+      "label": "JPM · 금융",
+      "sector": "Financials",
+      "sectorLabel": "금융",
+      "themes": [
+        "Banking",
+        "Credit",
+        "Capital Markets"
+      ],
+      "metrics": {
+        "price": 325.22,
+        "priceAsOf": "2026-06-18",
+        "dcfPerShare": null,
+        "dcfFragility": null,
+        "reverseDcfStatus": "not_available",
+        "qualityStatus": "수동 확인 필요"
+      },
+      "signals": [
+        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
+        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
+        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
+      ],
+      "warnings": [
+        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
+      ],
+      "detailPath": "companies/JPM.json"
+    },
+    {
+      "symbol": "MA",
+      "name": "Mastercard Inc",
+      "label": "MA · 금융",
+      "sector": "Financials",
+      "sectorLabel": "금융",
+      "themes": [
+        "Payments",
+        "Network",
+        "Consumer Spending"
+      ],
+      "metrics": {
+        "price": 489.79,
+        "priceAsOf": "2026-06-18",
+        "dcfPerShare": 364.57146438046624,
+        "dcfFragility": "sensitive",
+        "reverseDcfStatus": "available",
+        "qualityStatus": "충분"
+      },
+      "signals": [
+        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
+        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
+        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
+      ],
+      "warnings": [
+        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
+      ],
+      "detailPath": "companies/MA.json"
+    },
+    {
+      "symbol": "JNJ",
+      "name": "Johnson & Johnson",
+      "label": "JNJ · 헬스케어",
+      "sector": "Healthcare",
+      "sectorLabel": "헬스케어",
+      "themes": [
+        "Pharma",
+        "MedTech",
+        "Defensive"
+      ],
+      "metrics": {
+        "price": 228.39,
+        "priceAsOf": "2026-06-18",
+        "dcfPerShare": 103.57661700670104,
+        "dcfFragility": "sensitive",
+        "reverseDcfStatus": "available",
+        "qualityStatus": "충분"
+      },
+      "signals": [
+        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
+        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
+        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
+      ],
+      "warnings": [
+        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
+      ],
+      "detailPath": "companies/JNJ.json"
+    },
+    {
+      "symbol": "LLY",
+      "name": "ELI LILLY & Co",
+      "label": "LLY · 헬스케어",
+      "sector": "Healthcare",
+      "sectorLabel": "헬스케어",
+      "themes": [
+        "Pharma",
+        "GLP-1",
+        "Innovation"
+      ],
+      "metrics": {
+        "price": 1098.57,
+        "priceAsOf": "2026-06-18",
+        "dcfPerShare": null,
+        "dcfFragility": null,
+        "reverseDcfStatus": "not_available",
+        "qualityStatus": "수동 확인 필요"
+      },
+      "signals": [
+        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
+        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
+        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
+      ],
+      "warnings": [
+        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
+      ],
+      "detailPath": "companies/LLY.json"
+    },
+    {
       "symbol": "UNH",
       "name": "UnitedHealth Group Incorporated",
       "label": "UNH · 헬스케어",
@@ -655,6 +453,35 @@
         "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
       ],
       "detailPath": "companies/UNH.json"
+    },
+    {
+      "symbol": "XOM",
+      "name": "Exxon Mobil Corporation",
+      "label": "XOM · 에너지",
+      "sector": "Energy",
+      "sectorLabel": "에너지",
+      "themes": [
+        "Oil & Gas",
+        "Commodity",
+        "Cash Flow"
+      ],
+      "metrics": {
+        "price": 137.81,
+        "priceAsOf": "2026-06-18",
+        "dcfPerShare": 120.29523806026549,
+        "dcfFragility": "sensitive",
+        "reverseDcfStatus": "available",
+        "qualityStatus": "충분"
+      },
+      "signals": [
+        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
+        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
+        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
+      ],
+      "warnings": [
+        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
+      ],
+      "detailPath": "companies/XOM.json"
     },
     {
       "symbol": "WMT",
@@ -686,20 +513,20 @@
       "detailPath": "companies/WMT.json"
     },
     {
-      "symbol": "XOM",
-      "name": "Exxon Mobil Corporation",
-      "label": "XOM · 에너지",
-      "sector": "Energy",
-      "sectorLabel": "에너지",
+      "symbol": "COST",
+      "name": "COSTCO WHOLESALE CORP /NEW",
+      "label": "COST · 필수소비재",
+      "sector": "Consumer Staples",
+      "sectorLabel": "필수소비재",
       "themes": [
-        "Oil & Gas",
-        "Commodity",
-        "Cash Flow"
+        "Retail",
+        "Membership",
+        "Scale"
       ],
       "metrics": {
-        "price": 137.81,
+        "price": 951.45,
         "priceAsOf": "2026-06-18",
-        "dcfPerShare": 120.29523806026549,
+        "dcfPerShare": 332.0755917833559,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
         "qualityStatus": "충분"
@@ -712,13 +539,188 @@
       "warnings": [
         "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
       ],
-      "detailPath": "companies/XOM.json"
+      "detailPath": "companies/COST.json"
+    },
+    {
+      "symbol": "PG",
+      "name": "PROCTER & GAMBLE CO",
+      "label": "PG · 필수소비재",
+      "sector": "Consumer Staples",
+      "sectorLabel": "필수소비재",
+      "themes": [
+        "Brands",
+        "Household",
+        "Defensive"
+      ],
+      "metrics": {
+        "price": 150.38,
+        "priceAsOf": "2026-06-18",
+        "dcfPerShare": 82.06296376841449,
+        "dcfFragility": "sensitive",
+        "reverseDcfStatus": "available",
+        "qualityStatus": "충분"
+      },
+      "signals": [
+        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
+        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
+        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
+      ],
+      "warnings": [
+        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
+      ],
+      "detailPath": "companies/PG.json"
+    },
+    {
+      "symbol": "KO",
+      "name": "COCA COLA CO",
+      "label": "KO · 필수소비재",
+      "sector": "Consumer Staples",
+      "sectorLabel": "필수소비재",
+      "themes": [
+        "Beverages",
+        "Brands",
+        "Defensive"
+      ],
+      "metrics": {
+        "price": 79.39,
+        "priceAsOf": "2026-06-18",
+        "dcfPerShare": 24.60150721976946,
+        "dcfFragility": "sensitive",
+        "reverseDcfStatus": "available",
+        "qualityStatus": "충분"
+      },
+      "signals": [
+        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
+        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
+        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
+      ],
+      "warnings": [
+        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
+      ],
+      "detailPath": "companies/KO.json"
+    },
+    {
+      "symbol": "CAT",
+      "name": "CATERPILLAR INC",
+      "label": "CAT · 산업재",
+      "sector": "Industrials",
+      "sectorLabel": "산업재",
+      "themes": [
+        "Machinery",
+        "Infrastructure",
+        "Cycle"
+      ],
+      "metrics": {
+        "price": 985.82,
+        "priceAsOf": "2026-06-18",
+        "dcfPerShare": 356.2319798902439,
+        "dcfFragility": "sensitive",
+        "reverseDcfStatus": "available",
+        "qualityStatus": "충분"
+      },
+      "signals": [
+        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
+        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
+        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
+      ],
+      "warnings": [
+        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
+      ],
+      "detailPath": "companies/CAT.json"
+    },
+    {
+      "symbol": "NEE",
+      "name": "NEXTERA ENERGY, INC.",
+      "label": "NEE · 유틸리티",
+      "sector": "Utilities",
+      "sectorLabel": "유틸리티",
+      "themes": [
+        "Utility",
+        "Renewables",
+        "Dividend"
+      ],
+      "metrics": {
+        "price": 86.75,
+        "priceAsOf": "2026-06-18",
+        "dcfPerShare": null,
+        "dcfFragility": null,
+        "reverseDcfStatus": "not_available",
+        "qualityStatus": "수동 확인 필요"
+      },
+      "signals": [
+        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
+        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
+        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
+      ],
+      "warnings": [
+        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
+      ],
+      "detailPath": "companies/NEE.json"
+    },
+    {
+      "symbol": "PLD",
+      "name": "Prologis, Inc.",
+      "label": "PLD · 부동산",
+      "sector": "Real Estate",
+      "sectorLabel": "부동산",
+      "themes": [
+        "REIT",
+        "Logistics",
+        "Real Assets"
+      ],
+      "metrics": {
+        "price": 140.54,
+        "priceAsOf": "2026-06-18",
+        "dcfPerShare": null,
+        "dcfFragility": null,
+        "reverseDcfStatus": "not_available",
+        "qualityStatus": "수동 확인 필요"
+      },
+      "signals": [
+        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
+        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
+        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
+      ],
+      "warnings": [
+        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
+      ],
+      "detailPath": "companies/PLD.json"
+    },
+    {
+      "symbol": "LIN",
+      "name": "LINDE PLC",
+      "label": "LIN · 소재",
+      "sector": "Materials",
+      "sectorLabel": "소재",
+      "themes": [
+        "Industrial Gas",
+        "Materials",
+        "Pricing Power"
+      ],
+      "metrics": {
+        "price": 512.15,
+        "priceAsOf": "2026-06-18",
+        "dcfPerShare": 127.30464190560113,
+        "dcfFragility": "fragile",
+        "reverseDcfStatus": "available",
+        "qualityStatus": "충분"
+      },
+      "signals": [
+        "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
+        "상대가치 비교 배수는 사용자가 확인하기 전까지 의사결정 요약값이 아닙니다.",
+        "Reverse DCF는 목표가가 아니라 시장가격이 요구하는 성장 기대를 보여줍니다."
+      ],
+      "warnings": [
+        "SEC XBRL/가격 스냅샷의 기준일과 데이터 품질을 분리해서 확인하세요."
+      ],
+      "detailPath": "companies/LIN.json"
     }
   ],
   "limitations": [
     "모형은 판단 주체가 아니라 계산 보조 도구입니다.",
     "DCF는 성장률·할인율·영구성장률에 민감합니다.",
-    "PER/PBR 비교군은 사용자가 산업·성장률·ROE 유사성을 확인해야 합니다."
+    "PER/PBR 비교군은 사용자가 산업·성장률·ROE 유사성을 확인해야 합니다.",
+    "최근 refresh에서 21개 티커가 새 SEC 데이터를 받지 못해 기존 검증 캐시를 보존했습니다."
   ],
   "sources": [
     {
@@ -737,6 +739,6 @@
   },
   "payload": {
     "summaryBytes": null,
-    "detailBytes": 15594
+    "detailBytes": 18122
   }
 }
