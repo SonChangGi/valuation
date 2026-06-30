@@ -4,7 +4,15 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
-from scripts.update_data import build_annual_rows, build_company_payload, load_ticker_map, normalize_tickers
+from scripts.update_data import (
+    build_annual_rows,
+    build_company_payload,
+    build_public_summary,
+    load_cached_company_payload,
+    load_ticker_map,
+    normalize_tickers,
+    write_json,
+)
 
 
 def annual_fact(value, unit="USD", fy=2025):
@@ -193,6 +201,58 @@ class UpdateDataTest(unittest.TestCase):
             ):
                 with self.assertRaises(urllib.error.HTTPError):
                     load_ticker_map("valuation-pages-test", cache_dir=Path(tmp))
+
+    def test_cached_company_payload_can_preserve_existing_refresh_output(self):
+        with TemporaryDirectory() as tmp:
+            output = Path(tmp)
+            payload = {
+                "generatedAt": "2026-01-01T00:00:00Z",
+                "company": {
+                    "ticker": "AAPL",
+                    "name": "Apple Inc.",
+                    "exchange": "Nasdaq",
+                    "sector": "Technology",
+                    "sectorLabel": "기술",
+                    "themeTags": ["Consumer Tech"],
+                    "currency": "USD",
+                },
+                "market": {"price": 100, "asOf": "2026-01-01"},
+                "valuations": {"dcf": {"perShareValue": 90}, "dcfSensitivitySummary": {"fragility": "stable"}, "reverseDcf": {"status": "available"}},
+                "quality": {"status": "충분"},
+            }
+            write_json(output / "companies" / "AAPL.json", payload)
+
+            self.assertEqual(load_cached_company_payload(output, "AAPL")["company"]["ticker"], "AAPL")
+            self.assertIsNone(load_cached_company_payload(output, "MSFT"))
+
+    def test_summary_marks_refresh_errors_as_degraded(self):
+        with TemporaryDirectory() as tmp:
+            output = Path(tmp)
+            write_json(output / "index.json", {"tickers": []})
+            summary = build_public_summary(
+                {
+                    "generatedAt": "2026-01-02T00:00:00Z",
+                    "tickers": [
+                        {
+                            "ticker": "AAPL",
+                            "name": "Apple Inc.",
+                            "sector": "Technology",
+                            "sectorLabel": "기술",
+                            "themeTags": ["Consumer Tech"],
+                            "price": 100,
+                            "priceAsOf": "2026-01-01",
+                            "companyFile": "companies/AAPL.json",
+                        }
+                    ],
+                    "methodologyReferences": [],
+                    "errors": [{"ticker": "AAPL", "error": "HTTP Error 403: Forbidden", "fallback": "cached-company-json"}],
+                },
+                output,
+            )
+
+        self.assertEqual(summary["status"]["state"], "degraded")
+        self.assertEqual(summary["status"]["refreshErrorCount"], 1)
+        self.assertTrue(any("기존 검증 캐시" in item for item in summary["limitations"]))
 
 
 if __name__ == "__main__":

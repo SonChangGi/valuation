@@ -333,6 +333,18 @@ def load_cached_ticker_map(company_dir: Path) -> dict[str, dict[str, Any]]:
     return result
 
 
+def load_cached_company_payload(output: Path, ticker: str) -> dict[str, Any] | None:
+    path = output / "companies" / f"{ticker}.json"
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    company = payload.get("company", {}) if isinstance(payload, dict) else {}
+    if str(company.get("ticker") or "").upper() != ticker:
+        return None
+    return payload
+
+
 def load_ticker_map(user_agent: str, cache_dir: Path | None = None) -> dict[str, dict[str, Any]]:
     try:
         payload = request_json(SEC_TICKERS_URL, user_agent)
@@ -726,6 +738,7 @@ def build_public_summary(index: dict[str, Any], output: Path) -> dict[str, Any]:
 
     tickers = index.get("tickers") if isinstance(index.get("tickers"), list) else []
     generated_at = index.get("generatedAt")
+    errors = index.get("errors") if isinstance(index.get("errors"), list) else []
     sectors = sorted({str(item.get("sectorLabel") or item.get("sector")) for item in tickers if item.get("sectorLabel") or item.get("sector")})
     theme_counts: dict[str, int] = {}
     for item in tickers:
@@ -772,10 +785,11 @@ def build_public_summary(index: dict[str, Any], output: Path) -> dict[str, Any]:
         "detailUrl": "https://sonchanggi.github.io/valuation/",
         "detailDataUrl": "https://sonchanggi.github.io/valuation/data/index.json",
         "status": {
-            "state": "ok" if tickers else "degraded",
-            "label": f"{len(tickers)}개 기업 가치평가 캐시",
+            "state": "degraded" if errors or not tickers else "ok",
+            "label": f"{len(tickers)}개 기업 가치평가 캐시" + (f" · refresh warnings {len(errors)}" if errors else ""),
             "cadence": "scheduled 14:15/16:15 KST Tue-Sat plus reviewed workflow_dispatch",
             "expectedFreshnessDays": 14,
+            "refreshErrorCount": len(errors),
         },
         "coverage": {
             "entityCount": len(tickers),
@@ -800,7 +814,8 @@ def build_public_summary(index: dict[str, Any], output: Path) -> dict[str, Any]:
             "모형은 판단 주체가 아니라 계산 보조 도구입니다.",
             "DCF는 성장률·할인율·영구성장률에 민감합니다.",
             "PER/PBR 비교군은 사용자가 산업·성장률·ROE 유사성을 확인해야 합니다.",
-        ],
+        ]
+        + ([f"최근 refresh에서 {len(errors)}개 티커가 새 SEC 데이터를 받지 못해 기존 검증 캐시를 보존했습니다."] if errors else []),
         "sources": [
             {"label": "SEC EDGAR company facts", "url": "https://data.sec.gov/"},
             {"label": "Yahoo Chart best-effort price snapshot", "url": "https://query1.finance.yahoo.com/"},
@@ -882,7 +897,14 @@ def main() -> int:
             write_json(output / "companies" / f"{ticker}.json", payload)
             companies.append(compact_index_item(payload))
         except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, ValueError, KeyError) as exc:
-            errors.append({"ticker": ticker, "error": str(exc)})
+            cached_payload = load_cached_company_payload(output, ticker)
+            if cached_payload:
+                errors.append({"ticker": ticker, "error": str(exc), "fallback": "cached-company-json"})
+                companies.append(compact_index_item(cached_payload))
+                if args.verbose:
+                    print(f"Using cached {ticker} payload after refresh failure: {exc}", file=sys.stderr)
+            else:
+                errors.append({"ticker": ticker, "error": str(exc)})
         time.sleep(max(0, args.sleep))
 
     index = {
