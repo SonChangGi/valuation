@@ -7,9 +7,9 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'" />
   <title>Stock Valuation Workspace</title>
   <link rel="stylesheet" href="assets/styles.css" />
-  <link rel="stylesheet" href="assets/common-ui.css" />
+  <link rel="stylesheet" href="assets/common-ui.css?v=20260701-visual-ralph" />
   <script type="module" src="assets/app.js"></script>
-  <script src="assets/common-ui.js" defer></script>
+  <script src="assets/common-ui.js?v=20260701-visual-ralph" defer></script>
 </head>
 <body id="top">
   <header class="hero" aria-labelledby="page-title">
@@ -24,10 +24,8 @@
         <p class="eyebrow">Stock Valuation Workspace</p>
         <h1 id="page-title">가치평가를 근거 있게</h1>
         <p class="hero-copy">
-          티커를 입력하면 DCF 절대가치와 PER·PBR 상대가치를 근거·진단·한계와 함께 보여줍니다.
-          예측 변수는 적게 유지하고, 터미널 가치 의존도·ROE·마진 같은 해석 신호를 함께 표시합니다.
-          이 웹페이지는 <strong>https://sonchanggi.github.io/valuation/</strong>에 배포되는 새로운 정적 프로젝트이며,
-          기존 프로젝트 결과물은 참고만 하고 수정하지 않습니다.
+          티커를 입력하면 DCF 절대가치와 PER·PBR 상대가치를 근거·진단·한계와 함께 봅니다.
+          이 정적 페이지는 https://sonchanggi.github.io/valuation/ 에 배포되며, 기존 프로젝트 결과물은 참고만 하고 수정하지 않습니다.
         </p>
         <form class="ticker-form" id="ticker-form" aria-label="티커 검색">
           <label for="ticker-input">분석할 티커</label>
@@ -43,8 +41,8 @@
       <aside class="hero-note" aria-label="판단 주체 안내">
         <strong>판단은 사용자에게 있습니다</strong>
         <p>
-          이 화면은 투자 의견이 아니라, 사용자의 판단을 정리하기 위한 계산 보조 도구입니다.
-          입력값과 데이터 품질에 따라 결과는 크게 달라질 수 있습니다.
+          투자 의견이 아니라 사용자의 판단을 정리하는 계산 보조 도구입니다.
+          입력값과 데이터 품질에 따라 결과는 달라질 수 있습니다.
         </p>
       </aside>
     </div>
