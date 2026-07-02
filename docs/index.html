@@ -7,9 +7,9 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'" />
   <title>Stock Valuation Workspace</title>
   <link rel="stylesheet" href="assets/styles.css" />
-  <link rel="stylesheet" href="assets/common-ui.css?v=20260701-ralph-table-v5d" />
+  <link rel="stylesheet" href="assets/common-ui.css?v=20260702-light-system-v6" />
   <script type="module" src="assets/app.js"></script>
-  <script src="assets/common-ui.js?v=20260701-fullpage-v4" defer></script>
+  <script src="assets/common-ui.js?v=20260702-light-system-v6" defer></script>
 </head>
 <body id="top">
   <header class="hero" aria-labelledby="page-title">
@@ -24,8 +24,9 @@
         <p class="eyebrow">Stock Valuation Workspace</p>
         <h1 id="page-title">가치평가를 근거 있게</h1>
         <p class="hero-copy">
-          티커를 입력하면 DCF 절대가치와 PER·PBR 상대가치를 근거·진단·한계와 함께 봅니다.
-          이 정적 페이지는 https://sonchanggi.github.io/valuation/ 에 배포되며, 기존 프로젝트 결과물은 참고만 하고 수정하지 않습니다.
+          티커별 DCF, PER/PBR 상대가치, 가정 민감도를 한 화면에서 확인합니다.
+          데이터 품질과 해석 한계는 접힘 영역에서 점검합니다.
+          배포 경로는 https://sonchanggi.github.io/valuation/ 이며, 기존 프로젝트 결과물은 참고만 하고 수정하지 않습니다.
         </p>
         <form class="ticker-form" id="ticker-form" aria-label="티커 검색">
           <label for="ticker-input">분석할 티커</label>
@@ -190,7 +191,9 @@
       </label>
     </section>
 
-    <section class="section methodology-section" id="methodology" aria-labelledby="methodology-title">
+    <details class="section methodology-section" id="methodology" aria-labelledby="methodology-title">
+      <summary>방법론 사용법과 해석 가이드</summary>
+      <div class="details-body">
       <div class="section-heading">
         <p class="eyebrow">Methodology & Limits</p>
         <h2 id="methodology-title">방법론 사용법과 해석 가이드</h2>
@@ -394,8 +397,11 @@
           </ul>
         </article>
       </div>
-    </section>
-    <section class="section notice-section moved-notice" aria-labelledby="static-contract-title">
+      </div>
+    </details>
+    <details class="section notice-section moved-notice" aria-labelledby="static-contract-title">
+      <summary>정적 데이터 계약</summary>
+      <div class="details-body">
       <div class="notice-card">
         <div>
           <p class="eyebrow">Static Data Contract</p>
@@ -409,7 +415,8 @@
         </div>
         <span class="status-pill" id="data-generated">데이터 상태 확인 중</span>
       </div>
-    </section>
+      </div>
+    </details>
 
   </main>
 
