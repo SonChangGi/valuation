@@ -8,7 +8,7 @@
   ],
   "project": "valuation",
   "title": "Stock Valuation Workspace",
-  "generatedAt": "2026-07-02T10:15:02Z",
+  "generatedAt": "2026-07-03T08:29:13Z",
   "basePath": "/valuation/",
   "dataPolicy": "Static JSON generated from public SEC fundamentals and best-effort market price snapshots.",
   "methodologyReferences": [
