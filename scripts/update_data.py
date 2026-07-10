@@ -9,6 +9,7 @@ reproducible, and compatible with GitHub Pages.
 from __future__ import annotations
 
 import argparse
+from copy import deepcopy
 import gzip
 import json
 import os
@@ -53,6 +54,7 @@ SEC_COMPANYFACTS_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json
 YAHOO_CHART_URL = "https://query1.finance.yahoo.com/v8/finance/chart/{ticker}?range=1mo&interval=1d"
 DEFAULT_USER_AGENT = os.environ.get("SEC_USER_AGENT", "")
 TICKER_PATTERN = re.compile(r"^[A-Z0-9][A-Z0-9.-]{0,14}$")
+RETRYABLE_HTTP_STATUS = {429, 500, 502, 503, 504}
 DEFAULT_TICKERS = [
     "AAPL",
     "MSFT",
@@ -285,20 +287,54 @@ def classify_company(ticker: str, submissions: dict[str, Any], ticker_meta: dict
     }
 
 
-def request_json(url: str, user_agent: str, timeout: int = 30) -> Any:
-    req = urllib.request.Request(
-        url,
-        headers={
-            "User-Agent": user_agent,
-            "Accept": "application/json,text/plain,*/*",
-            "Accept-Encoding": "gzip",
-        },
-    )
-    with urllib.request.urlopen(req, timeout=timeout) as response:
-        body = response.read()
-        if response.headers.get("Content-Encoding") == "gzip":
-            body = gzip.decompress(body)
-        return json.loads(body.decode("utf-8"))
+def request_json(
+    url: str,
+    user_agent: str,
+    timeout: int = 30,
+    *,
+    attempts: int = 4,
+    backoff_seconds: float = 1.0,
+) -> Any:
+    """Fetch JSON with bounded retries for transient provider failures.
+
+    A 403 is deliberately not retried: on GitHub-hosted runners it commonly
+    means the current SEC egress path is blocked, and retrying every ticker
+    would only amplify the block. The caller opens a cache-backed SEC circuit
+    breaker while market prices continue through their independent provider.
+    """
+    last_error: Exception | None = None
+    for attempt in range(1, max(1, attempts) + 1):
+        req = urllib.request.Request(
+            url,
+            headers={
+                "User-Agent": user_agent,
+                "Accept": "application/json,text/plain,*/*",
+                "Accept-Encoding": "gzip",
+            },
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as response:
+                body = response.read()
+                if response.headers.get("Content-Encoding") == "gzip":
+                    body = gzip.decompress(body)
+                return json.loads(body.decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            last_error = exc
+            retryable = exc.code in RETRYABLE_HTTP_STATUS
+            if not retryable or attempt >= attempts:
+                raise
+        except (urllib.error.URLError, TimeoutError) as exc:
+            last_error = exc
+            if attempt >= attempts:
+                raise
+        except json.JSONDecodeError as exc:
+            last_error = exc
+            if attempt >= attempts:
+                raise
+        time.sleep(max(0.0, backoff_seconds) * (2 ** (attempt - 1)))
+    if last_error:
+        raise last_error
+    raise RuntimeError(f"request failed without an error: {url}")
 
 
 def load_cached_ticker_map(company_dir: Path) -> dict[str, dict[str, Any]]:
@@ -699,6 +735,198 @@ def build_company_payload(
     }
 
 
+def refresh_cached_company_market(
+    cached_payload: dict[str, Any],
+    ticker: str,
+    user_agent: str,
+    *,
+    sec_error: str,
+    manual_price: float | None = None,
+) -> dict[str, Any]:
+    """Refresh market-dependent outputs while preserving audited SEC cache.
+
+    SEC submissions/companyfacts and Yahoo market snapshots have independent
+    failure domains. A blocked SEC request must not freeze market prices and all
+    price-dependent diagnostics when a validated company payload already
+    contains usable annual fundamentals.
+    """
+    payload = deepcopy(cached_payload)
+    company = payload.get("company") if isinstance(payload.get("company"), dict) else {}
+    if str(company.get("ticker") or "").upper() != ticker:
+        raise ValueError(f"cached ticker mismatch for {ticker}")
+
+    financials = payload.get("financials") if isinstance(payload.get("financials"), dict) else {}
+    annual_rows = financials.get("annual") if isinstance(financials.get("annual"), list) else []
+    if not annual_rows:
+        raise ValueError(f"cached SEC annual rows unavailable for {ticker}")
+    latest = sorted(annual_rows, key=lambda row: row.get("fy") or 0)[-1]
+
+    market, market_warnings = fetch_market_snapshot(ticker, user_agent)
+    if manual_price is not None:
+        market = {
+            **market,
+            "price": float(manual_price),
+            "source": "Manual override",
+            "sourceUrl": None,
+            "confidence": "manual",
+        }
+    if market.get("price") is None or not market.get("asOf"):
+        raise ValueError(f"fresh market snapshot unavailable for {ticker}")
+
+    existing_assumptions = payload.get("assumptions") if isinstance(payload.get("assumptions"), dict) else {}
+    assumptions = dict(DEFAULT_ASSUMPTIONS)
+    for key in (
+        "discountRate",
+        "terminalGrowthRate",
+        "projectionYears",
+        "benchmarkPe",
+        "benchmarkPb",
+        "benchmarkPs",
+        "benchmarkPfcf",
+    ):
+        if existing_assumptions.get(key) is not None:
+            assumptions[key] = existing_assumptions[key]
+
+    shares = latest.get("sharesDiluted") or latest.get("sharesBasic") or existing_assumptions.get("sharesOutstanding")
+    cash = latest.get("cash") or existing_assumptions.get("cash") or 0.0
+    debt = (
+        (latest.get("debtCurrent") or 0.0)
+        + (latest.get("debtNoncurrent") or 0.0)
+    ) or existing_assumptions.get("debt") or 0.0
+    recent_rows = sorted(annual_rows, key=lambda row: row.get("fy") or 0, reverse=True)[:3]
+    recent_confirmed_fcf = [row for row in recent_rows if row.get("freeCashFlow") is not None]
+    base_fcf = normalize_fcf(annual_rows)
+
+    warnings = [
+        str(item)
+        for item in (payload.get("quality", {}).get("warnings") or [])
+        if "시장가격 스냅샷 수집 실패" not in str(item)
+        and "SEC 실시간 갱신 실패" not in str(item)
+    ]
+    warnings.extend(market_warnings)
+    warnings.append(f"SEC 실시간 갱신 실패로 검증된 재무제표 캐시를 유지했습니다: {sec_error}")
+    if len(recent_confirmed_fcf) < 2:
+        base_fcf = None
+        if not any("CAPEX가 확인된 FCF가 2개 미만" in item for item in warnings):
+            warnings.append("최근 3년 중 CAPEX가 확인된 FCF가 2개 미만이어서 DCF를 수동 확인 대상으로 격하했습니다.")
+    if not shares or shares <= 0:
+        warnings.append("주식수 데이터가 없어 가격 기반 가치평가 재계산이 제한됩니다.")
+
+    assumptions.update({
+        "growthRate": derive_growth_rate(annual_rows),
+        "baseFreeCashFlow": base_fcf,
+        "cash": cash,
+        "debt": debt,
+        "sharesOutstanding": shares,
+        "note": "기본값은 SEC 과거 재무제표에서 보수적으로 유도했으며 사용자가 직접 수정해야 합니다.",
+        "modelPolicy": MODEL_POLICY,
+    })
+
+    dcf = None
+    sensitivity = []
+    sensitivity_summary = None
+    if base_fcf is not None and shares and shares > 0:
+        dcf = calculate_dcf(
+            base_fcf=base_fcf,
+            shares_outstanding=shares,
+            cash=cash,
+            debt=debt,
+            growth_rate=assumptions["growthRate"],
+            discount_rate=assumptions["discountRate"],
+            terminal_growth_rate=assumptions["terminalGrowthRate"],
+            projection_years=assumptions["projectionYears"],
+        )
+        sensitivity = build_sensitivity(
+            base_fcf=base_fcf,
+            shares_outstanding=shares,
+            cash=cash,
+            debt=debt,
+            growth_rate=assumptions["growthRate"],
+            projection_years=assumptions["projectionYears"],
+        )
+        sensitivity_summary = summarize_sensitivity(
+            sensitivity,
+            base_value=dcf.get("perShareValue"),
+            market_price=market.get("price"),
+        )
+
+    reverse_dcf = build_reverse_dcf(
+        market_price=market.get("price"),
+        base_fcf=base_fcf,
+        shares_outstanding=shares,
+        cash=cash,
+        debt=debt,
+        growth_rate=assumptions["growthRate"],
+        discount_rate=assumptions["discountRate"],
+        terminal_growth_rate=assumptions["terminalGrowthRate"],
+        projection_years=assumptions["projectionYears"],
+    )
+
+    relative = None
+    if shares and shares > 0:
+        relative = calculate_relative_valuation(
+            price=market.get("price"),
+            revenue=latest.get("revenue"),
+            net_income=latest.get("netIncome"),
+            equity=latest.get("equity"),
+            free_cash_flow=latest.get("freeCashFlow"),
+            shares_outstanding=shares,
+            benchmark_pe=assumptions["benchmarkPe"],
+            benchmark_pb=assumptions["benchmarkPb"],
+            benchmark_ps=assumptions["benchmarkPs"],
+            benchmark_pfcf=assumptions["benchmarkPfcf"],
+            benchmark_source="illustrative-default",
+        )
+
+    generated_at = now_iso()
+    sec_source = deepcopy(payload.get("sources", {}).get("sec") or {})
+    sec_source.update({
+        "confidence": "cached",
+        "refreshStatus": "cached-after-live-sec-failure",
+        "refreshError": sec_error,
+        "note": "SEC 실시간 요청 실패로 마지막 검증 재무제표를 유지하고 시장가격만 독립 갱신했습니다.",
+    })
+    sources = deepcopy(payload.get("sources") or {})
+    sources.update({"sec": sec_source, "market": market, "methodology": METHODOLOGY_REFERENCES})
+
+    payload.update({
+        "schemaVersion": 1,
+        "schemaRevision": SCHEMA_REVISION,
+        "schemaCapabilities": SCHEMA_CAPABILITIES,
+        "generatedAt": generated_at,
+        "company": {**company, "currency": market.get("currency") or company.get("currency") or "USD"},
+        "sources": sources,
+        "market": market,
+        "financials": {**financials, "currency": financials.get("currency") or "USD", "annual": annual_rows, "latest": latest},
+        "assumptions": assumptions,
+        "valuations": {
+            "dcf": dcf,
+            "dcfSensitivity": sensitivity,
+            "dcfSensitivitySummary": sensitivity_summary,
+            "reverseDcf": reverse_dcf,
+            "relative": relative,
+            "methodComparison": {
+                "dcfPerShare": dcf.get("perShareValue") if dcf else None,
+                "relativePerShare": relative.get("range", {}).get("mid") if relative else None,
+                "relativeConfirmed": False,
+                "note": "DCF와 PER/PBR 상대가치는 평균내지 않습니다. 상대가치는 사용자 배수 확인 전 예시값입니다.",
+            },
+        },
+        "quality": {
+            **(payload.get("quality") or {}),
+            "status": classify_quality(warnings, fatal_missing=not annual_rows or not shares or base_fcf is None),
+            "warnings": warnings,
+        },
+        "refreshStatus": {
+            "fundamentals": "cached",
+            "market": "live",
+            "marketDataAsOf": market.get("asOf"),
+            "secError": sec_error,
+        },
+    })
+    return payload
+
+
 def compact_index_item(payload: dict[str, Any]) -> dict[str, Any]:
     company = payload["company"]
     market = payload["market"]
@@ -719,6 +947,7 @@ def compact_index_item(payload: dict[str, Any]) -> dict[str, Any]:
         "dcfFragility": (valuations.get("dcfSensitivitySummary") or {}).get("fragility"),
         "reverseDcfStatus": (valuations.get("reverseDcf") or {}).get("status"),
         "generatedAt": payload.get("generatedAt"),
+        "refreshStatus": payload.get("refreshStatus") or {"fundamentals": "live", "market": "live"},
     }
 
 
@@ -739,6 +968,13 @@ def build_public_summary(index: dict[str, Any], output: Path) -> dict[str, Any]:
     tickers = index.get("tickers") if isinstance(index.get("tickers"), list) else []
     generated_at = index.get("generatedAt")
     errors = index.get("errors") if isinstance(index.get("errors"), list) else []
+    data_as_of = max((str(item.get("priceAsOf")) for item in tickers if item.get("priceAsOf")), default=None)
+    market_date_counts: dict[str, int] = {}
+    for item in tickers:
+        market_date = str(item.get("priceAsOf") or "")
+        if market_date:
+            market_date_counts[market_date] = market_date_counts.get(market_date, 0) + 1
+    refresh_stats = index.get("refreshStats") if isinstance(index.get("refreshStats"), dict) else {}
     sectors = sorted({str(item.get("sectorLabel") or item.get("sector")) for item in tickers if item.get("sectorLabel") or item.get("sector")})
     theme_counts: dict[str, int] = {}
     for item in tickers:
@@ -780,7 +1016,7 @@ def build_public_summary(index: dict[str, Any], output: Path) -> dict[str, Any]:
         "projectId": "valuation",
         "projectName": "기업 가치평가 Lab",
         "generatedAt": generated_at,
-        "dataAsOf": max((str(item.get("priceAsOf")) for item in tickers if item.get("priceAsOf")), default=None),
+        "dataAsOf": data_as_of,
         "timezone": "UTC",
         "detailUrl": "https://sonchanggi.github.io/valuation/",
         "detailDataUrl": "https://sonchanggi.github.io/valuation/data/index.json",
@@ -790,6 +1026,8 @@ def build_public_summary(index: dict[str, Any], output: Path) -> dict[str, Any]:
             "cadence": "scheduled 14:15/16:15 KST Tue-Sat plus reviewed workflow_dispatch",
             "expectedFreshnessDays": 14,
             "refreshErrorCount": len(errors),
+            "fundamentalsCacheCount": int(refresh_stats.get("cachedFundamentalsLiveMarket") or 0),
+            "fullCacheFallbackCount": int(refresh_stats.get("cachedFullPayload") or 0),
         },
         "coverage": {
             "entityCount": len(tickers),
@@ -799,6 +1037,9 @@ def build_public_summary(index: dict[str, Any], output: Path) -> dict[str, Any]:
                 {"theme": theme, "count": count}
                 for theme, count in sorted(theme_counts.items(), key=lambda pair: (-pair[1], pair[0]))[:12]
             ],
+            "marketDateCounts": market_date_counts,
+            "latestMarketDateCount": market_date_counts.get(data_as_of, 0) if data_as_of else 0,
+            "refreshStats": refresh_stats,
         },
         "highlights": [
             {"label": "지원 티커", "value": len(tickers), "description": "SEC 공시 기반 정적 valuation 캐시"},
@@ -815,7 +1056,7 @@ def build_public_summary(index: dict[str, Any], output: Path) -> dict[str, Any]:
             "DCF는 성장률·할인율·영구성장률에 민감합니다.",
             "PER/PBR 비교군은 사용자가 산업·성장률·ROE 유사성을 확인해야 합니다.",
         ]
-        + ([f"최근 refresh에서 {len(errors)}개 티커가 새 SEC 데이터를 받지 못해 기존 검증 캐시를 보존했습니다."] if errors else []),
+        + ([f"최근 refresh에서 {len(errors)}개 티커가 새 SEC 데이터를 받지 못해 기존 검증 캐시를 보존했습니다. 시장가격 freshness는 별도 publication gate로 검증합니다."] if errors else []),
         "sources": [
             {"label": "SEC EDGAR company facts", "url": "https://data.sec.gov/"},
             {"label": "Yahoo Chart best-effort price snapshot", "url": "https://query1.finance.yahoo.com/"},
@@ -881,30 +1122,81 @@ def main() -> int:
     ticker_map = load_ticker_map(args.user_agent, cache_dir=output / "companies")
     companies = []
     errors = []
+    refresh_stats = {
+        "liveSecAndMarket": 0,
+        "cachedFundamentalsLiveMarket": 0,
+        "cachedFullPayload": 0,
+        "failed": 0,
+    }
+    sec_circuit_error: str | None = None
     for ticker in tickers:
         meta = ticker_map.get(ticker)
         if not meta:
-            errors.append({"ticker": ticker, "error": "SEC ticker/CIK mapping not found"})
+            errors.append({"ticker": ticker, "stage": "ticker-map", "error": "SEC ticker/CIK mapping not found"})
+            refresh_stats["failed"] += 1
             continue
-        try:
-            payload = build_company_payload(
-                ticker,
-                meta,
-                args.user_agent,
-                verbose=args.verbose,
-                manual_price=price_overrides.get(ticker),
-            )
-            write_json(output / "companies" / f"{ticker}.json", payload)
-            companies.append(compact_index_item(payload))
-        except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, ValueError, KeyError) as exc:
-            cached_payload = load_cached_company_payload(output, ticker)
+        cached_payload = load_cached_company_payload(output, ticker)
+        live_error: Exception | None = None
+
+        if sec_circuit_error is None:
+            try:
+                payload = build_company_payload(
+                    ticker,
+                    meta,
+                    args.user_agent,
+                    verbose=args.verbose,
+                    manual_price=price_overrides.get(ticker),
+                )
+                payload["refreshStatus"] = {"fundamentals": "live", "market": "live", "marketDataAsOf": payload.get("market", {}).get("asOf")}
+                write_json(output / "companies" / f"{ticker}.json", payload)
+                companies.append(compact_index_item(payload))
+                refresh_stats["liveSecAndMarket"] += 1
+            except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, ValueError, KeyError) as exc:
+                live_error = exc
+                if isinstance(exc, urllib.error.HTTPError) and exc.code in {403, 429}:
+                    sec_circuit_error = f"HTTP {exc.code}: {exc.reason}"
+                elif isinstance(exc, (urllib.error.URLError, TimeoutError)):
+                    sec_circuit_error = f"{type(exc).__name__}: {exc}"
+        else:
+            live_error = RuntimeError(f"SEC circuit open after provider failure: {sec_circuit_error}")
+
+        if live_error is not None:
             if cached_payload:
-                errors.append({"ticker": ticker, "error": str(exc), "fallback": "cached-company-json"})
-                companies.append(compact_index_item(cached_payload))
-                if args.verbose:
-                    print(f"Using cached {ticker} payload after refresh failure: {exc}", file=sys.stderr)
+                try:
+                    payload = refresh_cached_company_market(
+                        cached_payload,
+                        ticker,
+                        args.user_agent,
+                        sec_error=str(live_error),
+                        manual_price=price_overrides.get(ticker),
+                    )
+                    write_json(output / "companies" / f"{ticker}.json", payload)
+                    companies.append(compact_index_item(payload))
+                    errors.append({
+                        "ticker": ticker,
+                        "stage": "fundamentals",
+                        "error": str(live_error),
+                        "fallback": "cached-sec-fundamentals",
+                        "marketRefresh": "live",
+                    })
+                    refresh_stats["cachedFundamentalsLiveMarket"] += 1
+                    if args.verbose:
+                        print(f"Using cached SEC fundamentals with a live market refresh for {ticker}: {live_error}", file=sys.stderr)
+                except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, ValueError, KeyError) as market_exc:
+                    errors.append({
+                        "ticker": ticker,
+                        "stage": "fundamentals-and-market",
+                        "error": str(live_error),
+                        "marketError": str(market_exc),
+                        "fallback": "cached-company-json",
+                    })
+                    companies.append(compact_index_item(cached_payload))
+                    refresh_stats["cachedFullPayload"] += 1
+                    if args.verbose:
+                        print(f"Using full cached {ticker} payload after SEC and market refresh failures: {market_exc}", file=sys.stderr)
             else:
-                errors.append({"ticker": ticker, "error": str(exc)})
+                errors.append({"ticker": ticker, "stage": "fundamentals", "error": str(live_error)})
+                refresh_stats["failed"] += 1
         time.sleep(max(0, args.sleep))
 
     index = {
@@ -920,6 +1212,8 @@ def main() -> int:
         "modelPolicy": MODEL_POLICY,
         "tickers": companies,
         "errors": errors,
+        "refreshStats": refresh_stats,
+        "secCircuit": {"open": sec_circuit_error is not None, "reason": sec_circuit_error},
     }
     write_json(output / "index.json", index)
     summary = build_public_summary(index, output)

@@ -9,8 +9,8 @@
   "contract": "quant-research-summary",
   "projectId": "valuation",
   "projectName": "기업 가치평가 Lab",
-  "generatedAt": "2026-07-09T10:32:46Z",
-  "dataAsOf": "2026-06-18",
+  "generatedAt": "2026-07-10T06:43:02Z",
+  "dataAsOf": "2026-07-09",
   "timezone": "UTC",
   "detailUrl": "https://sonchanggi.github.io/valuation/",
   "detailDataUrl": "https://sonchanggi.github.io/valuation/data/index.json",
@@ -19,7 +19,9 @@
     "label": "21개 기업 가치평가 캐시 · refresh warnings 21",
     "cadence": "scheduled 14:15/16:15 KST Tue-Sat plus reviewed workflow_dispatch",
     "expectedFreshnessDays": 14,
-    "refreshErrorCount": 21
+    "refreshErrorCount": 21,
+    "fundamentalsCacheCount": 21,
+    "fullCacheFallbackCount": 0
   },
   "coverage": {
     "entityCount": 21,
@@ -86,7 +88,17 @@
         "theme": "Banking",
         "count": 1
       }
-    ]
+    ],
+    "marketDateCounts": {
+      "2026-07-09": 21
+    },
+    "latestMarketDateCount": 21,
+    "refreshStats": {
+      "liveSecAndMarket": 0,
+      "cachedFundamentalsLiveMarket": 21,
+      "cachedFullPayload": 0,
+      "failed": 0
+    }
   },
   "highlights": [
     {
@@ -118,12 +130,12 @@
         "Services"
       ],
       "metrics": {
-        "price": 298.01,
-        "priceAsOf": "2026-06-18",
+        "price": 316.22,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": 104.59517896320538,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
+        "qualityStatus": "일부 누락"
       },
       "signals": [
         "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
@@ -147,12 +159,12 @@
         "Software"
       ],
       "metrics": {
-        "price": 379.4,
-        "priceAsOf": "2026-06-18",
+        "price": 384.36,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": 223.61184950046587,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
+        "qualityStatus": "일부 누락"
       },
       "signals": [
         "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
@@ -176,8 +188,8 @@
         "Accelerated Computing"
       ],
       "metrics": {
-        "price": 210.69,
-        "priceAsOf": "2026-06-18",
+        "price": 202.78,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": 58.39922778438662,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
@@ -205,12 +217,12 @@
         "AI"
       ],
       "metrics": {
-        "price": 368.03,
-        "priceAsOf": "2026-06-18",
+        "price": 358.89,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": 137.2820151928357,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
+        "qualityStatus": "일부 누락"
       },
       "signals": [
         "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
@@ -234,12 +246,12 @@
         "Logistics"
       ],
       "metrics": {
-        "price": 244.39,
-        "priceAsOf": "2026-06-18",
+        "price": 247.04,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": 69.70848376188634,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
+        "qualityStatus": "일부 누락"
       },
       "signals": [
         "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
@@ -263,12 +275,12 @@
         "AI"
       ],
       "metrics": {
-        "price": 577.22,
-        "priceAsOf": "2026-06-18",
+        "price": 631.48,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": 413.1604993768063,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
+        "qualityStatus": "일부 누락"
       },
       "signals": [
         "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
@@ -292,12 +304,12 @@
         "Manufacturing"
       ],
       "metrics": {
-        "price": 400.49,
-        "priceAsOf": "2026-06-18",
+        "price": 406.55,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": 33.697332451484066,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
+        "qualityStatus": "일부 누락"
       },
       "signals": [
         "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
@@ -321,8 +333,8 @@
         "Capital Markets"
       ],
       "metrics": {
-        "price": 325.22,
-        "priceAsOf": "2026-06-18",
+        "price": 335.47,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": null,
         "dcfFragility": null,
         "reverseDcfStatus": "not_available",
@@ -350,12 +362,12 @@
         "Consumer Spending"
       ],
       "metrics": {
-        "price": 489.79,
-        "priceAsOf": "2026-06-18",
+        "price": 523.2,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": 364.57146438046624,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
+        "qualityStatus": "일부 누락"
       },
       "signals": [
         "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
@@ -379,12 +391,12 @@
         "Defensive"
       ],
       "metrics": {
-        "price": 228.39,
-        "priceAsOf": "2026-06-18",
+        "price": 259.1,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": 103.57661700670104,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
+        "qualityStatus": "일부 누락"
       },
       "signals": [
         "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
@@ -408,8 +420,8 @@
         "Innovation"
       ],
       "metrics": {
-        "price": 1098.57,
-        "priceAsOf": "2026-06-18",
+        "price": 1216.95,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": null,
         "dcfFragility": null,
         "reverseDcfStatus": "not_available",
@@ -437,12 +449,12 @@
         "Healthcare Services"
       ],
       "metrics": {
-        "price": 400.96,
-        "priceAsOf": "2026-06-18",
+        "price": 431.68,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": 474.5557309717281,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
+        "qualityStatus": "일부 누락"
       },
       "signals": [
         "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
@@ -466,12 +478,12 @@
         "Cash Flow"
       ],
       "metrics": {
-        "price": 137.81,
-        "priceAsOf": "2026-06-18",
+        "price": 137.46,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": 120.29523806026549,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
+        "qualityStatus": "일부 누락"
       },
       "signals": [
         "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
@@ -495,12 +507,12 @@
         "Defensive"
       ],
       "metrics": {
-        "price": 117.18,
-        "priceAsOf": "2026-06-18",
+        "price": 112.21,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": 29.818141575373023,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
+        "qualityStatus": "일부 누락"
       },
       "signals": [
         "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
@@ -524,12 +536,12 @@
         "Scale"
       ],
       "metrics": {
-        "price": 951.45,
-        "priceAsOf": "2026-06-18",
+        "price": 912.97,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": 332.0755917833559,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
+        "qualityStatus": "일부 누락"
       },
       "signals": [
         "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
@@ -553,12 +565,12 @@
         "Defensive"
       ],
       "metrics": {
-        "price": 150.38,
-        "priceAsOf": "2026-06-18",
+        "price": 146.85,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": 82.06296376841449,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
+        "qualityStatus": "일부 누락"
       },
       "signals": [
         "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
@@ -582,12 +594,12 @@
         "Defensive"
       ],
       "metrics": {
-        "price": 79.39,
-        "priceAsOf": "2026-06-18",
+        "price": 82.63,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": 24.60150721976946,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
+        "qualityStatus": "일부 누락"
       },
       "signals": [
         "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
@@ -611,12 +623,12 @@
         "Cycle"
       ],
       "metrics": {
-        "price": 985.82,
-        "priceAsOf": "2026-06-18",
+        "price": 938.39,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": 356.2319798902439,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
+        "qualityStatus": "일부 누락"
       },
       "signals": [
         "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
@@ -640,8 +652,8 @@
         "Dividend"
       ],
       "metrics": {
-        "price": 86.75,
-        "priceAsOf": "2026-06-18",
+        "price": 87.1,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": null,
         "dcfFragility": null,
         "reverseDcfStatus": "not_available",
@@ -669,8 +681,8 @@
         "Real Assets"
       ],
       "metrics": {
-        "price": 140.54,
-        "priceAsOf": "2026-06-18",
+        "price": 141.36,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": null,
         "dcfFragility": null,
         "reverseDcfStatus": "not_available",
@@ -698,12 +710,12 @@
         "Pricing Power"
       ],
       "metrics": {
-        "price": 512.15,
-        "priceAsOf": "2026-06-18",
+        "price": 525.56,
+        "priceAsOf": "2026-07-09",
         "dcfPerShare": 127.30464190560113,
         "dcfFragility": "fragile",
         "reverseDcfStatus": "available",
-        "qualityStatus": "충분"
+        "qualityStatus": "일부 누락"
       },
       "signals": [
         "DCF 절대가치와 PER/PBR 상대가치는 평균내지 않습니다.",
@@ -720,7 +732,7 @@
     "모형은 판단 주체가 아니라 계산 보조 도구입니다.",
     "DCF는 성장률·할인율·영구성장률에 민감합니다.",
     "PER/PBR 비교군은 사용자가 산업·성장률·ROE 유사성을 확인해야 합니다.",
-    "최근 refresh에서 21개 티커가 새 SEC 데이터를 받지 못해 기존 검증 캐시를 보존했습니다."
+    "최근 refresh에서 21개 티커가 새 SEC 데이터를 받지 못해 기존 검증 캐시를 보존했습니다. 시장가격 freshness는 별도 publication gate로 검증합니다."
   ],
   "sources": [
     {
@@ -739,6 +751,6 @@
   },
   "payload": {
     "summaryBytes": null,
-    "detailBytes": 18122
+    "detailBytes": 25053
   }
 }

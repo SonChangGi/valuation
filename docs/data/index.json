@@ -8,7 +8,7 @@
   ],
   "project": "valuation",
   "title": "Stock Valuation Workspace",
-  "generatedAt": "2026-07-09T10:32:46Z",
+  "generatedAt": "2026-07-10T06:43:02Z",
   "basePath": "/valuation/",
   "dataPolicy": "Static JSON generated from public SEC fundamentals and best-effort market price snapshots.",
   "methodologyReferences": [
@@ -80,14 +80,20 @@
         "Services"
       ],
       "currency": "USD",
-      "price": 298.01,
-      "priceAsOf": "2026-06-18",
-      "qualityStatus": "충분",
+      "price": 316.22,
+      "priceAsOf": "2026-07-09",
+      "qualityStatus": "일부 누락",
       "companyFile": "companies/AAPL.json",
       "dcfPerShare": 104.59517896320538,
       "dcfFragility": "sensitive",
       "reverseDcfStatus": "available",
-      "generatedAt": "2026-06-19T14:42:59Z"
+      "generatedAt": "2026-07-10T06:42:45Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "HTTP Error 403: Forbidden"
+      }
     },
     {
       "ticker": "MSFT",
@@ -101,14 +107,20 @@
         "Software"
       ],
       "currency": "USD",
-      "price": 379.4,
-      "priceAsOf": "2026-06-18",
-      "qualityStatus": "충분",
+      "price": 384.36,
+      "priceAsOf": "2026-07-09",
+      "qualityStatus": "일부 누락",
       "companyFile": "companies/MSFT.json",
       "dcfPerShare": 223.61184950046587,
       "dcfFragility": "sensitive",
       "reverseDcfStatus": "available",
-      "generatedAt": "2026-06-19T14:43:00Z"
+      "generatedAt": "2026-07-10T06:42:47Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+      }
     },
     {
       "ticker": "NVDA",
@@ -122,14 +134,20 @@
         "Accelerated Computing"
       ],
       "currency": "USD",
-      "price": 210.69,
-      "priceAsOf": "2026-06-18",
+      "price": 202.78,
+      "priceAsOf": "2026-07-09",
       "qualityStatus": "일부 누락",
       "companyFile": "companies/NVDA.json",
       "dcfPerShare": 58.39922778438662,
       "dcfFragility": "sensitive",
       "reverseDcfStatus": "available",
-      "generatedAt": "2026-06-19T14:43:02Z"
+      "generatedAt": "2026-07-10T06:42:48Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+      }
     },
     {
       "ticker": "GOOGL",
@@ -143,14 +161,20 @@
         "AI"
       ],
       "currency": "USD",
-      "price": 368.03,
-      "priceAsOf": "2026-06-18",
-      "qualityStatus": "충분",
+      "price": 358.89,
+      "priceAsOf": "2026-07-09",
+      "qualityStatus": "일부 누락",
       "companyFile": "companies/GOOGL.json",
       "dcfPerShare": 137.2820151928357,
       "dcfFragility": "sensitive",
       "reverseDcfStatus": "available",
-      "generatedAt": "2026-06-19T14:43:03Z"
+      "generatedAt": "2026-07-10T06:42:49Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+      }
     },
     {
       "ticker": "AMZN",
@@ -164,14 +188,20 @@
         "Logistics"
       ],
       "currency": "USD",
-      "price": 244.39,
-      "priceAsOf": "2026-06-18",
-      "qualityStatus": "충분",
+      "price": 247.04,
+      "priceAsOf": "2026-07-09",
+      "qualityStatus": "일부 누락",
       "companyFile": "companies/AMZN.json",
       "dcfPerShare": 69.70848376188634,
       "dcfFragility": "sensitive",
       "reverseDcfStatus": "available",
-      "generatedAt": "2026-06-19T14:43:05Z"
+      "generatedAt": "2026-07-10T06:42:50Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+      }
     },
     {
       "ticker": "META",
@@ -185,14 +215,20 @@
         "AI"
       ],
       "currency": "USD",
-      "price": 577.22,
-      "priceAsOf": "2026-06-18",
-      "qualityStatus": "충분",
+      "price": 631.48,
+      "priceAsOf": "2026-07-09",
+      "qualityStatus": "일부 누락",
       "companyFile": "companies/META.json",
       "dcfPerShare": 413.1604993768063,
       "dcfFragility": "sensitive",
       "reverseDcfStatus": "available",
-      "generatedAt": "2026-06-19T14:43:06Z"
+      "generatedAt": "2026-07-10T06:42:50Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+      }
     },
     {
       "ticker": "TSLA",
@@ -206,14 +242,20 @@
         "Manufacturing"
       ],
       "currency": "USD",
-      "price": 400.49,
-      "priceAsOf": "2026-06-18",
-      "qualityStatus": "충분",
+      "price": 406.55,
+      "priceAsOf": "2026-07-09",
+      "qualityStatus": "일부 누락",
       "companyFile": "companies/TSLA.json",
       "dcfPerShare": 33.697332451484066,
       "dcfFragility": "sensitive",
       "reverseDcfStatus": "available",
-      "generatedAt": "2026-06-19T14:43:07Z"
+      "generatedAt": "2026-07-10T06:42:51Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+      }
     },
     {
       "ticker": "JPM",
@@ -227,14 +269,20 @@
         "Capital Markets"
       ],
       "currency": "USD",
-      "price": 325.22,
-      "priceAsOf": "2026-06-18",
+      "price": 335.47,
+      "priceAsOf": "2026-07-09",
       "qualityStatus": "수동 확인 필요",
       "companyFile": "companies/JPM.json",
       "dcfPerShare": null,
       "dcfFragility": null,
       "reverseDcfStatus": "not_available",
-      "generatedAt": "2026-06-19T14:43:09Z"
+      "generatedAt": "2026-07-10T06:42:52Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+      }
     },
     {
       "ticker": "MA",
@@ -248,14 +296,20 @@
         "Consumer Spending"
       ],
       "currency": "USD",
-      "price": 489.79,
-      "priceAsOf": "2026-06-18",
-      "qualityStatus": "충분",
+      "price": 523.2,
+      "priceAsOf": "2026-07-09",
+      "qualityStatus": "일부 누락",
       "companyFile": "companies/MA.json",
       "dcfPerShare": 364.57146438046624,
       "dcfFragility": "sensitive",
       "reverseDcfStatus": "available",
-      "generatedAt": "2026-06-19T14:43:11Z"
+      "generatedAt": "2026-07-10T06:42:52Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+      }
     },
     {
       "ticker": "JNJ",
@@ -269,14 +323,20 @@
         "Defensive"
       ],
       "currency": "USD",
-      "price": 228.39,
-      "priceAsOf": "2026-06-18",
-      "qualityStatus": "충분",
+      "price": 259.1,
+      "priceAsOf": "2026-07-09",
+      "qualityStatus": "일부 누락",
       "companyFile": "companies/JNJ.json",
       "dcfPerShare": 103.57661700670104,
       "dcfFragility": "sensitive",
       "reverseDcfStatus": "available",
-      "generatedAt": "2026-06-19T14:43:13Z"
+      "generatedAt": "2026-07-10T06:42:53Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+      }
     },
     {
       "ticker": "LLY",
@@ -290,14 +350,20 @@
         "Innovation"
       ],
       "currency": "USD",
-      "price": 1098.57,
-      "priceAsOf": "2026-06-18",
+      "price": 1216.95,
+      "priceAsOf": "2026-07-09",
       "qualityStatus": "수동 확인 필요",
       "companyFile": "companies/LLY.json",
       "dcfPerShare": null,
       "dcfFragility": null,
       "reverseDcfStatus": "not_available",
-      "generatedAt": "2026-06-19T14:43:14Z"
+      "generatedAt": "2026-07-10T06:42:54Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+      }
     },
     {
       "ticker": "UNH",
@@ -311,14 +377,20 @@
         "Healthcare Services"
       ],
       "currency": "USD",
-      "price": 400.96,
-      "priceAsOf": "2026-06-18",
-      "qualityStatus": "충분",
+      "price": 431.68,
+      "priceAsOf": "2026-07-09",
+      "qualityStatus": "일부 누락",
       "companyFile": "companies/UNH.json",
       "dcfPerShare": 474.5557309717281,
       "dcfFragility": "sensitive",
       "reverseDcfStatus": "available",
-      "generatedAt": "2026-06-19T14:43:16Z"
+      "generatedAt": "2026-07-10T06:42:54Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+      }
     },
     {
       "ticker": "XOM",
@@ -332,14 +404,20 @@
         "Cash Flow"
       ],
       "currency": "USD",
-      "price": 137.81,
-      "priceAsOf": "2026-06-18",
-      "qualityStatus": "충분",
+      "price": 137.46,
+      "priceAsOf": "2026-07-09",
+      "qualityStatus": "일부 누락",
       "companyFile": "companies/XOM.json",
       "dcfPerShare": 120.29523806026549,
       "dcfFragility": "sensitive",
       "reverseDcfStatus": "available",
-      "generatedAt": "2026-06-19T14:43:18Z"
+      "generatedAt": "2026-07-10T06:42:56Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+      }
     },
     {
       "ticker": "WMT",
@@ -353,14 +431,20 @@
         "Defensive"
       ],
       "currency": "USD",
-      "price": 117.18,
-      "priceAsOf": "2026-06-18",
-      "qualityStatus": "충분",
+      "price": 112.21,
+      "priceAsOf": "2026-07-09",
+      "qualityStatus": "일부 누락",
       "companyFile": "companies/WMT.json",
       "dcfPerShare": 29.818141575373023,
       "dcfFragility": "sensitive",
       "reverseDcfStatus": "available",
-      "generatedAt": "2026-06-19T14:43:19Z"
+      "generatedAt": "2026-07-10T06:42:56Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+      }
     },
     {
       "ticker": "COST",
@@ -374,14 +458,20 @@
         "Scale"
       ],
       "currency": "USD",
-      "price": 951.45,
-      "priceAsOf": "2026-06-18",
-      "qualityStatus": "충분",
+      "price": 912.97,
+      "priceAsOf": "2026-07-09",
+      "qualityStatus": "일부 누락",
       "companyFile": "companies/COST.json",
       "dcfPerShare": 332.0755917833559,
       "dcfFragility": "sensitive",
       "reverseDcfStatus": "available",
-      "generatedAt": "2026-06-19T14:43:21Z"
+      "generatedAt": "2026-07-10T06:42:57Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+      }
     },
     {
       "ticker": "PG",
@@ -395,14 +485,20 @@
         "Defensive"
       ],
       "currency": "USD",
-      "price": 150.38,
-      "priceAsOf": "2026-06-18",
-      "qualityStatus": "충분",
+      "price": 146.85,
+      "priceAsOf": "2026-07-09",
+      "qualityStatus": "일부 누락",
       "companyFile": "companies/PG.json",
       "dcfPerShare": 82.06296376841449,
       "dcfFragility": "sensitive",
       "reverseDcfStatus": "available",
-      "generatedAt": "2026-06-19T14:43:23Z"
+      "generatedAt": "2026-07-10T06:42:58Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+      }
     },
     {
       "ticker": "KO",
@@ -416,14 +512,20 @@
         "Defensive"
       ],
       "currency": "USD",
-      "price": 79.39,
-      "priceAsOf": "2026-06-18",
-      "qualityStatus": "충분",
+      "price": 82.63,
+      "priceAsOf": "2026-07-09",
+      "qualityStatus": "일부 누락",
       "companyFile": "companies/KO.json",
       "dcfPerShare": 24.60150721976946,
       "dcfFragility": "sensitive",
       "reverseDcfStatus": "available",
-      "generatedAt": "2026-06-19T14:43:24Z"
+      "generatedAt": "2026-07-10T06:42:59Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+      }
     },
     {
       "ticker": "CAT",
@@ -437,14 +539,20 @@
         "Cycle"
       ],
       "currency": "USD",
-      "price": 985.82,
-      "priceAsOf": "2026-06-18",
-      "qualityStatus": "충분",
+      "price": 938.39,
+      "priceAsOf": "2026-07-09",
+      "qualityStatus": "일부 누락",
       "companyFile": "companies/CAT.json",
       "dcfPerShare": 356.2319798902439,
       "dcfFragility": "sensitive",
       "reverseDcfStatus": "available",
-      "generatedAt": "2026-06-19T14:43:26Z"
+      "generatedAt": "2026-07-10T06:43:00Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+      }
     },
     {
       "ticker": "NEE",
@@ -458,14 +566,20 @@
         "Dividend"
       ],
       "currency": "USD",
-      "price": 86.75,
-      "priceAsOf": "2026-06-18",
+      "price": 87.1,
+      "priceAsOf": "2026-07-09",
       "qualityStatus": "수동 확인 필요",
       "companyFile": "companies/NEE.json",
       "dcfPerShare": null,
       "dcfFragility": null,
       "reverseDcfStatus": "not_available",
-      "generatedAt": "2026-06-19T14:43:28Z"
+      "generatedAt": "2026-07-10T06:43:00Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+      }
     },
     {
       "ticker": "PLD",
@@ -479,14 +593,20 @@
         "Real Assets"
       ],
       "currency": "USD",
-      "price": 140.54,
-      "priceAsOf": "2026-06-18",
+      "price": 141.36,
+      "priceAsOf": "2026-07-09",
       "qualityStatus": "수동 확인 필요",
       "companyFile": "companies/PLD.json",
       "dcfPerShare": null,
       "dcfFragility": null,
       "reverseDcfStatus": "not_available",
-      "generatedAt": "2026-06-19T14:43:30Z"
+      "generatedAt": "2026-07-10T06:43:01Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+      }
     },
     {
       "ticker": "LIN",
@@ -500,121 +620,179 @@
         "Pricing Power"
       ],
       "currency": "USD",
-      "price": 512.15,
-      "priceAsOf": "2026-06-18",
-      "qualityStatus": "충분",
+      "price": 525.56,
+      "priceAsOf": "2026-07-09",
+      "qualityStatus": "일부 누락",
       "companyFile": "companies/LIN.json",
       "dcfPerShare": 127.30464190560113,
       "dcfFragility": "fragile",
       "reverseDcfStatus": "available",
-      "generatedAt": "2026-06-19T14:43:31Z"
+      "generatedAt": "2026-07-10T06:43:02Z",
+      "refreshStatus": {
+        "fundamentals": "cached",
+        "market": "live",
+        "marketDataAsOf": "2026-07-09",
+        "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+      }
     }
   ],
   "errors": [
     {
       "ticker": "AAPL",
+      "stage": "fundamentals",
       "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     },
     {
       "ticker": "MSFT",
-      "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "stage": "fundamentals",
+      "error": "SEC circuit open after provider failure: HTTP 403: Forbidden",
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     },
     {
       "ticker": "NVDA",
-      "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "stage": "fundamentals",
+      "error": "SEC circuit open after provider failure: HTTP 403: Forbidden",
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     },
     {
       "ticker": "GOOGL",
-      "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "stage": "fundamentals",
+      "error": "SEC circuit open after provider failure: HTTP 403: Forbidden",
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     },
     {
       "ticker": "AMZN",
-      "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "stage": "fundamentals",
+      "error": "SEC circuit open after provider failure: HTTP 403: Forbidden",
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     },
     {
       "ticker": "META",
-      "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "stage": "fundamentals",
+      "error": "SEC circuit open after provider failure: HTTP 403: Forbidden",
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     },
     {
       "ticker": "TSLA",
-      "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "stage": "fundamentals",
+      "error": "SEC circuit open after provider failure: HTTP 403: Forbidden",
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     },
     {
       "ticker": "JPM",
-      "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "stage": "fundamentals",
+      "error": "SEC circuit open after provider failure: HTTP 403: Forbidden",
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     },
     {
       "ticker": "MA",
-      "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "stage": "fundamentals",
+      "error": "SEC circuit open after provider failure: HTTP 403: Forbidden",
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     },
     {
       "ticker": "JNJ",
-      "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "stage": "fundamentals",
+      "error": "SEC circuit open after provider failure: HTTP 403: Forbidden",
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     },
     {
       "ticker": "LLY",
-      "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "stage": "fundamentals",
+      "error": "SEC circuit open after provider failure: HTTP 403: Forbidden",
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     },
     {
       "ticker": "UNH",
-      "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "stage": "fundamentals",
+      "error": "SEC circuit open after provider failure: HTTP 403: Forbidden",
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     },
     {
       "ticker": "XOM",
-      "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "stage": "fundamentals",
+      "error": "SEC circuit open after provider failure: HTTP 403: Forbidden",
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     },
     {
       "ticker": "WMT",
-      "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "stage": "fundamentals",
+      "error": "SEC circuit open after provider failure: HTTP 403: Forbidden",
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     },
     {
       "ticker": "COST",
-      "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "stage": "fundamentals",
+      "error": "SEC circuit open after provider failure: HTTP 403: Forbidden",
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     },
     {
       "ticker": "PG",
-      "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "stage": "fundamentals",
+      "error": "SEC circuit open after provider failure: HTTP 403: Forbidden",
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     },
     {
       "ticker": "KO",
-      "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "stage": "fundamentals",
+      "error": "SEC circuit open after provider failure: HTTP 403: Forbidden",
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     },
     {
       "ticker": "CAT",
-      "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "stage": "fundamentals",
+      "error": "SEC circuit open after provider failure: HTTP 403: Forbidden",
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     },
     {
       "ticker": "NEE",
-      "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "stage": "fundamentals",
+      "error": "SEC circuit open after provider failure: HTTP 403: Forbidden",
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     },
     {
       "ticker": "PLD",
-      "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "stage": "fundamentals",
+      "error": "SEC circuit open after provider failure: HTTP 403: Forbidden",
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     },
     {
       "ticker": "LIN",
-      "error": "HTTP Error 403: Forbidden",
-      "fallback": "cached-company-json"
+      "stage": "fundamentals",
+      "error": "SEC circuit open after provider failure: HTTP 403: Forbidden",
+      "fallback": "cached-sec-fundamentals",
+      "marketRefresh": "live"
     }
-  ]
+  ],
+  "refreshStats": {
+    "liveSecAndMarket": 0,
+    "cachedFundamentalsLiveMarket": 21,
+    "cachedFullPayload": 0,
+    "failed": 0
+  },
+  "secCircuit": {
+    "open": true,
+    "reason": "HTTP 403: Forbidden"
+  }
 }

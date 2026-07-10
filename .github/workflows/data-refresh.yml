@@ -48,6 +48,9 @@ jobs:
           python scripts/update_data.py --tickers "$TICKERS" --output docs/data --user-agent "$SEC_USER_AGENT" --verbose
       - name: Validate generated artifacts
         run: npm run build
+      - name: Verify publication freshness and broad market coverage
+        if: steps.freshness.outputs.should_update == 'true'
+        run: python scripts/verify_publication_freshness.py
       - name: Commit data refresh
         if: steps.freshness.outputs.should_update == 'true'
         run: |
@@ -65,7 +68,7 @@ jobs:
           Confidence: medium
           Scope-risk: narrow
           Directive: Keep browser data access same-origin; do not edit sibling dashboards.
-          Tested: npm run build
+          Tested: npm run build; python scripts/verify_publication_freshness.py
           Not-tested: Manual investment interpretation for every ticker
           EOF
           git commit -F /tmp/valuation-data-commit-message

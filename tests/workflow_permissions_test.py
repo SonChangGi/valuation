@@ -46,6 +46,16 @@ class WorkflowPermissionsTest(unittest.TestCase):
         self.assertIn("scripts/check_data_freshness.py", refresh)
         self.assertIn("steps.freshness.outputs.should_update == 'true'", refresh)
         self.assertIn("npm run build", refresh)
+        self.assertIn("scripts/verify_publication_freshness.py", refresh)
+
+    def test_pages_and_refresh_gate_publication_on_real_market_freshness(self):
+        refresh = self.read("data-refresh.yml")
+        pages = self.read("pages.yml")
+        verifier = "python scripts/verify_publication_freshness.py"
+        self.assertIn(verifier, refresh)
+        self.assertIn(verifier, pages)
+        self.assertLess(refresh.index(verifier), refresh.index("Commit data refresh"))
+        self.assertLess(pages.index(verifier), pages.index("actions/configure-pages"))
 
     def test_workflows_use_node24_action_majors(self):
         workflows = "\n".join(path.read_text(encoding="utf-8") for path in Path(".github/workflows").glob("*.yml"))

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-19T14:43:28Z",
+  "generatedAt": "2026-07-10T06:43:00Z",
   "company": {
     "ticker": "NEE",
     "cik": "0000753308",
@@ -21,15 +21,17 @@
   },
   "sources": {
     "sec": {
-      "confidence": "baseline",
+      "confidence": "cached",
       "submissionsUrl": "https://data.sec.gov/submissions/CIK0000753308.json",
       "companyfactsUrl": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000753308.json",
-      "note": "SEC EDGAR companyfacts/submissions에서 추출한 공개 재무제표 데이터입니다."
+      "note": "SEC 실시간 요청 실패로 마지막 검증 재무제표를 유지하고 시장가격만 독립 갱신했습니다.",
+      "refreshStatus": "cached-after-live-sec-failure",
+      "refreshError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
     },
     "market": {
-      "price": 86.75,
+      "price": 87.1,
       "currency": "USD",
-      "asOf": "2026-06-18",
+      "asOf": "2026-07-09",
       "source": "Yahoo chart endpoint (best effort)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/NEE?range=1mo&interval=1d",
       "confidence": "best-effort"
@@ -86,9 +88,9 @@
     ]
   },
   "market": {
-    "price": 86.75,
+    "price": 87.1,
     "currency": "USD",
-    "asOf": "2026-06-18",
+    "asOf": "2026-07-09",
     "source": "Yahoo chart endpoint (best effort)",
     "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/NEE?range=1mo&interval=1d",
     "confidence": "best-effort"
@@ -686,6 +688,22 @@
   "valuations": {
     "dcf": null,
     "dcfSensitivity": [],
+    "dcfSensitivitySummary": null,
+    "reverseDcf": {
+      "status": "not_available",
+      "marketPrice": 87.1,
+      "targetEquityValue": null,
+      "explicitGrowth": null,
+      "terminalGrowth": null,
+      "flags": [
+        {
+          "level": "warning",
+          "title": "Reverse DCF 제한",
+          "detail": "시장가격, 양수 FCF, 주식수, 할인율 조건이 모두 있어야 내재 기대를 역산할 수 있습니다."
+        }
+      ],
+      "interpretation": "Reverse DCF는 현재가가 어떤 성장 가정을 요구하는지 보는 보조 분석입니다."
+    },
     "relative": {
       "perShareMetrics": {
         "eps": 2.5750990051192892,
@@ -697,14 +715,14 @@
         "roe": 0.08020577926864123,
         "netMargin": null,
         "fcfMargin": null,
-        "earningsYield": 0.02968413838754224
+        "earningsYield": 0.029564856545571633
       },
       "rows": [
         {
           "key": "pe",
           "label": "PER",
           "baseMetric": 2.5750990051192892,
-          "currentMultiple": 33.68802513128282,
+          "currentMultiple": 33.82394223555889,
           "benchmarkMultiple": 22.0,
           "impliedValue": 56.65217811262436,
           "description": "순이익 1주당 이익(EPS)에 비교 PER을 곱한 값"
@@ -713,7 +731,7 @@
           "key": "pb",
           "label": "PBR",
           "baseMetric": 32.10615280594997,
-          "currentMultiple": 2.701974307676108,
+          "currentMultiple": 2.712875644940507,
           "benchmarkMultiple": 4.0,
           "impliedValue": 128.42461122379987,
           "description": "1주당 순자산(BPS)에 비교 PBR을 곱한 값"
@@ -801,22 +819,6 @@
       "relativePerShare": 92.53839466821212,
       "relativeConfirmed": false,
       "note": "DCF와 PER/PBR 상대가치는 평균내지 않습니다. 상대가치는 사용자 배수 확인 전 예시값입니다."
-    },
-    "dcfSensitivitySummary": null,
-    "reverseDcf": {
-      "status": "not_available",
-      "marketPrice": 86.75,
-      "targetEquityValue": null,
-      "explicitGrowth": null,
-      "terminalGrowth": null,
-      "flags": [
-        {
-          "level": "warning",
-          "title": "Reverse DCF 제한",
-          "detail": "시장가격, 양수 FCF, 주식수, 할인율 조건이 모두 있어야 내재 기대를 역산할 수 있습니다."
-        }
-      ],
-      "interpretation": "Reverse DCF는 현재가가 어떤 성장 가정을 요구하는지 보는 보조 분석입니다."
     }
   },
   "quality": {
@@ -829,7 +831,8 @@
       "2025년 CAPEX 태그가 없어 해당 연도는 FCF 정규화에서 제외했습니다.",
       "최근 3년 중 CAPEX가 확인된 FCF가 2개 미만이어서 DCF를 수동 확인 대상으로 격하했습니다.",
       "자유현금흐름을 산출할 수 없어 DCF 기준값이 제한됩니다.",
-      "DCF 산출에 필요한 FCF 또는 주식수 데이터가 부족합니다."
+      "DCF 산출에 필요한 FCF 또는 주식수 데이터가 부족합니다.",
+      "SEC 실시간 갱신 실패로 검증된 재무제표 캐시를 유지했습니다: SEC circuit open after provider failure: HTTP 403: Forbidden"
     ],
     "guardrails": [
       "이 결과는 투자 의견이 아니라 사용자의 판단을 돕는 계산 보조 자료입니다.",
@@ -848,5 +851,11 @@
     "dcfSensitivitySummary",
     "reverseDcf",
     "relativeQualityGate"
-  ]
+  ],
+  "refreshStatus": {
+    "fundamentals": "cached",
+    "market": "live",
+    "marketDataAsOf": "2026-07-09",
+    "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+  }
 }

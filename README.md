@@ -43,6 +43,8 @@ python scripts/update_data.py --output docs/data --user-agent "your-app your-rea
 
 SEC 요청에는 식별 가능한 User-Agent가 필요합니다. 로컬/CI 모두 `SEC_USER_AGENT` 환경변수나 `--user-agent`로 실제 연락 가능한 값을 지정해야 합니다.
 
+SEC와 시장가격은 독립 실패 영역으로 처리합니다. transient 429/5xx/네트워크 오류는 bounded exponential backoff로 재시도하고, GitHub-hosted runner가 SEC 403/429로 차단되면 SEC 회로를 열어 남은 티커의 검증된 재무제표 캐시를 유지합니다. 이 경우에도 Yahoo 시장가격은 티커별로 별도 갱신하고 DCF 민감도, Reverse DCF, 상대가치 배수를 새 가격으로 다시 계산합니다. 가격까지 갱신되지 않은 종목은 전체 캐시 fallback으로 남아 publication freshness coverage에서 실패할 수 있습니다.
+
 새 티커를 추가하려면:
 
 ```bash
@@ -79,12 +81,13 @@ npm run serve
 - `npm test` — Python 모델/데이터 계약 테스트 + Node 브라우저 모델 테스트
 - `npm run build` — 오프라인 정적 데이터/HTML/JS 계약 검증
 - `npm run generate-data` — 네트워크 가능한 환경에서 샘플 데이터 생성
+- `python scripts/verify_publication_freshness.py` — 최신 예상 미국장 기준일과 90% 이상 종목 가격 커버리지를 확인하는 publication gate
 
 ## GitHub Pages 배포
 
 `.github/workflows/pages.yml`는 `docs/` 디렉터리를 Pages artifact로 업로드합니다. 저장소 Pages URL은 `https://sonchanggi.github.io/valuation/` 형태가 됩니다.
 
-데이터 갱신은 `.github/workflows/data-refresh.yml`에서 14:15/16:15 KST Tue-Sat 자동 실행과 검토 후 수동 실행을 모두 지원합니다. 스케줄 실행은 `scripts/check_data_freshness.py`가 현재 KST 14:15 이후 생성 여부와 최신 예상 미국 정규장 기준일을 확인해 이미 신선한 `docs/data/summary.json`이면 재생성을 건너뛰고, 실패·지연·stale 상태이면 다음 슬롯에서 다시 시도합니다. 실행 전 저장소 변수 `SEC_USER_AGENT`를 설정해야 하며, 수동 실행 시 `tickers` 입력에 공백으로 구분한 티커 목록을 넣으면 해당 목록으로 `docs/data`를 다시 생성합니다.
+데이터 갱신은 `.github/workflows/data-refresh.yml`에서 14:15/16:15 KST Tue-Sat 자동 실행과 검토 후 수동 실행을 모두 지원합니다. 스케줄 실행은 `scripts/check_data_freshness.py`가 현재 KST 14:15 이후 생성 여부와 최신 예상 미국 정규장 기준일을 확인해 이미 신선한 `docs/data/summary.json`이면 재생성을 건너뛰고, 실패·지연·stale 상태이면 다음 슬롯에서 다시 시도합니다. 생성 후에는 `scripts/verify_publication_freshness.py`가 단순 `generatedAt` 갱신이 아니라 `dataAsOf`와 종목별 `priceAsOf`가 최신 예상 미국장까지 전진했는지, 전체 종목의 90% 이상이 최신 가격인지 검증합니다. 이 gate가 실패하면 데이터 커밋과 Pages 배포가 모두 차단됩니다. 실행 전 저장소 변수 `SEC_USER_AGENT`를 설정해야 하며, 수동 실행 시 `tickers` 입력에 공백으로 구분한 티커 목록을 넣으면 해당 목록으로 `docs/data`를 다시 생성합니다.
 
 ## 방법론 사용법과 해석
 

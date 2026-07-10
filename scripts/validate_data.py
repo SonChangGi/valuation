@@ -200,6 +200,7 @@ def validate_public_summary(data_dir: Path) -> None:
     require(summary.get("contract") == "quant-research-summary", f"{summary_path}: contract mismatch")
     require(summary.get("projectId") == "valuation", f"{summary_path}: projectId mismatch")
     require(summary.get("generatedAt"), f"{summary_path}: generatedAt required")
+    require(summary.get("dataAsOf"), f"{summary_path}: dataAsOf required")
     require(summary.get("status", {}).get("state") in {"ok", "degraded", "stale"}, f"{summary_path}: invalid status.state")
     entities = summary.get("primaryEntities")
     require(isinstance(entities, list) and entities, f"{summary_path}: primaryEntities required")
@@ -207,6 +208,7 @@ def validate_public_summary(data_dir: Path) -> None:
     for entity in entities:
         require(entity.get("symbol"), f"{summary_path}: entity symbol required")
         require(isinstance(entity.get("themes"), list), f"{summary_path}: entity themes must be a list")
+        require(entity.get("metrics", {}).get("priceAsOf"), f"{summary_path}: entity priceAsOf required")
     limitations = summary.get("limitations") or []
     require(any("판단" in str(item) for item in limitations), f"{summary_path}: user-judgment limitation required")
 

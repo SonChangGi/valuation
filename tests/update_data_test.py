@@ -11,6 +11,7 @@ from scripts.update_data import (
     load_cached_company_payload,
     load_ticker_map,
     normalize_tickers,
+    refresh_cached_company_market,
     write_json,
 )
 
@@ -224,6 +225,44 @@ class UpdateDataTest(unittest.TestCase):
 
             self.assertEqual(load_cached_company_payload(output, "AAPL")["company"]["ticker"], "AAPL")
             self.assertIsNone(load_cached_company_payload(output, "MSFT"))
+
+    def test_sec_failure_can_refresh_market_and_revalue_cached_fundamentals(self):
+        cached = {
+            "schemaVersion": 1,
+            "generatedAt": "2026-06-18T00:00:00Z",
+            "company": {"ticker": "AAPL", "name": "Apple", "currency": "USD"},
+            "sources": {"sec": {"confidence": "baseline"}},
+            "market": {"price": 100, "asOf": "2026-06-18", "currency": "USD"},
+            "financials": {
+                "currency": "USD",
+                "annual": [
+                    {"fy": 2024, "revenue": 900, "netIncome": 90, "equity": 180, "freeCashFlow": 70, "cash": 5, "sharesDiluted": 10},
+                    {"fy": 2025, "revenue": 1000, "netIncome": 100, "equity": 200, "freeCashFlow": 80, "cash": 5, "sharesDiluted": 10},
+                ],
+            },
+            "assumptions": {"discountRate": 0.09, "terminalGrowthRate": 0.025, "projectionYears": 5},
+            "valuations": {},
+            "quality": {"status": "충분", "warnings": [], "guardrails": []},
+        }
+        with patch(
+            "scripts.update_data.fetch_market_snapshot",
+            return_value=({"price": 50, "currency": "USD", "asOf": "2026-07-09", "source": "test", "sourceUrl": "test", "confidence": "best-effort"}, []),
+        ):
+            refreshed = refresh_cached_company_market(
+                cached,
+                "AAPL",
+                "valuation-pages-test",
+                sec_error="HTTP 403: Forbidden",
+            )
+
+        self.assertEqual(refreshed["market"]["price"], 50)
+        self.assertEqual(refreshed["market"]["asOf"], "2026-07-09")
+        self.assertEqual(refreshed["sources"]["sec"]["confidence"], "cached")
+        self.assertEqual(refreshed["refreshStatus"]["fundamentals"], "cached")
+        self.assertEqual(refreshed["refreshStatus"]["market"], "live")
+        pe_row = next(row for row in refreshed["valuations"]["relative"]["rows"] if row["key"] == "pe")
+        self.assertEqual(pe_row["currentMultiple"], 5)
+        self.assertTrue(any("SEC 실시간 갱신 실패" in warning for warning in refreshed["quality"]["warnings"]))
 
     def test_summary_marks_refresh_errors_as_degraded(self):
         with TemporaryDirectory() as tmp:

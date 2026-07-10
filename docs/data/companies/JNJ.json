@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-19T14:43:13Z",
+  "generatedAt": "2026-07-10T06:42:53Z",
   "company": {
     "ticker": "JNJ",
     "cik": "0000200406",
@@ -21,15 +21,17 @@
   },
   "sources": {
     "sec": {
-      "confidence": "baseline",
+      "confidence": "cached",
       "submissionsUrl": "https://data.sec.gov/submissions/CIK0000200406.json",
       "companyfactsUrl": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000200406.json",
-      "note": "SEC EDGAR companyfacts/submissions에서 추출한 공개 재무제표 데이터입니다."
+      "note": "SEC 실시간 요청 실패로 마지막 검증 재무제표를 유지하고 시장가격만 독립 갱신했습니다.",
+      "refreshStatus": "cached-after-live-sec-failure",
+      "refreshError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
     },
     "market": {
-      "price": 228.39,
+      "price": 259.1,
       "currency": "USD",
-      "asOf": "2026-06-18",
+      "asOf": "2026-07-09",
       "source": "Yahoo chart endpoint (best effort)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/JNJ?range=1mo&interval=1d",
       "confidence": "best-effort"
@@ -86,9 +88,9 @@
     ]
   },
   "market": {
-    "price": 228.39,
+    "price": 259.1,
     "currency": "USD",
-    "asOf": "2026-06-18",
+    "asOf": "2026-07-09",
     "source": "Yahoo chart endpoint (best effort)",
     "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/JNJ?range=1mo&interval=1d",
     "confidence": "best-effort"
@@ -841,6 +843,59 @@
         ]
       }
     ],
+    "dcfSensitivitySummary": {
+      "low": 79.66351395498496,
+      "mid": 103.57661700670104,
+      "high": 148.47763009312013,
+      "rangeWidth": 68.81411613813516,
+      "rangeToBase": 0.6643788735992713,
+      "valuesAbovePrice": 0,
+      "valuesBelowPrice": 9,
+      "priceCoverage": "below_price",
+      "fragility": "sensitive",
+      "flags": [
+        {
+          "level": "watch",
+          "title": "민감도 확인 필요",
+          "detail": "DCF 범위가 기준값 대비 의미 있게 넓습니다. 낙관·비관 가정의 근거를 나눠 검토하세요."
+        }
+      ],
+      "interpretation": "민감도 범위는 DCF가 정밀한 목표가인지, 아니면 가정 취약성 지도를 먼저 읽어야 하는지 알려줍니다."
+    },
+    "reverseDcf": {
+      "status": "available",
+      "marketPrice": 259.1,
+      "targetEquityValue": 629457540000.0,
+      "explicitGrowth": {
+        "status": "above_range",
+        "rate": null,
+        "lowerBound": -0.1,
+        "upperBound": 0.18,
+        "valueAtLowerBound": 61.11937479092746,
+        "valueAtUpperBound": 230.25446320919193
+      },
+      "terminalGrowth": {
+        "status": "above_range",
+        "rate": null,
+        "lowerBound": -0.02,
+        "upperBound": 0.045,
+        "valueAtLowerBound": 67.2260748133039,
+        "valueAtUpperBound": 143.06856408100913
+      },
+      "flags": [
+        {
+          "level": "warning",
+          "title": "시장가가 높은 성장 기대 요구",
+          "detail": "현재가를 설명하려면 보수적 상단을 넘는 명시 성장률이 필요합니다. 성장 옵션의 현실성을 직접 검토하세요."
+        },
+        {
+          "level": "warning",
+          "title": "영구성장률 상단 초과 요구",
+          "detail": "현재가를 설명하려면 장기 안정성장 가정이 보수적 상단을 넘습니다. 터미널 가치 의존도를 특히 주의하세요."
+        }
+      ],
+      "interpretation": "Reverse DCF는 목표가를 제시하지 않고, 현재 시장가격이 어떤 성장률/영구성장률을 요구하는지 보여줍니다."
+    },
     "relative": {
       "perShareMetrics": {
         "eps": 11.033176916110975,
@@ -852,14 +907,14 @@
         "roe": 0.3287059746885117,
         "netMargin": 0.2845646704107524,
         "fcfMargin": 0.2091238202414192,
-        "earningsYield": 0.0483084938749988
+        "earningsYield": 0.042582697476306344
       },
       "rows": [
         {
           "key": "pe",
           "label": "PER",
           "baseMetric": 11.033176916110975,
-          "currentMultiple": 20.70029346366214,
+          "currentMultiple": 23.483716609461275,
           "benchmarkMultiple": 22.0,
           "impliedValue": 242.72989215444144,
           "description": "순이익 1주당 이익(EPS)에 비교 PER을 곱한 값"
@@ -868,7 +923,7 @@
           "key": "pb",
           "label": "PBR",
           "baseMetric": 33.565489421256274,
-          "currentMultiple": 6.804310139311292,
+          "currentMultiple": 7.719237957421761,
           "benchmarkMultiple": 4.0,
           "impliedValue": 134.2619576850251,
           "description": "1주당 순자산(BPS)에 비교 PBR을 곱한 값"
@@ -877,7 +932,7 @@
           "key": "ps",
           "label": "P/S",
           "baseMetric": 38.77212480447847,
-          "currentMultiple": 5.890572186892868,
+          "currentMultiple": 6.6826360769908595,
           "benchmarkMultiple": 5.0,
           "impliedValue": 193.86062402239236,
           "description": "1주당 매출에 비교 P/S를 곱한 보조 값"
@@ -886,7 +941,7 @@
           "key": "pfcf",
           "label": "P/FCF",
           "baseMetric": 8.108174857989628,
-          "currentMultiple": 28.1678681084374,
+          "currentMultiple": 31.95540359427353,
           "benchmarkMultiple": 20.0,
           "impliedValue": 162.16349715979254,
           "description": "1주당 자유현금흐름에 비교 P/FCF를 곱한 보조 값"
@@ -956,60 +1011,13 @@
       "relativePerShare": 188.49592491973328,
       "relativeConfirmed": false,
       "note": "DCF와 PER/PBR 상대가치는 평균내지 않습니다. 상대가치는 사용자 배수 확인 전 예시값입니다."
-    },
-    "dcfSensitivitySummary": {
-      "low": 79.66351395498496,
-      "mid": 103.57661700670104,
-      "high": 148.47763009312013,
-      "rangeWidth": 68.81411613813516,
-      "rangeToBase": 0.6643788735992713,
-      "valuesAbovePrice": 0,
-      "valuesBelowPrice": 9,
-      "priceCoverage": "below_price",
-      "fragility": "sensitive",
-      "flags": [
-        {
-          "level": "watch",
-          "title": "민감도 확인 필요",
-          "detail": "DCF 범위가 기준값 대비 의미 있게 넓습니다. 낙관·비관 가정의 근거를 나눠 검토하세요."
-        }
-      ],
-      "interpretation": "민감도 범위는 DCF가 정밀한 목표가인지, 아니면 가정 취약성 지도를 먼저 읽어야 하는지 알려줍니다."
-    },
-    "reverseDcf": {
-      "status": "available",
-      "marketPrice": 228.39,
-      "targetEquityValue": 554850666000.0,
-      "explicitGrowth": {
-        "status": "solved",
-        "rate": 0.17801878601628662,
-        "lowerBound": -0.1,
-        "upperBound": 0.18,
-        "valueAtLowerBound": 61.11937479092746,
-        "valueAtUpperBound": 230.25446320919193,
-        "valueAtSolvedRate": 228.3899999999999
-      },
-      "terminalGrowth": {
-        "status": "above_range",
-        "rate": null,
-        "lowerBound": -0.02,
-        "upperBound": 0.045,
-        "valueAtLowerBound": 67.2260748133039,
-        "valueAtUpperBound": 143.06856408100913
-      },
-      "flags": [
-        {
-          "level": "warning",
-          "title": "영구성장률 상단 초과 요구",
-          "detail": "현재가를 설명하려면 장기 안정성장 가정이 보수적 상단을 넘습니다. 터미널 가치 의존도를 특히 주의하세요."
-        }
-      ],
-      "interpretation": "Reverse DCF는 목표가를 제시하지 않고, 현재 시장가격이 어떤 성장률/영구성장률을 요구하는지 보여줍니다."
     }
   },
   "quality": {
-    "status": "충분",
-    "warnings": [],
+    "status": "일부 누락",
+    "warnings": [
+      "SEC 실시간 갱신 실패로 검증된 재무제표 캐시를 유지했습니다: SEC circuit open after provider failure: HTTP 403: Forbidden"
+    ],
     "guardrails": [
       "이 결과는 투자 의견이 아니라 사용자의 판단을 돕는 계산 보조 자료입니다.",
       "DCF는 성장률·할인율·영구성장률 가정에 매우 민감합니다.",
@@ -1027,5 +1035,11 @@
     "dcfSensitivitySummary",
     "reverseDcf",
     "relativeQualityGate"
-  ]
+  ],
+  "refreshStatus": {
+    "fundamentals": "cached",
+    "market": "live",
+    "marketDataAsOf": "2026-07-09",
+    "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
+  }
 }
