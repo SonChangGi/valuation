@@ -1,18 +1,39 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
   <meta name="description" content="티커별 DCF와 PER/PBR 상대가치를 근거, 진단, 한계와 함께 검토하는 정적 가치평가 대시보드" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'" />
   <title>Stock Valuation Workspace</title>
-  <link rel="stylesheet" href="assets/styles.css" />
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="assets/styles.css?v=20260710-light-dark" />
+  <script src="assets/theme.js?v=20260710-light-dark" defer></script>
   <script type="module" src="assets/app.js"></script>
 </head>
 <body id="top">
+  <nav class="site-nav" aria-label="연결 프로젝트 바로가기">
+    <a class="site-nav-brand" href="https://sonchanggi.github.io/quant-dashboard/" aria-label="Quant Research Hub로 이동">Quant Research Hub</a>
+    <div class="site-nav-links" aria-label="프로젝트 목록">
+      <a href="https://sonchanggi.github.io/quant-dashboard/">Hub</a>
+      <a href="https://sonchanggi.github.io/momentum-factor-lab/">Momentum</a>
+      <a href="https://sonchanggi.github.io/dram-price/">DRAM</a>
+      <a href="https://sonchanggi.github.io/best-factor/">Best Factor</a>
+      <a href="https://sonchanggi.github.io/etf-tracking/">ETF</a>
+      <a href="https://sonchanggi.github.io/sox/">SOX</a>
+      <a href="https://sonchanggi.github.io/port/">Port</a>
+      <a class="is-active" href="https://sonchanggi.github.io/valuation/" aria-current="page">Valuation</a>
+      <a href="https://sonchanggi.github.io/quant-dashboard/risk-score/">Risk Score</a>
+    </div>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="다크 모드로 전환">
+      <span class="theme-toggle-icon" aria-hidden="true"></span>
+      <span class="theme-toggle-text">다크 모드</span>
+    </button>
+  </nav>
+
   <header class="hero" aria-labelledby="page-title">
-    <nav class="top-nav" aria-label="프로젝트 이동">
-      <a href="https://sonchanggi.github.io/quant-dashboard/" target="_blank" rel="noopener noreferrer">← Quant Dashboard 참고</a>
+    <nav class="section-nav" aria-label="페이지 섹션 이동">
       <a href="#valuation-dashboard">가치평가</a>
       <a href="#methodology">방법론</a>
       <a href="data/index.json">데이터 JSON</a>
@@ -24,8 +45,6 @@
         <p class="hero-copy">
           티커를 입력하면 DCF 절대가치와 PER·PBR 상대가치를 근거·진단·한계와 함께 보여줍니다.
           예측 변수는 적게 유지하고, 터미널 가치 의존도·ROE·마진 같은 해석 신호를 함께 표시합니다.
-          이 웹페이지는 <strong>https://sonchanggi.github.io/valuation/</strong>에 배포되는 새로운 정적 프로젝트이며,
-          기존 프로젝트 결과물은 참고만 하고 수정하지 않습니다.
         </p>
         <form class="ticker-form" id="ticker-form" aria-label="티커 검색">
           <label for="ticker-input">분석할 티커</label>
@@ -405,6 +424,7 @@
             <code>scripts/update_data.py</code>와 GitHub Actions가 만든 같은 출처의 <code>docs/data/*.json</code>만 읽습니다.
             기본 생성 목록은 기술, 커뮤니케이션, 소비재, 금융, 헬스케어, 에너지, 산업재, 유틸리티, 부동산, 소재를 포함하며
             새 티커가 필요하면 데이터 생성 스크립트나 수동 워크플로를 실행하세요.
+            배포 경로는 https://sonchanggi.github.io/valuation/ 이며, 기존 프로젝트 결과물은 참고만 하고 수정하지 않습니다.
           </p>
         </div>
         <span class="status-pill" id="data-generated">데이터 상태 확인 중</span>
@@ -420,8 +440,8 @@
     </p>
   </footer>
   <nav class="page-jump-nav" aria-label="페이지 빠른 이동">
-    <a href="#top" aria-label="맨 위로 이동">↑ 위</a>
-    <a href="#page-bottom" aria-label="맨 아래로 이동">↓ 아래</a>
+    <a href="#top" aria-label="맨 위로 이동" title="맨 위로">↑</a>
+    <a href="#page-bottom" aria-label="맨 아래로 이동" title="맨 아래로">↓</a>
   </nav>
   <div id="page-bottom" tabindex="-1" aria-hidden="true"></div>
 </body>
