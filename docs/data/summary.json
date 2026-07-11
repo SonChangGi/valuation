@@ -9,8 +9,8 @@
   "contract": "quant-research-summary",
   "projectId": "valuation",
   "projectName": "기업 가치평가 Lab",
-  "generatedAt": "2026-07-10T06:43:02Z",
-  "dataAsOf": "2026-07-09",
+  "generatedAt": "2026-07-11T07:20:11Z",
+  "dataAsOf": "2026-07-10",
   "timezone": "UTC",
   "detailUrl": "https://sonchanggi.github.io/valuation/",
   "detailDataUrl": "https://sonchanggi.github.io/valuation/data/index.json",
@@ -90,7 +90,7 @@
       }
     ],
     "marketDateCounts": {
-      "2026-07-09": 21
+      "2026-07-10": 21
     },
     "latestMarketDateCount": 21,
     "refreshStats": {
@@ -130,8 +130,8 @@
         "Services"
       ],
       "metrics": {
-        "price": 316.22,
-        "priceAsOf": "2026-07-09",
+        "price": 315.32,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": 104.59517896320538,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
@@ -159,8 +159,8 @@
         "Software"
       ],
       "metrics": {
-        "price": 384.36,
-        "priceAsOf": "2026-07-09",
+        "price": 385.1,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": 223.61184950046587,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
@@ -188,8 +188,8 @@
         "Accelerated Computing"
       ],
       "metrics": {
-        "price": 202.78,
-        "priceAsOf": "2026-07-09",
+        "price": 210.96,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": 58.39922778438662,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
@@ -217,8 +217,8 @@
         "AI"
       ],
       "metrics": {
-        "price": 358.89,
-        "priceAsOf": "2026-07-09",
+        "price": 357.18,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": 137.2820151928357,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
@@ -246,8 +246,8 @@
         "Logistics"
       ],
       "metrics": {
-        "price": 247.04,
-        "priceAsOf": "2026-07-09",
+        "price": 245.34,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": 69.70848376188634,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
@@ -275,8 +275,8 @@
         "AI"
       ],
       "metrics": {
-        "price": 631.48,
-        "priceAsOf": "2026-07-09",
+        "price": 669.21,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": 413.1604993768063,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
@@ -304,8 +304,8 @@
         "Manufacturing"
       ],
       "metrics": {
-        "price": 406.55,
-        "priceAsOf": "2026-07-09",
+        "price": 407.76,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": 33.697332451484066,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
@@ -333,8 +333,8 @@
         "Capital Markets"
       ],
       "metrics": {
-        "price": 335.47,
-        "priceAsOf": "2026-07-09",
+        "price": 336.47,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": null,
         "dcfFragility": null,
         "reverseDcfStatus": "not_available",
@@ -362,8 +362,8 @@
         "Consumer Spending"
       ],
       "metrics": {
-        "price": 523.2,
-        "priceAsOf": "2026-07-09",
+        "price": 526.74,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": 364.57146438046624,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
@@ -391,8 +391,8 @@
         "Defensive"
       ],
       "metrics": {
-        "price": 259.1,
-        "priceAsOf": "2026-07-09",
+        "price": 256.98,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": 103.57661700670104,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
@@ -420,8 +420,8 @@
         "Innovation"
       ],
       "metrics": {
-        "price": 1216.95,
-        "priceAsOf": "2026-07-09",
+        "price": 1188.58,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": null,
         "dcfFragility": null,
         "reverseDcfStatus": "not_available",
@@ -449,8 +449,8 @@
         "Healthcare Services"
       ],
       "metrics": {
-        "price": 431.68,
-        "priceAsOf": "2026-07-09",
+        "price": 424.62,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": 474.5557309717281,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
@@ -478,8 +478,8 @@
         "Cash Flow"
       ],
       "metrics": {
-        "price": 137.46,
-        "priceAsOf": "2026-07-09",
+        "price": 138.88,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": 120.29523806026549,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
@@ -507,8 +507,8 @@
         "Defensive"
       ],
       "metrics": {
-        "price": 112.21,
-        "priceAsOf": "2026-07-09",
+        "price": 113.9,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": 29.818141575373023,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
@@ -536,8 +536,8 @@
         "Scale"
       ],
       "metrics": {
-        "price": 912.97,
-        "priceAsOf": "2026-07-09",
+        "price": 916.25,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": 332.0755917833559,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
@@ -565,8 +565,8 @@
         "Defensive"
       ],
       "metrics": {
-        "price": 146.85,
-        "priceAsOf": "2026-07-09",
+        "price": 147.04,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": 82.06296376841449,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
@@ -594,8 +594,8 @@
         "Defensive"
       ],
       "metrics": {
-        "price": 82.63,
-        "priceAsOf": "2026-07-09",
+        "price": 83.49,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": 24.60150721976946,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
@@ -623,8 +623,8 @@
         "Cycle"
       ],
       "metrics": {
-        "price": 938.39,
-        "priceAsOf": "2026-07-09",
+        "price": 952.41,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": 356.2319798902439,
         "dcfFragility": "sensitive",
         "reverseDcfStatus": "available",
@@ -652,8 +652,8 @@
         "Dividend"
       ],
       "metrics": {
-        "price": 87.1,
-        "priceAsOf": "2026-07-09",
+        "price": 87.96,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": null,
         "dcfFragility": null,
         "reverseDcfStatus": "not_available",
@@ -681,8 +681,8 @@
         "Real Assets"
       ],
       "metrics": {
-        "price": 141.36,
-        "priceAsOf": "2026-07-09",
+        "price": 140.87,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": null,
         "dcfFragility": null,
         "reverseDcfStatus": "not_available",
@@ -710,8 +710,8 @@
         "Pricing Power"
       ],
       "metrics": {
-        "price": 525.56,
-        "priceAsOf": "2026-07-09",
+        "price": 529.79,
+        "priceAsOf": "2026-07-10",
         "dcfPerShare": 127.30464190560113,
         "dcfFragility": "fragile",
         "reverseDcfStatus": "available",
@@ -751,6 +751,6 @@
   },
   "payload": {
     "summaryBytes": null,
-    "detailBytes": 25053
+    "detailBytes": 25054
   }
 }

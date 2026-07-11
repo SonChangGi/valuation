@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-10T06:43:00Z",
+  "generatedAt": "2026-07-11T07:20:10Z",
   "company": {
     "ticker": "NEE",
     "cik": "0000753308",
@@ -29,9 +29,9 @@
       "refreshError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
     },
     "market": {
-      "price": 87.1,
+      "price": 87.96,
       "currency": "USD",
-      "asOf": "2026-07-09",
+      "asOf": "2026-07-10",
       "source": "Yahoo chart endpoint (best effort)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/NEE?range=1mo&interval=1d",
       "confidence": "best-effort"
@@ -88,9 +88,9 @@
     ]
   },
   "market": {
-    "price": 87.1,
+    "price": 87.96,
     "currency": "USD",
-    "asOf": "2026-07-09",
+    "asOf": "2026-07-10",
     "source": "Yahoo chart endpoint (best effort)",
     "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/NEE?range=1mo&interval=1d",
     "confidence": "best-effort"
@@ -691,7 +691,7 @@
     "dcfSensitivitySummary": null,
     "reverseDcf": {
       "status": "not_available",
-      "marketPrice": 87.1,
+      "marketPrice": 87.96,
       "targetEquityValue": null,
       "explicitGrowth": null,
       "terminalGrowth": null,
@@ -715,14 +715,14 @@
         "roe": 0.08020577926864123,
         "netMargin": null,
         "fcfMargin": null,
-        "earningsYield": 0.029564856545571633
+        "earningsYield": 0.029275795874480325
       },
       "rows": [
         {
           "key": "pe",
           "label": "PER",
           "baseMetric": 2.5750990051192892,
-          "currentMultiple": 33.82394223555889,
+          "currentMultiple": 34.15790997749437,
           "benchmarkMultiple": 22.0,
           "impliedValue": 56.65217811262436,
           "description": "순이익 1주당 이익(EPS)에 비교 PER을 곱한 값"
@@ -731,7 +731,7 @@
           "key": "pb",
           "label": "PBR",
           "baseMetric": 32.10615280594997,
-          "currentMultiple": 2.712875644940507,
+          "currentMultiple": 2.739661787933031,
           "benchmarkMultiple": 4.0,
           "impliedValue": 128.42461122379987,
           "description": "1주당 순자산(BPS)에 비교 PBR을 곱한 값"
@@ -855,7 +855,7 @@
   "refreshStatus": {
     "fundamentals": "cached",
     "market": "live",
-    "marketDataAsOf": "2026-07-09",
+    "marketDataAsOf": "2026-07-10",
     "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
   }
 }

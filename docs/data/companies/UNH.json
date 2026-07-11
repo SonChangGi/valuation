@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-10T06:42:54Z",
+  "generatedAt": "2026-07-11T07:20:09Z",
   "company": {
     "ticker": "UNH",
     "cik": "0000731766",
@@ -29,9 +29,9 @@
       "refreshError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
     },
     "market": {
-      "price": 431.68,
+      "price": 424.62,
       "currency": "USD",
-      "asOf": "2026-07-09",
+      "asOf": "2026-07-10",
       "source": "Yahoo chart endpoint (best effort)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/UNH?range=1mo&interval=1d",
       "confidence": "best-effort"
@@ -88,9 +88,9 @@
     ]
   },
   "market": {
-    "price": 431.68,
+    "price": 424.62,
     "currency": "USD",
-    "asOf": "2026-07-09",
+    "asOf": "2026-07-10",
     "source": "Yahoo chart endpoint (best effort)",
     "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/UNH?range=1mo&interval=1d",
     "confidence": "best-effort"
@@ -877,25 +877,25 @@
     },
     "reverseDcf": {
       "status": "available",
-      "marketPrice": 431.68,
-      "targetEquityValue": 393260480000.0,
+      "marketPrice": 424.62,
+      "targetEquityValue": 386828820000.0,
       "explicitGrowth": {
         "status": "solved",
-        "rate": 0.09620903389364288,
+        "rate": 0.09265616199221027,
         "lowerBound": -0.1,
         "upperBound": 0.18,
         "valueAtLowerBound": 151.2470196659528,
         "valueAtUpperBound": 625.344302949126,
-        "valueAtSolvedRate": 431.6800000000003
+        "valueAtSolvedRate": 424.6199999999996
       },
       "terminalGrowth": {
         "status": "solved",
-        "rate": 0.0178109059601737,
+        "rate": 0.016471822099743856,
         "lowerBound": -0.02,
         "upperBound": 0.045,
         "valueAtLowerBound": 298.4275731235681,
         "valueAtUpperBound": 665.9048407326923,
-        "valueAtSolvedRate": 431.68
+        "valueAtSolvedRate": 424.61999999999995
       },
       "flags": [],
       "interpretation": "Reverse DCF는 목표가를 제시하지 않고, 현재 시장가격이 어떤 성장률/영구성장률을 요구하는지 보여줍니다."
@@ -911,14 +911,14 @@
         "roe": 0.12795484064342091,
         "netMargin": 0.02861471019981366,
         "fcfMargin": 0.035916410280471975,
-        "earningsYield": 0.03256620141439079
+        "earningsYield": 0.033107667624144445
       },
       "rows": [
         {
           "key": "pe",
           "label": "PER",
           "baseMetric": 14.058177826564215,
-          "currentMultiple": 30.706682283126415,
+          "currentMultiple": 30.204483485593816,
           "benchmarkMultiple": 22.0,
           "impliedValue": 309.27991218441275,
           "description": "순이익 1주당 이익(EPS)에 비교 PER을 곱한 값"
@@ -927,7 +927,7 @@
           "key": "pb",
           "label": "PBR",
           "baseMetric": 109.86827661909989,
-          "currentMultiple": 3.9290686382255973,
+          "currentMultiple": 3.864809871115996,
           "benchmarkMultiple": 4.0,
           "impliedValue": 439.47310647639955,
           "description": "1주당 순자산(BPS)에 비교 PBR을 곱한 값"
@@ -936,7 +936,7 @@
           "key": "ps",
           "label": "P/S",
           "baseMetric": 491.2919868276619,
-          "currentMultiple": 0.8786628147294149,
+          "currentMultiple": 0.8642925416753247,
           "benchmarkMultiple": 5.0,
           "impliedValue": 2456.4599341383096,
           "description": "1주당 매출에 비교 P/S를 곱한 보조 값"
@@ -945,7 +945,7 @@
           "key": "pfcf",
           "label": "P/FCF",
           "baseMetric": 17.64544456641054,
-          "currentMultiple": 24.464104510108864,
+          "currentMultiple": 24.06400124416796,
           "benchmarkMultiple": 20.0,
           "impliedValue": 352.90889132821076,
           "description": "1주당 자유현금흐름에 비교 P/FCF를 곱한 보조 값"
@@ -1043,7 +1043,7 @@
   "refreshStatus": {
     "fundamentals": "cached",
     "market": "live",
-    "marketDataAsOf": "2026-07-09",
+    "marketDataAsOf": "2026-07-10",
     "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
   }
 }
