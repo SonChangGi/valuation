@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-11T07:20:09Z",
+  "generatedAt": "2026-07-14T07:21:31Z",
   "company": {
     "ticker": "XOM",
     "cik": "0000034088",
@@ -29,9 +29,9 @@
       "refreshError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
     },
     "market": {
-      "price": 138.88,
+      "price": 144.51,
       "currency": "USD",
-      "asOf": "2026-07-10",
+      "asOf": "2026-07-13",
       "source": "Yahoo chart endpoint (best effort)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/XOM?range=1mo&interval=1d",
       "confidence": "best-effort"
@@ -88,9 +88,9 @@
     ]
   },
   "market": {
-    "price": 138.88,
+    "price": 144.51,
     "currency": "USD",
-    "asOf": "2026-07-10",
+    "asOf": "2026-07-13",
     "source": "Yahoo chart endpoint (best effort)",
     "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/XOM?range=1mo&interval=1d",
     "confidence": "best-effort"
@@ -753,8 +753,8 @@
       "high": 167.714450597044,
       "rangeWidth": 72.653637624228,
       "rangeToBase": 0.6039610444748443,
-      "valuesAbovePrice": 2,
-      "valuesBelowPrice": 7,
+      "valuesAbovePrice": 1,
+      "valuesBelowPrice": 8,
       "priceCoverage": "mixed",
       "fragility": "sensitive",
       "flags": [
@@ -773,25 +773,25 @@
     },
     "reverseDcf": {
       "status": "available",
-      "marketPrice": 138.88,
-      "targetEquityValue": 597878400000.0,
+      "marketPrice": 144.51,
+      "targetEquityValue": 622115550000.0,
       "explicitGrowth": {
         "status": "solved",
-        "rate": 0.07263847390397704,
+        "rate": 0.08221434824402662,
         "lowerBound": -0.1,
         "upperBound": 0.18,
         "valueAtLowerBound": 65.04738999590924,
         "valueAtUpperBound": 213.88137564498422,
-        "valueAtSolvedRate": 138.8799999999999
+        "valueAtSolvedRate": 144.5099999999999
       },
       "terminalGrowth": {
         "status": "solved",
-        "rate": 0.035736446696514296,
+        "rate": 0.038322288097804136,
         "lowerBound": -0.02,
         "upperBound": 0.045,
         "valueAtLowerBound": 81.86929917487022,
         "valueAtUpperBound": 162.04193709625045,
-        "valueAtSolvedRate": 138.87999999999994
+        "valueAtSolvedRate": 144.51
       },
       "flags": [],
       "interpretation": "Reverse DCF는 목표가를 제시하지 않고, 현재 시장가격이 어떤 성장률/영구성장률을 요구하는지 보여줍니다."
@@ -807,14 +807,14 @@
         "roe": 0.11163202388364225,
         "netMargin": 0.08958638084746477,
         "fcfMargin": 0.07106953449033525,
-        "earningsYield": 0.04978269828781237
+        "earningsYield": 0.04784320211896327
       },
       "rows": [
         {
           "key": "pe",
           "label": "PER",
           "baseMetric": 6.913821138211382,
-          "currentMultiple": 20.087300094073377,
+          "currentMultiple": 20.901611006585135,
           "benchmarkMultiple": 22.0,
           "impliedValue": 152.10406504065043,
           "description": "순이익 1주당 이익(EPS)에 비교 PER을 곱한 값"
@@ -823,7 +823,7 @@
           "key": "pb",
           "label": "PBR",
           "baseMetric": 61.934030197444834,
-          "currentMultiple": 2.2423859638594883,
+          "currentMultiple": 2.3332891390937114,
           "benchmarkMultiple": 4.0,
           "impliedValue": 247.73612078977933,
           "description": "1주당 순자산(BPS)에 비교 PBR을 곱한 값"
@@ -832,7 +832,7 @@
           "key": "ps",
           "label": "P/S",
           "baseMetric": 77.17491289198607,
-          "currentMultiple": 1.7995485164249723,
+          "currentMultiple": 1.8724996839614971,
           "benchmarkMultiple": 5.0,
           "impliedValue": 385.87456445993035,
           "description": "1주당 매출에 비교 P/S를 곱한 보조 값"
@@ -841,7 +841,7 @@
           "key": "pfcf",
           "label": "P/FCF",
           "baseMetric": 5.484785133565621,
-          "currentMultiple": 25.320955446383195,
+          "currentMultiple": 26.347431390818226,
           "benchmarkMultiple": 20.0,
           "impliedValue": 109.69570267131243,
           "description": "1주당 자유현금흐름에 비교 P/FCF를 곱한 보조 값"
@@ -939,7 +939,7 @@
   "refreshStatus": {
     "fundamentals": "cached",
     "market": "live",
-    "marketDataAsOf": "2026-07-10",
+    "marketDataAsOf": "2026-07-13",
     "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
   }
 }

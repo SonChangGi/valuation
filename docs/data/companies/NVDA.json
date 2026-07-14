@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-11T07:20:07Z",
+  "generatedAt": "2026-07-14T07:21:28Z",
   "company": {
     "ticker": "NVDA",
     "cik": "0001045810",
@@ -29,9 +29,9 @@
       "refreshError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
     },
     "market": {
-      "price": 210.96,
+      "price": 203.53,
       "currency": "USD",
-      "asOf": "2026-07-10",
+      "asOf": "2026-07-13",
       "source": "Yahoo chart endpoint (best effort)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/NVDA?range=1mo&interval=1d",
       "confidence": "best-effort"
@@ -88,9 +88,9 @@
     ]
   },
   "market": {
-    "price": 210.96,
+    "price": 203.53,
     "currency": "USD",
-    "asOf": "2026-07-10",
+    "asOf": "2026-07-13",
     "source": "Yahoo chart endpoint (best effort)",
     "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/NVDA?range=1mo&interval=1d",
     "confidence": "best-effort"
@@ -894,8 +894,8 @@
     },
     "reverseDcf": {
       "status": "available",
-      "marketPrice": 210.96,
-      "targetEquityValue": 5171473440000.0,
+      "marketPrice": 203.53,
+      "targetEquityValue": 4989334420000.0,
       "explicitGrowth": {
         "status": "above_range",
         "rate": null,
@@ -937,14 +937,14 @@
         "roe": 0.7633333969089534,
         "netMargin": 0.5560253406070261,
         "fcfMargin": 0.44770258129648327,
-        "earningsYield": 0.023217174252759966
+        "earningsYield": 0.024064732866713713
       },
       "rows": [
         {
           "key": "pe",
           "label": "PER",
           "baseMetric": 4.897895080362242,
-          "currentMultiple": 43.07156371026177,
+          "currentMultiple": 41.55458552308294,
           "benchmarkMultiple": 22.0,
           "impliedValue": 107.75369176796933,
           "description": "순이익 1주당 이익(EPS)에 비교 PER을 곱한 값"
@@ -953,7 +953,7 @@
           "key": "pb",
           "label": "PBR",
           "baseMetric": 6.416455902749449,
-          "currentMultiple": 32.87796303713452,
+          "currentMultiple": 31.72000292447852,
           "benchmarkMultiple": 4.0,
           "impliedValue": 25.665823610997798,
           "description": "1주당 순자산(BPS)에 비교 PBR을 곱한 값"
@@ -962,7 +962,7 @@
           "key": "ps",
           "label": "P/S",
           "baseMetric": 8.80876233988741,
-          "currentMultiple": 23.948880882475528,
+          "currentMultiple": 23.105402569255993,
           "benchmarkMultiple": 5.0,
           "impliedValue": 44.04381169943705,
           "description": "1주당 매출에 비교 P/S를 곱한 보조 값"
@@ -971,7 +971,7 @@
           "key": "pfcf",
           "label": "P/FCF",
           "baseMetric": 3.9437056375948436,
-          "currentMultiple": 53.49283627787662,
+          "currentMultiple": 51.60882142413836,
           "benchmarkMultiple": 20.0,
           "impliedValue": 78.87411275189687,
           "description": "1주당 자유현금흐름에 비교 P/FCF를 곱한 보조 값"
@@ -1071,7 +1071,7 @@
   "refreshStatus": {
     "fundamentals": "cached",
     "market": "live",
-    "marketDataAsOf": "2026-07-10",
+    "marketDataAsOf": "2026-07-13",
     "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
   }
 }

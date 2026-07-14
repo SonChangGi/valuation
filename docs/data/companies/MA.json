@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-11T07:20:08Z",
+  "generatedAt": "2026-07-14T07:21:30Z",
   "company": {
     "ticker": "MA",
     "cik": "0001141391",
@@ -29,9 +29,9 @@
       "refreshError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
     },
     "market": {
-      "price": 526.74,
+      "price": 537.7,
       "currency": "USD",
-      "asOf": "2026-07-10",
+      "asOf": "2026-07-13",
       "source": "Yahoo chart endpoint (best effort)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/MA?range=1mo&interval=1d",
       "confidence": "best-effort"
@@ -88,9 +88,9 @@
     ]
   },
   "market": {
-    "price": 526.74,
+    "price": 537.7,
     "currency": "USD",
-    "asOf": "2026-07-10",
+    "asOf": "2026-07-13",
     "source": "Yahoo chart endpoint (best effort)",
     "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/MA?range=1mo&interval=1d",
     "confidence": "best-effort"
@@ -912,8 +912,8 @@
     },
     "reverseDcf": {
       "status": "available",
-      "marketPrice": 526.74,
-      "targetEquityValue": 477226440000.0,
+      "marketPrice": 537.7,
+      "targetEquityValue": 487156200000.00006,
       "explicitGrowth": {
         "status": "above_range",
         "rate": null,
@@ -955,14 +955,14 @@
         "roe": 1.9323521817712368,
         "netMargin": 0.45646671342746487,
         "fcfMargin": 0.5232838278796011,
-        "earningsYield": 0.03136456563471211
+        "earningsYield": 0.03072525814102335
       },
       "rows": [
         {
           "key": "pe",
           "label": "PER",
           "baseMetric": 16.520971302428258,
-          "currentMultiple": 31.88311330839123,
+          "currentMultiple": 32.54651256012827,
           "benchmarkMultiple": 22.0,
           "impliedValue": 363.4613686534217,
           "description": "순이익 1주당 이익(EPS)에 비교 PER을 곱한 값"
@@ -971,7 +971,7 @@
           "key": "pb",
           "label": "PBR",
           "baseMetric": 8.549668874172186,
-          "currentMultiple": 61.609403563129355,
+          "currentMultiple": 62.891324554608836,
           "benchmarkMultiple": 4.0,
           "impliedValue": 34.19867549668874,
           "description": "1주당 순자산(BPS)에 비교 PBR을 곱한 값"
@@ -980,7 +980,7 @@
           "key": "ps",
           "label": "P/S",
           "baseMetric": 36.19315673289183,
-          "currentMultiple": 14.553579945716814,
+          "currentMultiple": 14.85639962184746,
           "benchmarkMultiple": 5.0,
           "impliedValue": 180.96578366445914,
           "description": "1주당 매출에 비교 P/S를 곱한 보조 값"
@@ -989,7 +989,7 @@
           "key": "pfcf",
           "label": "P/FCF",
           "baseMetric": 18.939293598233995,
-          "currentMultiple": 27.81201934844688,
+          "currentMultiple": 28.390710414359816,
           "benchmarkMultiple": 20.0,
           "impliedValue": 378.7858719646799,
           "description": "1주당 자유현금흐름에 비교 P/FCF를 곱한 보조 값"
@@ -1087,7 +1087,7 @@
   "refreshStatus": {
     "fundamentals": "cached",
     "market": "live",
-    "marketDataAsOf": "2026-07-10",
+    "marketDataAsOf": "2026-07-13",
     "secError": "SEC circuit open after provider failure: HTTP 403: Forbidden"
   }
 }
