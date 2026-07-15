@@ -275,6 +275,7 @@ class SecSmokeWorkflowContractTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.workflow = Path(".github/workflows/data-refresh.yml").read_text(encoding="utf-8")
+        cls.probe = Path("scripts/probe_providers.py").read_text(encoding="utf-8")
 
     def job(self, name):
         match = re.search(
@@ -300,17 +301,17 @@ class SecSmokeWorkflowContractTest(unittest.TestCase):
         )
         self.assertIn("permissions:\n      contents: read", smoke)
         self.assertIn("persist-credentials: false", smoke)
-        self.assertIn("GITHUB_TOKEN: ${{ github.token }}", smoke)
-        self.assertIn("SEC_USER_AGENT_CONFIGURED: ${{ vars.SEC_USER_AGENT != '' }}", smoke)
+        self.assertIn("SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}", smoke)
         self.assertIn("python scripts/probe_providers.py --sec-strict-gate", smoke)
-        self.assertIn("--sec-user-agent-from-repository-variable", smoke)
         self.assertIn("if: always()", smoke)
         self.assertGreaterEqual(smoke.count("git status --porcelain --untracked-files=all -- docs/data"), 2)
         for forbidden in (
             "contents: write",
             "secrets.SEC_USER_AGENT",
+            "${{ github.token }}",
+            "SEC_USER_AGENT_CONFIGURED",
+            "--sec-user-agent-from-repository-variable",
             "SEC_USER_AGENT_VALUE",
-            "${{ vars.SEC_USER_AGENT }}",
             "::add-mask::",
             "git add",
             "git commit",
@@ -321,6 +322,14 @@ class SecSmokeWorkflowContractTest(unittest.TestCase):
             "actions/cache",
         ):
             self.assertNotIn(forbidden, smoke)
+        for removed_probe_path in (
+            "fetch_github_repository_variable",
+            "--sec-user-agent-from-repository-variable",
+            "SEC_USER_AGENT_CONFIGURED",
+            "GITHUB_TOKEN",
+            "/actions/variables/",
+        ):
+            self.assertNotIn(removed_probe_path, self.probe)
 
     def test_smoke_only_dispatch_cannot_run_refresh_job(self):
         refresh = self.job("refresh")
