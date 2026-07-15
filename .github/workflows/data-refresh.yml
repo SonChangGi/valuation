@@ -40,18 +40,13 @@ jobs:
           python-version: '3.12'
       - name: Verify docs/data starts unchanged
         run: test -z "$(git status --porcelain --untracked-files=all -- docs/data)"
-      - name: Configure masked SEC User-Agent
-        env:
-          SEC_USER_AGENT_VALUE: ${{ vars.SEC_USER_AGENT }}
-        run: |
-          if [ -z "${SEC_USER_AGENT_VALUE:-}" ]; then
-            echo "::error::Repository variable SEC_USER_AGENT is required."
-            exit 2
-          fi
-          echo "::add-mask::$SEC_USER_AGENT_VALUE"
-          printf 'SEC_USER_AGENT=%s\n' "$SEC_USER_AGENT_VALUE" >> "$GITHUB_ENV"
       - name: Run strict SEC egress gate
-        run: python scripts/probe_providers.py --sec-strict-gate
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SEC_USER_AGENT_CONFIGURED: ${{ vars.SEC_USER_AGENT != '' }}
+        run: >-
+          python scripts/probe_providers.py --sec-strict-gate
+          --sec-user-agent-from-repository-variable
       - name: Verify docs/data remains unchanged
         if: always()
         run: test -z "$(git status --porcelain --untracked-files=all -- docs/data)"

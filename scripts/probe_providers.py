@@ -233,6 +233,49 @@ def fetch_json(url: str, *, timeout: float, user_agent: str = DEFAULT_USER_AGENT
     return result
 
 
+def fetch_github_repository_variable(
+    name: str, *, timeout: float
+) -> tuple[str, str]:
+    """Read one repository variable in memory without emitting its value."""
+
+    if os.environ.get("SEC_USER_AGENT_CONFIGURED") != "true":
+        return "", "missing_user_agent"
+    repository = os.environ.get("GITHUB_REPOSITORY", "")
+    token = os.environ.get("GITHUB_TOKEN", "")
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository) or not token:
+        return "", "repository_variable_runtime_unavailable"
+    url = f"https://api.github.com/repos/{repository}/actions/variables/{name}"
+    request = Request(
+        url,
+        headers={
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {token}",
+            "X-GitHub-Api-Version": "2022-11-28",
+        },
+    )
+    try:
+        with urlopen(request, timeout=timeout, context=ssl.create_default_context()) as response:
+            body = response.read(262_145)
+            if len(body) > 262_144:
+                return "", "repository_variable_response_too_large"
+    except HTTPError as exc:
+        return "", f"repository_variable_http_{exc.code}"
+    except (TimeoutError, socket.timeout):
+        return "", "repository_variable_timeout"
+    except (OSError, URLError):
+        return "", "repository_variable_network_error"
+    try:
+        payload = json.loads(body)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return "", "repository_variable_invalid_json"
+    if not isinstance(payload, dict) or payload.get("name") != name:
+        return "", "repository_variable_invalid_schema"
+    value = payload.get("value")
+    if not isinstance(value, str) or not value.strip():
+        return "", "missing_user_agent"
+    return value, "ok"
+
+
 def public_result(result: dict[str, Any]) -> dict[str, Any]:
     return {key: value for key, value in result.items() if key not in {"body", "data"}}
 
@@ -1198,6 +1241,11 @@ def main() -> int:
         help="Run the fail-closed MSFT/NVDA/MU SEC runner access gate only",
     )
     parser.add_argument(
+        "--sec-user-agent-from-repository-variable",
+        action="store_true",
+        help=argparse.SUPPRESS,
+    )
+    parser.add_argument(
         "--include-keyed",
         action="store_true",
         help="Run optional commercial-provider probes when their environment keys are present",
@@ -1212,12 +1260,26 @@ def main() -> int:
     if args.sec_strict_gate:
         if args.providers or args.include_keyed:
             parser.error("--sec-strict-gate cannot be combined with provider audit options")
+        user_agent = os.environ.get("SEC_USER_AGENT", "")
+        user_agent_status = "ok" if user_agent.strip() else "missing_user_agent"
+        if args.sec_user_agent_from_repository_variable:
+            user_agent, user_agent_status = fetch_github_repository_variable(
+                "SEC_USER_AGENT", timeout=args.timeout
+            )
         records, gate_status, exit_code = run_sec_strict_gate(
-            user_agent=os.environ.get("SEC_USER_AGENT", ""),
+            user_agent=user_agent,
             timeout=args.timeout,
         )
+        if not user_agent and user_agent_status != "missing_user_agent":
+            for record in records:
+                record["schema_status"] = user_agent_status
         print_sec_strict_gate(records, gate_status)
         return exit_code
+
+    if args.sec_user_agent_from_repository_variable:
+        parser.error(
+            "--sec-user-agent-from-repository-variable requires --sec-strict-gate"
+        )
 
     selected = None
     if args.providers:

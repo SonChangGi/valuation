@@ -300,14 +300,18 @@ class SecSmokeWorkflowContractTest(unittest.TestCase):
         )
         self.assertIn("permissions:\n      contents: read", smoke)
         self.assertIn("persist-credentials: false", smoke)
-        self.assertIn("${{ vars.SEC_USER_AGENT }}", smoke)
-        self.assertIn("::add-mask::", smoke)
+        self.assertIn("GITHUB_TOKEN: ${{ github.token }}", smoke)
+        self.assertIn("SEC_USER_AGENT_CONFIGURED: ${{ vars.SEC_USER_AGENT != '' }}", smoke)
         self.assertIn("python scripts/probe_providers.py --sec-strict-gate", smoke)
+        self.assertIn("--sec-user-agent-from-repository-variable", smoke)
         self.assertIn("if: always()", smoke)
         self.assertGreaterEqual(smoke.count("git status --porcelain --untracked-files=all -- docs/data"), 2)
         for forbidden in (
             "contents: write",
             "secrets.SEC_USER_AGENT",
+            "SEC_USER_AGENT_VALUE",
+            "${{ vars.SEC_USER_AGENT }}",
+            "::add-mask::",
             "git add",
             "git commit",
             "git push",
