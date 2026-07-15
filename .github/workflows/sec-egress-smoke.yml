@@ -1,0 +1,30 @@
+name: SEC egress smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sec-egress-smoke:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
+        with:
+          python-version: '3.12'
+      - name: Verify docs/data starts unchanged
+        run: test -z "$(git status --porcelain --untracked-files=all -- docs/data)"
+      - name: Run strict SEC egress gate
+        env:
+          SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
+        run: python scripts/probe_providers.py --sec-strict-gate
+      - name: Verify docs/data remains unchanged
+        if: always()
+        run: test -z "$(git status --porcelain --untracked-files=all -- docs/data)"

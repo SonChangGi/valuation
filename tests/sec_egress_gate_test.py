@@ -274,7 +274,9 @@ class SecStrictGateTest(unittest.TestCase):
 class SecSmokeWorkflowContractTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.workflow = Path(".github/workflows/data-refresh.yml").read_text(encoding="utf-8")
+        cls.legacy_workflow_path = Path(".github/workflows/data-refresh.yml")
+        cls.workflow_path = Path(".github/workflows/sec-egress-smoke.yml")
+        cls.workflow = cls.workflow_path.read_text(encoding="utf-8")
         cls.probe = Path("scripts/probe_providers.py").read_text(encoding="utf-8")
 
     def job(self, name):
@@ -285,38 +287,71 @@ class SecSmokeWorkflowContractTest(unittest.TestCase):
         self.assertIsNotNone(match)
         return match.group(0)
 
-    def test_manual_mode_and_existing_schedule_are_preserved(self):
+    def test_legacy_refresh_is_removed_and_trigger_is_manual_only(self):
+        self.assertFalse(self.legacy_workflow_path.exists())
+        self.assertTrue(self.workflow_path.exists())
         self.assertRegex(
             self.workflow,
-            r"(?s)mode:.*?default: 'refresh'.*?options:.*?- refresh.*?- sec-egress-smoke",
+            r"(?m)^name: SEC egress smoke\n\non:\n  workflow_dispatch:\n\npermissions:",
         )
-        self.assertEqual(1, self.workflow.count('cron: "15 5 * * 2-6"'))
-        self.assertEqual(1, self.workflow.count('cron: "15 7 * * 2-6"'))
+        for forbidden_trigger in (
+            "inputs:",
+            "schedule:",
+            "cron:",
+            "push:",
+            "pull_request:",
+        ):
+            self.assertNotIn(forbidden_trigger, self.workflow)
 
     def test_smoke_job_is_read_only_and_does_not_publish(self):
         smoke = self.job("sec-egress-smoke")
+        self.assertIn("permissions:\n  contents: read", self.workflow)
+        self.assertIn("permissions:\n      contents: read", smoke)
+        self.assertEqual(2, self.workflow.count("contents: read"))
+        self.assertIn("runs-on: ubuntu-latest", smoke)
+        self.assertIn("timeout-minutes: 10", smoke)
         self.assertIn(
-            "if: github.event_name == 'workflow_dispatch' && inputs.mode == 'sec-egress-smoke'",
+            "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7",
             smoke,
         )
-        self.assertIn("permissions:\n      contents: read", smoke)
+        self.assertIn(
+            "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6",
+            smoke,
+        )
         self.assertIn("persist-credentials: false", smoke)
+        self.assertIn("python-version: '3.12'", smoke)
         self.assertIn("SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}", smoke)
-        self.assertIn("python scripts/probe_providers.py --sec-strict-gate", smoke)
+        self.assertEqual(
+            1,
+            smoke.count("python scripts/probe_providers.py --sec-strict-gate"),
+        )
         self.assertIn("if: always()", smoke)
-        self.assertGreaterEqual(smoke.count("git status --porcelain --untracked-files=all -- docs/data"), 2)
+        self.assertEqual(
+            2,
+            smoke.count("git status --porcelain --untracked-files=all -- docs/data"),
+        )
+        self.assertRegex(
+            smoke,
+            r"(?s)- name: Verify docs/data remains unchanged\n"
+            r"        if: always\(\)\n"
+            r"        run: test -z .*?docs/data",
+        )
         for forbidden in (
             "contents: write",
             "secrets.SEC_USER_AGENT",
             "${{ github.token }}",
+            "GITHUB_TOKEN",
             "SEC_USER_AGENT_CONFIGURED",
             "--sec-user-agent-from-repository-variable",
             "SEC_USER_AGENT_VALUE",
             "::add-mask::",
+            "token:",
             "git add",
             "git commit",
             "git push",
-            "update_data.py",
+            "scripts/update_data.py",
+            "scripts/check_data_freshness.py",
+            "scripts/verify_publication_freshness.py",
             "build-derived.mjs",
             "upload-artifact",
             "actions/cache",
@@ -331,15 +366,13 @@ class SecSmokeWorkflowContractTest(unittest.TestCase):
         ):
             self.assertNotIn(removed_probe_path, self.probe)
 
-    def test_smoke_only_dispatch_cannot_run_refresh_job(self):
-        refresh = self.job("refresh")
-        self.assertIn(
-            "if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'refresh')",
-            refresh,
-        )
-        self.assertNotIn("sec-egress-smoke", refresh)
-        self.assertIn("python scripts/update_data.py", refresh)
-        self.assertIn("Commit data refresh", refresh)
+    def test_smoke_is_the_only_job_and_has_no_refresh_mode(self):
+        jobs = self.workflow.split("\njobs:\n", 1)[1]
+        job_names = re.findall(r"(?m)^  ([A-Za-z0-9_-]+):\n", jobs)
+        self.assertEqual(["sec-egress-smoke"], job_names)
+        self.assertNotRegex(self.workflow, r"(?m)^  refresh:\s*$")
+        self.assertNotIn("inputs.mode", self.workflow)
+        self.assertNotIn("mode:", self.workflow)
 
 
 if __name__ == "__main__":
